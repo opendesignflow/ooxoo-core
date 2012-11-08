@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="urn:com:extoll:validation:db"
+	xmlns:tns="urn:com:extoll:validation:db"
+	xmlns:odfi-validation="org:odfi:release:validation"
+	xmlns:ooxoo="urn:idyria:utilites:java:ooxoo"
+	elementFormDefault="qualified">
+	<annotation>
+		<documentation>
+			This document describes the structure used to store
+			validation information in local database
+		</documentation>
+		<appinfo>
+			<ooxoo:targetPackage>com.extoll.validation.boards.db
+			</ooxoo:targetPackage>
+		</appinfo>
+	</annotation>
+
+
+	<import
+		namespace="org:odfi:release:validation"
+		schemaLocation="../../../../org/odfi/release/validation/odfi-release-validation.xsd">
+	</import>
+
+	<!-- #### Board Validation -->
+	<element name="BoardValidation">
+		<annotation>
+			<documentation>
+				The Board Validation element stores the result of a
+				board validation
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="SubClassTest">
+					<complexType>
+						<sequence>
+							<element name="SomeField" type="string"></element>
+						</sequence>
+					</complexType>
+				</element>
+				<element
+					ref="tns:SerialID">
+					<annotation>
+						<documentation>
+							The SerialID of the board that has been validated
+						</documentation>
+					</annotation>
+				</element>
+				<element
+					name="TesterSubjectID"
+					type="ID"
+					minOccurs="0">
+					<annotation>
+						<documentation>
+							The ID provided by the tester, to match back the
+							tested board
+						</documentation>
+					</annotation>
+				</element>
+				<element
+					name="BoardValidationReport"
+					type="tns:BoardValidationReportType"
+					maxOccurs="unbounded">
+					<annotation>
+						<documentation>
+							Gathers all the validation reports that have bee
+							received for this board
+						</documentation>
+					</annotation>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<complexType name="BoardValidationReportType">
+		<annotation>
+			<documentation>
+				Gathers a validation report associated with validation
+				results
+			</documentation>
+		</annotation>
+		<sequence>
+			<element
+				name="Timestamp"
+				type="dateTime">
+				<annotation>
+					<documentation>
+						The Time at which the Validation Report has been
+						fetched
+					</documentation>
+				</annotation>
+			</element>
+			<element
+				ref="odfi-validation:Error"
+				maxOccurs="unbounded"></element>
+			<element
+				ref="tns:EEPROMConfig"
+				minOccurs="0"
+				maxOccurs="unbounded"></element>
+			<element ref="odfi-validation:ValidationProcessReport"></element>
+		</sequence>
+	</complexType>
+
+
+	<!-- #### The Serial ID contains the string representation, and a board ID with revision ID that can be programmed to registers -->
+	<element name="SerialID">
+		<complexType>
+			<simpleContent>
+				<extension base="ID">
+					<attribute name="boardID" type="long">
+						<annotation>
+							<documentation>
+								a board ID identifying the board
+							</documentation>
+						</annotation>
+					</attribute>
+					<attribute name="revisionID" type="long">
+						<annotation>
+							<documentation>
+								A revision ID for the hardware. This should be common for all the boards of a single revision
+							</documentation>
+						</annotation>
+					</attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+		
+	</element>
+	
+
+	<!-- EEPROM Config for board end of validation -->
+	<!-- ########################### -->
+	<element name="EEPROMConfig">
+		<complexType>
+			<sequence>
+				<element
+					ref="tns:EEPROMData"
+					maxOccurs="unbounded"></element>
+			</sequence>
+			<attribute
+				name="target"
+				type="string"
+				use="required">
+				<annotation>
+					<documentation>The target indicated the eeprom target, in case
+						there would be more than one on a board</documentation>
+				</annotation>
+			</attribute>
+			<attribute
+				name="width"
+				type="integer"
+				default="8"
+				use="optional">
+				<annotation>
+					<documentation>
+						Indicates the data with at each address (Typical 8
+						bits so 1 byte)
+					</documentation>
+				</annotation>
+			</attribute>
+			<attribute
+				name="size"
+				type="integer"
+				use="required">
+				<annotation>
+					<documentation>
+						The global size of the eeprom
+					</documentation>
+				</annotation>
+			</attribute>
+		</complexType>
+	</element>
+
+	<element name="EEPROMData">
+		<complexType>
+			<simpleContent>
+				<extension base="long">
+					<attribute
+						name="address"
+						type="integer"
+						use="optional">
+						<annotation>
+							<documentation>
+								The base address where to write the datas. Will be otherwise
+								calculated from previous written data
+							</documentation>
+						</annotation>
+					</attribute>
+					<attribute name="name" type="string" use="optional">
+						<annotation>
+							<documentation>
+								The name of the data, to display back and analyse results correctly
+							</documentation>
+						</annotation>
+					</attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+	
+
+</schema>
