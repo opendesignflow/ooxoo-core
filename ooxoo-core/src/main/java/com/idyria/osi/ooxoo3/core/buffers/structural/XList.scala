@@ -3,7 +3,7 @@
  */
 package com.idyria.osi.ooxoo3.core.buffers.structural
 
-import scala.collection.immutable.ListSet
+import scala.collection.mutable.MutableList
 
 /**
  * 
@@ -11,7 +11,7 @@ import scala.collection.immutable.ListSet
  * @author rleys
  *
  */
-class XList[T] extends ListSet[T] {
+class XList[T <: Buffer] extends MutableList[T] {
 
   
   

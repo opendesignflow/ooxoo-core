@@ -10,6 +10,8 @@ import java.net.MalformedURLException;
 
 import org.junit.Test;
 
+import com.idyria.osi.xgen.scala.XGenScala;
+
 /**
  * @author rleys
  *
@@ -46,6 +48,7 @@ public class JavaCompilerTest {
 		//----------------------
 		File jout = new File("./xjava");
 		jout.mkdir();
+		
 		
 		
 		XGenScala xgenjava = new XGenScala();
