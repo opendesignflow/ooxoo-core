@@ -10,7 +10,7 @@
         <groupId>com.idyria.osi</groupId>
         <artifactId>superpom</artifactId>
         <version>1.1</version>
-    </parent>
+    </parent> 
     <dependencyManagement>
         <dependencies>
             <dependency>
