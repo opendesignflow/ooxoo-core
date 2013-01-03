@@ -1,36 +1,54 @@
 /**
- * 
+ *
  */
 package com.idyria.osi.ooxoo3.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo3.core.buffers.structural.AbstractDataBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo3.core.buffers.structural.element
-
 
 /**
  * @author rleys
  *
  */
-class XSDStringBuffer ( str : String) extends AbstractDataBuffer[String](str) {
+class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String] {
 
+  def this(str: String) = { this(); dataFromString(str) }
+
+  def dataToString: String = {
+    this.data
+  }
+  
+  /**
+   * Append provided string to existing one
+   */
+  def dataFromString(str: String): String = {
     
-  def dataToString : String = {
-    	this.data
+    if (this.data==null)
+    	this.data = str
+	else
+    	this.data+=str  
+    this.data
   }
-  def dataFromString(str : String) : String = {
-    	str
+
+  override def toString: String = {
+    if (this.data==null)
+      super.toString
+    this.data
+    
   }
- 
-  override def toString : String = this.data
+
+  def equals(comp: XSDStringBuffer): Boolean = {
+    this.data == comp.data
+  }
   
-  
-  
-  
+  def compareTo(comp:String) : Int = {
+     this.data.compareTo(comp)
+  } 
+
 }
 object XSDStringBuffer {
-  
-  implicit def convertStringToXSDStringBuffer(str:String) : XSDStringBuffer = new XSDStringBuffer(str)
-  implicit def convertXSDStringBufferToString(str:XSDStringBuffer) : String = str.toString
-  
+
+  implicit def convertAnyToXSDStringBuffer(str: Any): XSDStringBuffer = new XSDStringBuffer(str.toString)
+  implicit def convertStringToXSDStringBuffer(str: String): XSDStringBuffer = new XSDStringBuffer(str)
+  implicit def convertXSDStringBufferToString(str: XSDStringBuffer): String = str.toString
+
 }

@@ -1,11 +1,12 @@
 package com.idyria.osi.ooxoo3.core
 
-import com.idyria.osi.ooxoo3.core.buffers.structural.ElementBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.element
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.attribute
 import scala.beans.BeanProperty
+
 import com.idyria.osi.ooxoo3.core.buffers.datatypes.XSDStringBuffer
+import com.idyria.osi.ooxoo3.core.buffers.structural.ElementBuffer
+import com.idyria.osi.ooxoo3.core.buffers.structural.io.sax.StAXIOBuffer
+import com.idyria.osi.ooxoo3.core.buffers.structural.xattribute
+import com.idyria.osi.ooxoo3.core.buffers.structural.xelement
 
 
 object SimpleSAXBufferTry extends App {
@@ -15,17 +16,17 @@ object SimpleSAXBufferTry extends App {
   
   // Element Definition
   //-------------------------
-  @element(name="SimpleRoot")
+  @xelement(name="SimpleRoot")
   class SimpleRoot extends ElementBuffer {
    
-    @attribute(name="test")
+    @xattribute(name="test")
     @BeanProperty
     var test = new XSDStringBuffer("Hello World")
     
-    @element(name="sub1")
+    @xelement(name="sub1")
     var sub1 = new XSDStringBuffer("Sub Element")
     
-    @element(name="Sub")
+    @xelement(name="Sub")
     var sub : Sub = null
     
   }

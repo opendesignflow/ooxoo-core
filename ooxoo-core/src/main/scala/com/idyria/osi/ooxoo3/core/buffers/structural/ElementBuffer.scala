@@ -1,7 +1,6 @@
 package com.idyria.osi.ooxoo3.core.buffers.structural
 
 
-import scala.reflect.runtime.JavaUniverse
 
 class ElementBuffer extends VerticalBuffer {
 
@@ -10,15 +9,17 @@ class ElementBuffer extends VerticalBuffer {
     
     // Get Element annotation
     //------------------
-    var element = this.getClass().getAnnotation[element](classOf[element])
+    var element = xelement.get(this).head
     require(element!=null)
+    
+   
     
     
     // Create Empty Data Unit
     //------------------
     var du = new DataUnit
     du.element = element
-    
+    du.hierarchical = true
     du
   }
   

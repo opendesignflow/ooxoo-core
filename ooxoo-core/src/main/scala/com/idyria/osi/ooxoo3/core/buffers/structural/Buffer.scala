@@ -12,8 +12,47 @@ package com.idyria.osi.ooxoo3.core.buffers.structural
  * @author rleys
  *
  */
-trait Buffer {
+trait Buffer{
 
+  
+  def printForwardChain : String = {
+    
+    var buffers = Set[Buffer](this)
+    this.foreachNextBuffer {
+      b => 
+        	if (b!=null)
+        	buffers+=b
+    }
+    buffers.mkString(" -> ")
+    
+  }
+  
+  
+  /**
+   * Remove ourselves, and chain previous and next together
+   */
+  def remove : Buffer = {
+    
+    // Get previous and next
+    var previous = this.getPreviousBuffer
+    var next = this.getNextBuffer
+    
+    // Next becomes next of previous
+    //----------
+    if (previous!=null)
+      previous.setNextBuffer(next)
+    
+    // Previous becomes previous of next
+    //------------
+    if (next!=null)
+      next.setPreviousBuffer(previous)
+      
+    // Return this
+    this.setPreviousBuffer(null)
+    this.setNextBuffer(null)
+    this
+  }
+  
   /**
    * Creates a data unit from this buffer.
    * This is used when the buffer is the starting point of a pushOut or fetchIn
@@ -48,6 +87,11 @@ trait Buffer {
   def ->(du: DataUnit) = pushOut(du)
   
   /**
+   * Alias for pushout with closure on DU
+   */
+  def ->( cl : DataUnit => DataUnit)  = pushOut(cl)
+  
+  /**
    * Fetchin a data unit from the next buffer
    */
   def fetchIn(du: DataUnit)
@@ -61,6 +105,8 @@ trait Buffer {
    * Gets the next buffer
    */
   def getNextBuffer : Buffer
+  
+  def setNextBuffer(buffer:Buffer) : Buffer
   
   /**
    * Appends a buffer at the end of the chain
@@ -82,16 +128,33 @@ trait Buffer {
 
     var currentBuffer = this
     while (currentBuffer != null) {
-      closure(currentBuffer)
+      if (currentBuffer!=null)
+    	  closure(currentBuffer)
       currentBuffer = currentBuffer.getNextBuffer
     }
 
   }
   
   /**
+   * Get the last buffer in the chain
+   */
+  def lastBuffer : Buffer = {
+    
+    var res = this
+    this.foreachNextBuffer {
+      b => res =  b
+    }
+    res
+    
+  }
+  
+  
+  /**
    * Get the previous buffer
    */
   def getPreviousBuffer : Buffer
+  
+  def setPreviousBuffer(buffer:Buffer) : Buffer
   
   /**
    * Sets the provided buffer at the head of the buffer chain

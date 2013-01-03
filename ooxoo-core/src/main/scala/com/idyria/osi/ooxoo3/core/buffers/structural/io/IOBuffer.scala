@@ -27,4 +27,8 @@ trait IOBuffer extends Buffer {
    */
   def eofLevel
   
+  
+  
+  
+  
 }

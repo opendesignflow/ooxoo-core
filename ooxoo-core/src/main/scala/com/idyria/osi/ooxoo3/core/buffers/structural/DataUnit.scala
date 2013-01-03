@@ -21,13 +21,13 @@ class DataUnit {
    * The annotation for an element
    */
   @BeanProperty
-  var element : element = null
+  var element : xelement = null
   
   /**
    * The annotation for an attribute
    */
   @BeanProperty
-  var attribute : attribute = null
+  var attribute : xattribute = null
   
   /**
    * The string representation of this atomic value
