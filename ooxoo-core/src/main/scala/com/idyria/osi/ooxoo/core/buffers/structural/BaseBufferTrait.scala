@@ -1,10 +1,10 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural
+package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.IOBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 
 /**
  * The Base Buffer class is a default implementation providing Buffer infrastructure.

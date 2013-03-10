@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.datatypes
+package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 class QName(localPart:String) extends javax.xml.namespace.QName(localPart) {
   

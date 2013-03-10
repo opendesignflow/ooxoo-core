@@ -1,21 +1,21 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural
+package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.annotation.Annotation
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo3.core.utils.ScalaReflectUtils
+import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
 /**
  * @author rleys
  *
  */
-class xelement(var name: String = null) extends StaticAnnotation {
-
-  var namespace: String = null
-
+class xelement(var name: String = null,var namespace: String = null) extends StaticAnnotation {
+  
+ 
+  
 }
 object xelement {
 
@@ -64,15 +64,25 @@ object xelement {
     
     // Use args to create
     //---------------------
-    var argStr = a.scalaArgs.mkString(",")
     
-    // Constant
-    if (argStr.startsWith("\"")) {
-      elt.name = argStr.replaceAll("\"", "").trim
-  	} else {
-        // Use symbol name
-	     elt.name = source.name.decoded.trim
-     }
+    //-- Construct
+    a.scalaArgs.foreach( _ match {
+        
+        case arg  if (arg.toString.startsWith("\"") && elt.name==null) =>
+        	elt.name = arg.toString.replaceAll("name=", "").replaceAll("\"", "").trim
+    	 case arg  if (arg.toString.startsWith("ns=")) =>
+        	elt.namespace = arg.toString.replaceAll("ns=", "").replaceAll("\"", "").trim
+    	 case arg => 
+      })
+     
+       // Fix Name
+      //------------
+      if (elt.name == null) {
+        elt.name = source.name.decoded.trim()
+      }
+   
+    
+   
     elt
 
   }

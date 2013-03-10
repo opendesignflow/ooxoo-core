@@ -1,9 +1,9 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.datatypes
+package com.idyria.osi.ooxoo.core.buffers.datatypes
 
-import com.idyria.osi.ooxoo3.core.buffers.structural.AbstractDataBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
 /**
  * @author rleys

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural
+package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.universe._
@@ -44,6 +44,23 @@ object xattribute {
     
     // Use args to create
     //---------------------
+    
+    //-- Construct
+    a.scalaArgs.foreach( _ match {
+        
+        case arg  if (arg.toString.startsWith("\"") && attr.name==null) =>
+        	attr.name = arg.toString.replaceAll("name=", "").replaceAll("\"", "").trim
+    	 case arg  if (arg.toString.startsWith("ns=")) =>
+        	attr.namespace = arg.toString.replaceAll("ns=", "").replaceAll("\"", "").trim
+    	 case arg => 
+      })
+      
+      // Fix Name
+      //------------
+      if (attr.name == null) {
+        attr.name = source.name.decoded.trim()
+      }
+    /*
     var argStr = a.scalaArgs.mkString(",")
     
     // Constant
@@ -52,7 +69,7 @@ object xattribute {
   	} else {
         // Use symbol name
 	     attr.name = source.name.decoded.trim()
-     }
+     }*/
     attr
 
   }

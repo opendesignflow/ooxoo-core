@@ -1,12 +1,12 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural
+package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.collection.mutable.MutableList
 import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.IOBuffer
-import com.idyria.osi.ooxoo3.core.utils.ScalaReflectUtils
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import scala.reflect.ClassTag
 import java.lang.reflect.ParameterizedType
 
@@ -16,9 +16,16 @@ import java.lang.reflect.ParameterizedType
  * @author rleys
  *
  */
-abstract class XList[T <: Buffer]  extends MutableList[T] with BaseBufferTrait {
+class  XList[T <: Buffer] (
+				
+				
+				val createBuffer:  Unit  => T
+    
+			) extends MutableList[T] with BaseBufferTrait {
 
   var currentBuffer : Buffer = null
+  
+  
   
   /**
    * Must be for stream out
@@ -28,7 +35,6 @@ abstract class XList[T <: Buffer]  extends MutableList[T] with BaseBufferTrait {
     null
   }
   
-  def createBuffer : T 
   
   
   /**
@@ -73,7 +79,7 @@ abstract class XList[T <: Buffer]  extends MutableList[T] with BaseBufferTrait {
     //----------------------
     else {
       
-      this.currentBuffer = this.createBuffer
+      this.currentBuffer = this.createBuffer()
       this+=this.currentBuffer.asInstanceOf[T]
       
       // Add I/O Buffer
@@ -129,5 +135,20 @@ abstract class XList[T <: Buffer]  extends MutableList[T] with BaseBufferTrait {
   override def toString : String = "XList"
   
   
+  
+}
+object XList {
+  
+	def apply[T <: Buffer] (cl:   => T ) : XList[T] = {
+	  
+	    var realClosure : (Unit => T) = {
+	      t => cl
+	    }
+	  
+		return new XList[T](realClosure)
+	  
+	}
+  
+	implicit def convertClosuretoXList[T <: Buffer] (cl: Unit  => T) : XList[T] = new XList[T](cl)
   
 }

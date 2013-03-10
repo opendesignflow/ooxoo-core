@@ -1,15 +1,15 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural
+package com.idyria.osi.ooxoo.core.buffers.structural
 
 import java.lang.reflect.Field
 
 import scala.reflect.runtime.universe._
 
-import com.idyria.osi.ooxoo3.core.buffers.datatypes.QName
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.IOBuffer
-import com.idyria.osi.ooxoo3.core.utils.ScalaReflectUtils
+import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
 /**
  *

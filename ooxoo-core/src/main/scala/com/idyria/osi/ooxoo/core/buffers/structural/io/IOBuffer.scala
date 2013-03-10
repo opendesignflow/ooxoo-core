@@ -1,9 +1,9 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural.io
+package com.idyria.osi.ooxoo.core.buffers.structural.io
 
-import com.idyria.osi.ooxoo3.core.buffers.structural.Buffer
+import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 
 /**
  * 

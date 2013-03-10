@@ -1,20 +1,20 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.buffers.structural.io.sax
+package com.idyria.osi.ooxoo.core.buffers.structural.io.sax
 
 import java.io.ByteArrayOutputStream
 import java.io.Reader
-import com.idyria.osi.ooxoo3.core.buffers.structural.BaseBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo3.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.IOBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
-import com.idyria.osi.ooxoo3.core.buffers.structural.xelement
-import com.idyria.osi.ooxoo3.core.buffers.structural.xattribute
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.BaseIOBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
+import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
 
 /**
  * @author rleys
@@ -58,13 +58,14 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
       
     } else if (du.element != null) {
 
-      println(s"Stax: Element ${du.element} / ${du.value}")
+      println(s"Stax: Element ${du.element.name} / ${du.value}")
 
       //-- Normal Element
       this.eventWriter.writeStartElement(du.element.name)
 
       //-- With text content
-      this.eventWriter.writeCharacters(du.value)
+      if (du.value != null)
+    	  this.eventWriter.writeCharacters(du.value)
 
       //-- Close already if non hierarchical
       if (!du.getHierarchical)

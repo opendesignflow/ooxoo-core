@@ -1,12 +1,12 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo3.core.utils
+package com.idyria.osi.ooxoo.core.utils
 
 import scala.annotation.Annotation
 import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo3.core.buffers.structural.BaseBuffer
-import com.idyria.osi.ooxoo3.core.buffers.datatypes.XSDStringBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 
 /**
  * @author rleys
@@ -29,12 +29,25 @@ object ScalaReflectUtils {
     
     // Filter Methods out
     //------------------
+    var allFields = Set[Symbol]()
+    
+    //-- Get over base classes
+    baseTT.tpe.baseClasses.foreach {
+      symbol => 
+        symbol.typeSignature.members.filter(
+        		(m: Any) =>
+        			m.asInstanceOf[scala.reflect.api.Universe#Symbol].isTerm 
+        			&& !m.asInstanceOf[scala.reflect.api.Universe#Symbol].isMethod
+        		).foreach(allFields += _.asInstanceOf[Symbol])
+    }
+    
     baseTT.tpe.members.filter(
       (m: Any) =>
         m.asInstanceOf[scala.reflect.api.Universe#Symbol].isTerm 
         && !m.asInstanceOf[scala.reflect.api.Universe#Symbol].isMethod
-     ).asInstanceOf[Iterable[Symbol]]
+     ).foreach(allFields += _.asInstanceOf[Symbol])
     
+     allFields
     
   }
   
