@@ -30,7 +30,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
   /**
    * Writes the data unit to the output stream, then pass it on
    */
-  override def pushOut(du: DataUnit) = {
+  override def streamOut(du: DataUnit) = {
 
     // Write
     //-----------
@@ -54,8 +54,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
       println("Stax: Start Element")
       this.eventWriter.writeStartElement(du.element.name)
-      
-      
+
+
     } else if (du.element != null) {
 
       println(s"Stax: Element ${du.element.name} / ${du.value}")
@@ -71,7 +71,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
       if (!du.getHierarchical)
         this.eventWriter.writeEndElement()
 
-    } 
+    }
     //-- Output Attribute
     //----------------------------
     else if (du.attribute != null) {
@@ -87,20 +87,20 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
     // Pass it on
     //----------------
-    super.pushOut(du)
+    super.streamOut(du)
 
     // Close if necessary
     //---------------
     /*if (du.element!=null) {
-      
+
       this.eventWriter.writeEndElement()
-      
+
     }*/
 
     this.eventWriter.flush()
 
   }
-  override def fetchIn = {
+  override def streamIn = {
 
     // XML input must be provided
     require(this.xmlInput != null)
@@ -129,7 +129,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
         //-- send
         println(s"Produced element DataUnit: " + du.element.name);
-        this.fetchIn(du)
+        this.streamIn(du)
 
         //-- Send attributes if any
         //--------------
@@ -141,10 +141,10 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
         	du.attribute = new xattribute
         	du.attribute.name = reader.getAttributeName(i).getLocalPart();
         	du.value = reader.getAttributeValue(i)
-        	
+
             //-- send
         	println(s"Produced attribute DataUnit: " + du.attribute.name);
-        	this.fetchIn(du)
+        	this.streamIn(du)
           }
         }
 
@@ -152,26 +152,20 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
       // End Element
       //---------------
       else if (reader.isEndElement()) {
-        
+
         // Just send an empty data unit with hiearchical = false
-         this.fetchIn(new DataUnit)
-         
+         this.streamIn(new DataUnit)
+
       }
       else if (reader.isCharacters()) {
-        
+
         // Send a value only event
         var du =  new DataUnit
         du.value = reader.getText()
-        this.fetchIn(du)
+        this.streamIn(du)
       }
 
     }
-
-  }
-
-  def createDataUnit: DataUnit = {
-
-    null
 
   }
 

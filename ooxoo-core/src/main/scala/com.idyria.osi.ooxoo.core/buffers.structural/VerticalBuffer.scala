@@ -25,9 +25,9 @@ abstract class VerticalBuffer extends BaseBuffer {
    */
   private var inHierarchy = false
 
-  
+
   private var stackSize = 0
-  
+
   def allFields(cl: Class[_]): Set[Field] = {
 
     var allFields = Set[Field]()
@@ -51,86 +51,86 @@ abstract class VerticalBuffer extends BaseBuffer {
    *  - The local class is inspected for eventual field buffers to also push out to
    *
    */
-  override def pushOut(du: DataUnit) = {
+  override def streamOut(du: DataUnit) = {
 
-    // Normal pushout
+    // Normal streamOut
     //----------
-    super.pushOut(du)
+    super.streamOut(du)
 
     // Attributes
     //------------------
-    ScalaReflectUtils.getAnnotatedFields(this, typeOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{      
-      f => 
-        
+    ScalaReflectUtils.getAnnotatedFields(this, typeOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
+      f =>
+
       	//-- Get value
         var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
-        
-        //-- Pushout
+
+        //-- streamOut
        	value.appendBuffer(this.lastBuffer)
        	value -> {
-       	  
+
        	  du =>
        	    var attribute = xattribute.instanciate(f)
        	    du.attribute = attribute
        	    du
-       	  
+
        	}
-        
+
       	// Create DU
         //---------------
        /* var du = new DataUnit
         var attribute = xattribute.instanciate(f)
         du.attribute = attribute
         du.value = ScalaReflectUtils.getFieldValue(this,f).toString
-        
-        super.pushOut(du)*/
+
+        super.streamOut(du)*/
     }
-    
-    
-    
+
+
+
     // Sub Elements
     //-------------------
-     ScalaReflectUtils.getAnnotatedFields(this, typeOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{      
-      f => 
-        
+     ScalaReflectUtils.getAnnotatedFields(this, typeOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
+      f =>
+
         //-- Get value
         var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
-        
-        //-- Pushout
+
+        //-- streamOut
        	value.appendBuffer(this.lastBuffer)
        	value -> {
        	  du =>
-       	    
+
        	    var element = xelement.instanciate(f)
        	    du.element = element
        	    du
-       	    
+
        	}
-        
-    
-        
+
+
+
       	// Create DU
         //---------------
        /* var du = new DataUnit
         var element = xelement.instanciate(f)
         du.element = element
-        
-       
+
+
         du.value = ScalaReflectUtils.getFieldValue(this,f).toString
-        
-        super.pushOut(du)*/
-    }    
-    
+
+        super.streamOut(du)*/
+    }
+
     // Close
     //--------------
-    super.pushOut(new DataUnit)
-    
+    super.streamOut(new DataUnit)
+
     //println("Inspecting fields for class: "+this.getClass().getSimpleName())
 
     /*propagate(false) {
 
       (f, buffer) =>
-        buffer.pushOut {
+        buffer.streamOut {
           du =>
 
             // Type
@@ -142,7 +142,7 @@ abstract class VerticalBuffer extends BaseBuffer {
             }else {
               du.setAttribute(f.getAnnotation[attribute](classOf[attribute]))
             }
-            
+
             // Hierarchical?
             if (classOf[VerticalBuffer].isAssignableFrom(f.getType()))
               du.setHierarchical(true)
@@ -166,13 +166,13 @@ abstract class VerticalBuffer extends BaseBuffer {
     //------------
     /* this.allFields(this.getClass) filter {
       // Filter non annotated, null  and private values
-      f => 
+      f =>
          f.setAccessible(true)
-        ((f.getAnnotation[element](classOf[element]) != null || f.getAnnotation[attribute](classOf[attribute]) != null) 
+        ((f.getAnnotation[element](classOf[element]) != null || f.getAnnotation[attribute](classOf[attribute]) != null)
             &&( nullFields || f.get(this)!=null ))
     } foreach {
       f =>
-        
+
         //-- Get Buffer
         var fieldBuffer = (f.get(this).asInstanceOf[Buffer])
 
@@ -206,13 +206,13 @@ abstract class VerticalBuffer extends BaseBuffer {
         // Push and inject the element/attribute type
         //---------------
         cl(f,fieldBuffer)
-        
-        
+
+
         // Close hierarchy level for this
-        
+
         println(s"Found field: ${f.getName()}")
     } // EOF All Fields
-    
+
     // Notify end of level to IO Buffers
     if (ioChainRoot!=null) {
       ioChainRoot.foreachNextBuffer(b => (b.asInstanceOf[IOBuffer]).eofLevel)
@@ -223,58 +223,58 @@ abstract class VerticalBuffer extends BaseBuffer {
   /**
    * Gets a data unit from chain
    */
-  override def fetchIn(du: DataUnit) = {
+  override def streamIn(du: DataUnit) = {
 
    // require(du.attribute != null || du.element != null)
 
-    println("Got DU "+du) 
-    
+    println("Got DU "+du)
+
     // If stack size > 0, we are not concerned
     //----------------------
     if (this.stackSize>0) {
-      
+
       // Hierarchical = false and not an attribute -> decrease stack size
       if (du.attribute==null && du.hierarchical==false)
         this.stackSize-=1
       // Hierarchical = true -> increase stack size
       else if (du.hierarchical==true)
         this.stackSize+=1
-        
-        
+
+
         // If stackSize < 0 => we are finished so we can separate from our io buffer
         if (stackSize < 0 ) {
           this.lastBuffer.remove
         }
-        
-        
+
+
     }
     // End of Hierarchy
     // -> remove IO buffer
     //----------------
     else if (du.attribute==null && du.element==null && du.hierarchical==false && du.value==null) {
-      
+
       if (this.lastBuffer.isInstanceOf[IOBuffer])
         this.lastBuffer.remove
-      
+
     }
     // Attribute
     //-----------------
     else if (du.attribute != null) {
 
-  
+
       this.getAttributeField(du.attribute.name) match {
-         
-        case Some(buffer) => 
-          
+
+        case Some(buffer) =>
+
           println(s"Found attribute Buffer to pass in value: ${du.value}")
           buffer.dataFromString(du.value)
           println(s"-------> ${buffer}")
-          
+
         case None => println("---> No field instance returned for attribute <---")
       }
-      
-      
-    } 
+
+
+    }
     // Top Element
     //--------------------
     else if (du.element != null && !this.inHierarchy) {
@@ -285,7 +285,7 @@ abstract class VerticalBuffer extends BaseBuffer {
       if (!du.element.name.equals(expected.name)) {
         throw new RuntimeException(s"Vertical buffer on ${this.getClass().getCanonicalName()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
       }
-      
+
       if (du.hierarchical)
         this.inHierarchy = true;
 
@@ -294,48 +294,48 @@ abstract class VerticalBuffer extends BaseBuffer {
     else if (du.element != null) {
 
       println(s"Got an XML element for subfield: ${du.element.name}");
-      
+
       // Increase Stack Size
       this.stackSize+=1
-      
+
       // Proceed to element
       this.getElementField(du.element.name) match {
-         
-        case Some(buffer) => 
-          
+
+        case Some(buffer) =>
+
           println(s"Found element Buffer to pass in value: ${du.value}")
-          
-          
-          
+
+
+
            // Clone this IO to the buffer
           //--------------
           buffer.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
-          
+
           // Stream in DU to element
           //---------------------
           buffer <= du
-          
-         
-          
+
+
+
           println(s"-------> ${buffer}")
-          
+
         case None => println("---> No field instance returned for element <---")
       }
-      
-      
+
+
     }
 
   }
-  
+
 
   /**
    * Get instance of a buffer set on the field that matches the provided Qname
    * @return None if nothing was found
    */
   private def getElementField(name : QName) : Option[Buffer] = {
-    
+
     //println("*Looking for field for element: /"+name.getLocalPart()+"/")
-    
+
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     ScalaReflectUtils.getAnnotatedFields(this, typeOf[xelement]).filter {
@@ -344,79 +344,79 @@ abstract class VerticalBuffer extends BaseBuffer {
         //println("xelement annotation name:/"+xelt.name+"/");
         xelement !=null && name.getLocalPart().equals(xelt.name);
     } match {
-      
+
        // If there is one, get existing value of instanciate
       case x if (!x.isEmpty) =>
-      
+
         // Get Value
     	var fieldValue : Buffer = ScalaReflectUtils.getFieldValue(this, x.head)
     	if (fieldValue == null)
     	  fieldValue = ScalaReflectUtils.instanciateFieldValue(this, x.head)
         return Option(fieldValue)
-        
+
       case _ =>
     }
-    
+
     return None
-    
-    
+
+
   }
-  
-  
+
+
   /**
    * Finds the attribute field of current class, matching provided name
    * Instanciate or return the reference to the Buffer
    */
   private def getAttributeField(name : QName) : Option[AbstractDataBuffer[AnyRef]] = {
-    
+
     println("*Looking for field for attribute: "+name.getLocalPart())
-    
+
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
     ScalaReflectUtils.getAnnotatedFields(this, typeOf[xattribute]).filter{
-      a => 
-        	var xattr = xattribute.instanciate(a); 
+      a =>
+        	var xattr = xattribute.instanciate(a);
 //        	println("Found field with xattribute annotation, and name:"+xattr.name)
         	xattr!=null && name.getLocalPart().equals( xattr.name)
     } match {
-      
+
        // If there is one, get existing value of instanciate
 	  //-------------
       case x if (!x.isEmpty) =>
-        
+
         var targetField = x.head
-        
+
          println(s"*Found field: $name")
 
-      
+
     	// Get Value
     	var fieldValue : AbstractDataBuffer[AnyRef] = ScalaReflectUtils.getFieldValue(this, targetField)
-    	
+
     	// Instanciate
     	//------------------
     	if (fieldValue==null) {
-    	  
+
     	  println(s"Instanciating field for attribute: $name")
     	  fieldValue = ScalaReflectUtils.instanciateFieldValue(this, targetField)
-    	  
+
 	    }
-        
+
         // Return
         return Option(fieldValue)
-        
-        
+
+
       case  _ => return None
-      	
-      
+
+
     }
-  
+
   }
 
 }
 
 object VerticalBuffer {
 
-  
-  
+
+
   /**
    * Returns all the fields that have an annotation
    */
@@ -452,9 +452,9 @@ object VerticalBuffer {
     //scala.reflect.runtime.Mirror.classToType(base.getClass()).members.filter(m => m.isTerm && !m.isMethod)
 
     /*typeTag.tpe.erasure.members.foreach{
-      
+
       t : scala.reflect.api.Universe#Symbol => println("Available: "+t.toString())
-      
+
     }*/
 
     //List()
