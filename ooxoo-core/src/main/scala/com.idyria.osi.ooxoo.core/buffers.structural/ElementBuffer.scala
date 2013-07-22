@@ -1,6 +1,6 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-
+import com.idyria.osi.tea.logging.TLog
 
 class ElementBuffer extends VerticalBuffer {
 
@@ -12,13 +12,13 @@ class ElementBuffer extends VerticalBuffer {
 
     // Get Element annotation
     //------------------
-    var annotations = xelement.get(this)
-    if (annotations.size==0) {
-    	println(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
+    var element = xelement_base(this)
+    if (element==null) {
+    	TLog.logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
 
     }
-    require(annotations.size>0)
-    var element = annotations.head
+    require(element!=null)
+
 
     // Create Empty Data Unit
     //------------------

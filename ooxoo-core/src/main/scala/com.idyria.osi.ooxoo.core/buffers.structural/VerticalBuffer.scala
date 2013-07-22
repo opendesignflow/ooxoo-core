@@ -11,6 +11,8 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
+import com.idyria.osi.tea.logging.TLog
+
 /**
  *
  * Trait for a buffer to be declared "Vertical", meaning it will produce the result of other sub buffers
@@ -25,24 +27,22 @@ abstract class VerticalBuffer extends BaseBuffer {
    */
   private var inHierarchy = false
 
-
   private var stackSize = 0
 
-  def allFields(cl: Class[_]): Set[Field] = {
 
-    var allFields = Set[Field]()
-    var currentClass: Class[_] = this.getClass
-    while (currentClass != null) {
-      for (field <- (currentClass.getFields()))
-        allFields += field
-      for (field <- (currentClass.getDeclaredFields()))
-        allFields += field
-      currentClass = currentClass.getSuperclass()
+  // Search
+  //---------------------------
 
-    }
-    allFields
+  /**
+    Search for a Buffer in this object hierarchy that matches the provided search pattern
+  */
+  def search[T <: Buffer]( searchPath: String) : Buffer = {
+
+    null
 
   }
+
+
 
   /**
    * This Override performs the work of a vertical buffer:
@@ -59,7 +59,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
     // Attributes
     //------------------
-    ScalaReflectUtils.getAnnotatedFields(this, typeOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
       f =>
 
       	//-- Get value
@@ -70,7 +70,7 @@ abstract class VerticalBuffer extends BaseBuffer {
        	value -> {
 
        	  du =>
-       	    var attribute = xattribute.instanciate(f)
+       	    var attribute = xattribute_base(f)
        	    du.attribute = attribute
        	    du
 
@@ -90,7 +90,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
     // Sub Elements
     //-------------------
-     ScalaReflectUtils.getAnnotatedFields(this, typeOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
+     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
       f =>
 
         //-- Get value
@@ -101,7 +101,7 @@ abstract class VerticalBuffer extends BaseBuffer {
        	value -> {
        	  du =>
 
-       	    var element = xelement.instanciate(f)
+       	    var element = xelement_base(f)
        	    du.element = element
        	    du
 
@@ -125,7 +125,7 @@ abstract class VerticalBuffer extends BaseBuffer {
     //--------------
     super.streamOut(new DataUnit)
 
-    //println("Inspecting fields for class: "+this.getClass().getSimpleName())
+    //TLog.logFine("Inspecting fields for class: "+this.getClass().getSimpleName())
 
     /*propagate(false) {
 
@@ -210,7 +210,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
         // Close hierarchy level for this
 
-        println(s"Found field: ${f.getName()}")
+        TLog.logFine(s"Found field: ${f.getName()}")
     } // EOF All Fields
 
     // Notify end of level to IO Buffers
@@ -227,7 +227,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
    // require(du.attribute != null || du.element != null)
 
-    println("Got DU "+du)
+    TLog.logFine("Got DU "+du)
 
     // If stack size > 0, we are not concerned
     //----------------------
@@ -266,11 +266,11 @@ abstract class VerticalBuffer extends BaseBuffer {
 
         case Some(buffer) =>
 
-          println(s"Found attribute Buffer to pass in value: ${du.value}")
+          TLog.logFine(s"Found attribute Buffer to pass in value: ${du.value}")
           buffer.dataFromString(du.value)
-          println(s"-------> ${buffer}")
+          TLog.logFine(s"-------> ${buffer}")
 
-        case None => println("---> No field instance returned for attribute <---")
+        case None => TLog.logFine("---> No field instance returned for attribute <---")
       }
 
 
@@ -279,21 +279,30 @@ abstract class VerticalBuffer extends BaseBuffer {
     //--------------------
     else if (du.element != null && !this.inHierarchy) {
 
+
       // Verify the element matches the supposed one
       //---------------
-      var expected = xelement.get(this).head
-      if (!du.element.name.equals(expected.name)) {
-        throw new RuntimeException(s"Vertical buffer on ${this.getClass().getCanonicalName()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
+      try {
+
+        var expected = xelement_base(this)
+        if (!du.element.name.equals(expected.name)) {
+          throw new RuntimeException(s"Vertical buffer on ${VerticalBuffer.this.getClass()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
+        }
+
+        if (du.hierarchical)
+          this.inHierarchy = true;
+
+      } catch {
+        // No @xelement annotation defined
+        case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
       }
 
-      if (du.hierarchical)
-        this.inHierarchy = true;
-
-    } // In Hierarchy
+    }
+    // In Hierarchy
     //--------------------
     else if (du.element != null) {
 
-      println(s"Got an XML element for subfield: ${du.element.name}");
+      TLog.logFine(s"Got an XML element for subfield: ${du.element.name}");
 
       // Increase Stack Size
       this.stackSize+=1
@@ -303,7 +312,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
         case Some(buffer) =>
 
-          println(s"Found element Buffer to pass in value: ${du.value}")
+          TLog.logFine(s"Found element Buffer to pass in value: ${du.value}")
 
 
 
@@ -317,9 +326,9 @@ abstract class VerticalBuffer extends BaseBuffer {
 
 
 
-          println(s"-------> ${buffer}")
+          TLog.logFine(s"-------> ${buffer}")
 
-        case None => println("---> No field instance returned for element <---")
+        case None => TLog.logFine("---> No field instance returned for element <---")
       }
 
 
@@ -334,15 +343,15 @@ abstract class VerticalBuffer extends BaseBuffer {
    */
   private def getElementField(name : QName) : Option[Buffer] = {
 
-    //println("*Looking for field for element: /"+name.getLocalPart()+"/")
+    //TLog.logFine("*Looking for field for element: /"+name.getLocalPart()+"/")
 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
-    ScalaReflectUtils.getAnnotatedFields(this, typeOf[xelement]).filter {
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter {
       a =>
-        var xelt = xelement.instanciate(a)
-        //println("xelement annotation name:/"+xelt.name+"/");
-        xelement !=null && name.getLocalPart().equals(xelt.name);
+        var xelt = xelement_base(a)
+        //TLog.logFine("xelement annotation name:/"+xelt.name+"/");
+        xelt !=null && name.getLocalPart().equals(xelt.name);
     } match {
 
        // If there is one, get existing value of instanciate
@@ -369,47 +378,50 @@ abstract class VerticalBuffer extends BaseBuffer {
    */
   private def getAttributeField(name : QName) : Option[AbstractDataBuffer[AnyRef]] = {
 
-    println("*Looking for field for attribute: "+name.getLocalPart())
+    TLog.logFine("*Looking for field for attribute: "+name.getLocalPart())
 
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
-    ScalaReflectUtils.getAnnotatedFields(this, typeOf[xattribute]).filter{
-      a =>
-        	var xattr = xattribute.instanciate(a);
-//        	println("Found field with xattribute annotation, and name:"+xattr.name)
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter {
+      f =>
+        	var xattr = xattribute_base(f);
+//        	TLog.logFine("Found field with xattribute annotation, and name:"+xattr.name)
         	xattr!=null && name.getLocalPart().equals( xattr.name)
+
     } match {
 
-       // If there is one, get existing value of instanciate
-	  //-------------
+      // If there is one, get existing value of instanciate
+	    //-------------
       case x if (!x.isEmpty) =>
 
         var targetField = x.head
 
-         println(s"*Found field: $name")
+         TLog.logFine(s"*Found field: $name")
 
 
-    	// Get Value
-    	var fieldValue : AbstractDataBuffer[AnyRef] = ScalaReflectUtils.getFieldValue(this, targetField)
+      	// Get Value
+      	var fieldValue : AbstractDataBuffer[AnyRef] = ScalaReflectUtils.getFieldValue(this, targetField)
 
-    	// Instanciate
-    	//------------------
-    	if (fieldValue==null) {
+      	// Instanciate
+      	//------------------
+      	if (fieldValue==null) {
 
-    	  println(s"Instanciating field for attribute: $name")
-    	  fieldValue = ScalaReflectUtils.instanciateFieldValue(this, targetField)
+      	  TLog.logFine(s"Instanciating field for attribute: $name")
+      	  fieldValue = ScalaReflectUtils.instanciateFieldValue(this, targetField)
 
-	    }
+        }
 
         // Return
         return Option(fieldValue)
 
-
+      // NOthing -> Ignore
       case  _ => return None
 
 
     }
-
+  //return None
   }
+
+
 
 }
 
@@ -420,7 +432,7 @@ object VerticalBuffer {
   /**
    * Returns all the fields that have an annotation
    */
-  def allFields(base: AnyRef): Iterable[Symbol] = {
+/*  def allFields(base: AnyRef): Iterable[Symbol] = {
 
     // Get type tag
     //--------------------
@@ -428,7 +440,7 @@ object VerticalBuffer {
 
     baseTT.tpe.foreach {
 
-      t => println("Available: " + t.toString())
+      t => TLog.logFine("Available: " + t.toString())
 
     }
 
@@ -438,7 +450,7 @@ object VerticalBuffer {
         f =>
 
           // Filter based on annotation presence
-          println("Available: " + f)
+          TLog.logFine("Available: " + f)
           f.annotations.find(a => (a.tpe.erasure == typeOf[xelement] || a.tpe.erasure == typeOf[xattribute])) match {
             case None => false
             case _ => true
@@ -453,11 +465,11 @@ object VerticalBuffer {
 
     /*typeTag.tpe.erasure.members.foreach{
 
-      t : scala.reflect.api.Universe#Symbol => println("Available: "+t.toString())
+      t : scala.reflect.api.Universe#Symbol => TLog.logFine("Available: "+t.toString())
 
     }*/
 
     //List()
   }
-
+*/
 }

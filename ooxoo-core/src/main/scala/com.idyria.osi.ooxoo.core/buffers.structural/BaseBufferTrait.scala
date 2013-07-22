@@ -198,17 +198,6 @@ trait BaseBufferTrait extends Buffer {
 
 
 
-  /**
-   * Default implementation
-   *
-   * Goes to the end of chain, and call streamIn
-   *
-   *
-   */
-  def streamIn = {
-
-  }
-
   def streamIn(du: DataUnit) = {
 
     // Pass

@@ -10,6 +10,8 @@ import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import scala.reflect.ClassTag
 import java.lang.reflect.ParameterizedType
 
+import com.idyria.osi.tea.logging.TLog
+
 /**
  *
  * This List if a vertical buffer type to contain a list of buffers (like a list of subelements)
@@ -57,12 +59,12 @@ class  XList[T <: Buffer] (
   override def streamIn(du: DataUnit) =  {
 
 
-    println(s"IN LIST streamIn...............: ${du.value}");
+    TLog.logFine(s"IN LIST streamIn...............: ${du.value}");
 
     // If there is a current -> stream in
     //--------------------
     if (this.currentBuffer!=null) {
-      //println(s"---- Giving to buffer");
+      //TLog.logFine(s"---- Giving to buffer");
       //this.currentBuffer <= du
     }
     // If there is no current -> instanciate and streaming
@@ -74,12 +76,12 @@ class  XList[T <: Buffer] (
 
       // Add I/O Buffer
       //---------
-      println("---- Chain before: "+this.printForwardChain);
+      TLog.logFine("---- Chain before: "+this.printForwardChain);
       this.currentBuffer.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO)
 
-      println("---- XLIST: Created Buffer instance");
-      println("---- Chain now: "+this.printForwardChain);
-      println("---- Buffer Chain now: "+this.currentBuffer.printForwardChain);
+      TLog.logFine("---- XLIST: Created Buffer instance");
+      TLog.logFine("---- Chain now: "+this.printForwardChain);
+      TLog.logFine("---- Buffer Chain now: "+this.currentBuffer.printForwardChain);
 
       //-- Streamin
       this.currentBuffer <= du
@@ -89,7 +91,7 @@ class  XList[T <: Buffer] (
     //--------------
     if (!this.currentBuffer.lastBuffer.isInstanceOf[IOBuffer]) {
 
-    	println("---- XLIST: Current Buffer has stopped receiving events, we should too");
+    	TLog.logFine("---- XLIST: Current Buffer has stopped receiving events, we should too");
     	this.currentBuffer = null
     //if (du.attribute==null && du.element==null && du.hierarchical==false) {
 
@@ -98,14 +100,14 @@ class  XList[T <: Buffer] (
     	var lastb = this.lastBuffer
     	if (lastb!=null && lastb.isInstanceOf[IOBuffer]) {
 
-    	  println("---- Chain now: "+this.printForwardChain);
+    	  TLog.logFine("---- Chain now: "+this.printForwardChain);
     	  this.lastBuffer.remove
-    	  println("---- Chain now: "+this.printForwardChain);
+    	  TLog.logFine("---- Chain now: "+this.printForwardChain);
 
     	  // Replay Event because it should be treated by the container of this XList
     	  //-----------
     	  if(lastb.getPreviousBuffer!=null) {
-    	     println("---- Replaying to: "+lastb.getPreviousBuffer.getClass());
+    	     TLog.logFine("---- Replaying to: "+lastb.getPreviousBuffer.getClass());
     	    lastb.getPreviousBuffer <= du
     	  }
     	}

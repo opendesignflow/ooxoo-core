@@ -12,9 +12,11 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
+
+import com.idyria.osi.tea.logging.TLog
 
 /**
  * @author rleys
@@ -52,13 +54,13 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
     //-------------------------
     if (du.element != null && documentElement) {
 
-      println("Stax: Start Element")
+      TLog.logFine("Stax: Start Element")
       this.eventWriter.writeStartElement(du.element.name)
 
 
     } else if (du.element != null) {
 
-      println(s"Stax: Element ${du.element.name} / ${du.value}")
+      TLog.logFine(s"Stax: Element ${du.element.name} / ${du.value}")
 
       //-- Normal Element
       this.eventWriter.writeStartElement(du.element.name)
@@ -121,14 +123,14 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
         //-- Prepare data unit
         var du = new DataUnit
-        du.element = new xelement
+        du.element = new xelement_base()
         du.element.name = reader.getLocalName()
         du.hierarchical = true
         if (reader.hasText())
           du.value = reader.getText()
 
         //-- send
-        println(s"Produced element DataUnit: " + du.element.name);
+        TLog.logFine(s"Produced element DataUnit: " + du.element.name);
         this.streamIn(du)
 
         //-- Send attributes if any
@@ -138,12 +140,12 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
             //-- Prepare data unit
         	du = new DataUnit
-        	du.attribute = new xattribute
+        	du.attribute = new xattribute_base
         	du.attribute.name = reader.getAttributeName(i).getLocalPart();
         	du.value = reader.getAttributeValue(i)
 
             //-- send
-        	println(s"Produced attribute DataUnit: " + du.attribute.name);
+        	TLog.logFine(s"Produced attribute DataUnit: " + du.attribute.name);
         	this.streamIn(du)
           }
         }

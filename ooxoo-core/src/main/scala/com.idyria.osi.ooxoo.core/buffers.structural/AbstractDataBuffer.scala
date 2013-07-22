@@ -6,6 +6,8 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import scala.beans.BeanProperty
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 
+import com.idyria.osi.tea.logging.TLog
+
 /**
  *
  * This class is a base class for all Buffers that hold a single piece of data
@@ -53,11 +55,11 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
     //----------------------------
     if (du.attribute==null && du.element==null && du.hierarchical==false && du.value==null) {
-      println("---- End of hierarchy for data buffer ("+this.getClass()+") -> remove IO chain");
-      println("---- BCBefore: "+this.printForwardChain)
+      TLog.logFine("---- End of hierarchy for data buffer ("+this.getClass()+") -> remove IO chain");
+      TLog.logFine("---- BCBefore: "+this.printForwardChain)
       if (this.lastBuffer.isInstanceOf[IOBuffer])
     	  this.lastBuffer.remove
-	  println("---- BCAfter: "+this.printForwardChain)
+	  TLog.logFine("---- BCAfter: "+this.printForwardChain)
 
     }
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.idyria.osi.ooxoo.core
 
@@ -12,8 +12,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement
+import com.idyria.osi.ooxoo.core.buffers.structural._
 import org.scalatest.matchers.ShouldMatchers
 
 
@@ -30,223 +29,274 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
   @xelement
   class TestRoot extends ElementBuffer {
-    
+
+    // Base Fields
+    //---------------------
+
     @xattribute
     var attr1 : XSDStringBuffer = null
-    
+
     @xattribute
     var attr2 : XSDStringBuffer = null
-    
+
     @xelement
     var subStringMultiple : XList[XSDStringBuffer] =  XList[XSDStringBuffer] {  new XSDStringBuffer }
-     
-    
+
+
     @xelement
     var subStringSingle : XSDStringBuffer = null
-    
-    var irrelevantField : XSDStringBuffer = null 
-     
+
+    var irrelevantField : XSDStringBuffer = null
+
+
+
   }
-  
-  
-  
-  
-  
-  
+
 
   test("Annotation Test") {
-    
+
 
     var root = new TestRoot
-    
+
     // Check element presence
     //-----------------------------
-    println("In newroot: "+xelement.isPresent(root))
-    
-    assert(xelement.isPresent(root)===true)
-    
-    
-    var xelements = xelement.get(root)
-    assert(xelements.size === 1)
-    
-    xelements.foreach(a => println(s"Xelement: "+a.name))
-    
-    
-    // Now find the fields of TestRoot
-    //-------------
-    assert(VerticalBuffer.allFields(root).size===4)
-    
-    
-    
-    
-    
+    assert(xelement_base(root)!=null)
+
+
+
+
+
+
   }
- 
-  
+
+
   test("Stream in a simple element") {
-    
+
      var xml =  <TestRoot attr1="attr" attr2="attr2">
 
     		 <subStringMultiple>0</subStringMultiple>
     		 <subStringMultiple>1</subStringMultiple>
     		 <subStringMultiple>2</subStringMultiple>
-    		 
+
     		 <subStringSingle>single</subStringSingle>
 
        </TestRoot>
-       
-       
+
+
       /*xml =  <TestRoot attr1="attr" attr2="attr2">
 
-    		
+
 
        </TestRoot>*/
-       
-     
+
+
      //-- Create StxAx IO
      var xout = new StringWriter
      scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
      var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
-     
+
      //-- Instanciate Root and stream in
      var root = new TestRoot
      root.appendBuffer(staxio)
-     staxio.fetchIn
-     
+     staxio.streamIn
+
      //-- Check attributes
      //----------------------------
      root.attr1 should not be === (null)
      root.attr1.toString should equal("attr")
-     
+
      root.attr2 should not be === (null)
      root.attr2.toString should be === ("attr2")
-    
-     
+
+
      //-- Check sub elements
      //----------------------------
-     
+
      //-- Single
      root.subStringSingle should not equal(null)
      root.subStringSingle.toString should equal("single")
-     
+
      //-- List
      root.subStringMultiple should not equal(null)
      root.subStringMultiple should have length(3)
-     
-     
-     
+
+
+
   }
-  
-  
-  
-  	
-    
+
+
+
+    test("Stream in a element with attribute in parent class") {
+
+
+        class Named extends ElementBuffer {
+
+            @xattribute
+            var name : XSDStringBuffer = null
+
+         }
+
+        @xelement
+        class Test extends Named {
+
+        }
+
+
+        var xml =  <Test name="hello">
+                    </Test>
+
+
+        //-- Create StxAx IO
+        var xout = new StringWriter
+        scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
+        var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
+
+        //-- Instanciate Root and stream in
+        var root = new Test
+        root.appendBuffer(staxio)
+        staxio.streamIn
+
+        //-- Check attributes
+        //----------------------------
+        root.name should not be === (null)
+        root.name.toString should equal("hello")
+
+  }
+
+
+
+
+
     @xelement
     class SubLevelRoot extends ElementBuffer {
-      
+
       @xelement
 	    class SingleSubRoot extends ElementBuffer {
-	    
+
 	      @xattribute
 	      var attr1 : XSDStringBuffer = null
-	      
+
 	    }
-    
+
 	    @xelement
 	    class MultipleSubRoot extends ElementBuffer {
-	      
-	      
+
+
 	      @xattribute
 	      var attr1 : XSDStringBuffer = null
-	      
+
 	    }
-      
+
       @xelement
       var SingleSubRoot : SingleSubRoot = null
-      
+
       @xelement
-      var MultipleSubRoot : XList[MultipleSubRoot] =   XList[MultipleSubRoot] {  new MultipleSubRoot   }
-      
+      var MultipleSubRoot = XList[MultipleSubRoot]  {  new MultipleSubRoot   }
+
     }
-  
-  
+
+
   test("Stream in a Sublevel element") {
-    
-    
-    
-    
+
     var xml =  <SubLevelRoot>
 
     		 <SingleSubRoot attr1="1">0</SingleSubRoot>
     		 <MultipleSubRoot attr1="1">1</MultipleSubRoot>
     		 <MultipleSubRoot attr1="1">2</MultipleSubRoot>
-    		 
+
     		 <MultipleSubRoot attr1="1">single</MultipleSubRoot>
 
        </SubLevelRoot>
-       
-       
-      /*xml =  <TestRoot attr1="attr" attr2="attr2">
 
-    		
 
-       </TestRoot>*/
-       
-     
      //-- Create StxAx IO
      var xout = new StringWriter
      scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
      var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
-     
+
      //-- Instanciate Root and stream in
      var root = new SubLevelRoot
      root.appendBuffer(staxio)
-     staxio.fetchIn
-    
+     staxio.streamIn
+
      // Checks
      //---------------------
-     
+
      //-- Single
      root.SingleSubRoot should not equal(null)
+     root.SingleSubRoot.attr1.toString should equal("1")
      //root.subStringSingle.toString should equal("single")
-     
+
      //-- List
      root.MultipleSubRoot should not equal(null)
      root.MultipleSubRoot should have length(3)
-     
-    
+
+
   }
-  
-  
+
+
+
+    test("Search in a Sublevel element") {
+
+    /*var xml =  <SubLevelRoot>
+
+         <SingleSubRoot attr1="1">0</SingleSubRoot>
+         <MultipleSubRoot attr1="1">1</MultipleSubRoot>
+         <MultipleSubRoot attr1="1">2</MultipleSubRoot>
+
+         <MultipleSubRoot attr1="1">single</MultipleSubRoot>
+
+    </SubLevelRoot>
+
+
+    //-- Create StxAx IO
+    var xout = new StringWriter
+    scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
+    var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
+
+    //-- Instanciate Root and stream in
+    var root = new SubLevelRoot
+    root.appendBuffer(staxio)
+    staxio.streamIn
+
+    // Try Search
+    //-----------------
+    var res = root.search("MultipleSubRoot")
+
+    // Checks
+    //---------------*/
+
+  }
+
   test("Stream out a simple element") {
-    
-    
+
+
     //-- Instanciate Root
     var root = new TestRoot
     root.attr1="test"
     root.attr2="test"
     root.subStringSingle = "test"
-      
+
     root.subStringMultiple+=root.subStringMultiple.createBuffer
     root.subStringMultiple.last.dataFromString("testM")
-    
+
     root.subStringMultiple+=root.subStringMultiple.createBuffer
     root.subStringMultiple.last.dataFromString("testM")
-    
+
     root.subStringMultiple+=root.subStringMultiple.createBuffer
     root.subStringMultiple.last.dataFromString("testM")
-    
-    
+
+
     //-- Add IO
     var io = new StAXIOBuffer
     root.appendBuffer(io)
-    
+
     //-- Streamout
     root ->
-    
+
     println("Result: "+io.output.toString())
-    
+
   }
-  
-  
+
+
 }

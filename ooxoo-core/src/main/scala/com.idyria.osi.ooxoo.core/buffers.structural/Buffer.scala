@@ -59,6 +59,15 @@ trait Buffer{
    */
   def ->( cl : DataUnit => DataUnit)  = streamOut(cl)
 
+
+
+  /**
+    Streamin without dataUnit is used if element is supposed to produce input DataUnits.
+    Per default this method does nothing
+  */
+  def streamIn = {}
+
+
   /**
    * streamIn a data unit from the next buffer
    */
@@ -156,6 +165,7 @@ trait Buffer{
    * @return The inserted buffer
    */
   def appendBuffer(buffer : Buffer) : Buffer
+  def - (buffer : Buffer) : Buffer = appendBuffer(buffer)
 
   /**
    * Inserts a buffer after this buffer

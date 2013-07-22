@@ -41,6 +41,10 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
     this.data == comp.data
   }
 
+  def equals(comp: String): Boolean = {
+    this.data == comp
+  }
+
   def compareTo(comp:String) : Int = {
      this.data.compareTo(comp)
   }
