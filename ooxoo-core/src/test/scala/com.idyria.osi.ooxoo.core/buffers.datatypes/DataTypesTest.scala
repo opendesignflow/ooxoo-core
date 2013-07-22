@@ -39,6 +39,17 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     }
 
+    test("Integer Buffer Hexadecimal input") {
+
+        var buffer = new IntegerBuffer
+
+        // From String
+        //--------------------
+        buffer.dataFromString("0x42")
+        expect(66)(buffer.data)
+
+    }
+
     test("Long Buffer") {
 
         var buffer = new LongBuffer
@@ -53,6 +64,19 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         //-----------------
         buffer.data = 2 * 42
         expect("84")(buffer.dataToString)
+
+    }
+
+
+
+    test("Long Buffer Hexadecimal input") {
+
+        var buffer = new LongBuffer
+
+        // From String
+        //--------------------
+        buffer.dataFromString("0x42")
+        expect(66)(buffer.data)
 
     }
 

@@ -11,7 +11,7 @@ class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Integer]
 
 
     def dataFromString(str: String) : Integer = {
-        this.data = Integer.parseInt(str)
+        this.data = Integer.decode(str)
         this.data
     }
 
@@ -46,7 +46,7 @@ class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java
 
 
     def dataFromString(str: String) : java.lang.Long = {
-        this.data = java.lang.Long.parseLong(str)
+        this.data = java.lang.Long.decode(str)
         return this.data
     }
 
