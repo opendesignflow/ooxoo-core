@@ -10,22 +10,7 @@
 	<artifactId>ooxoo-core</artifactId>
 	<name>Core runtime for OOXOO</name>
 
-	<build>
-		<plugins>
-			<plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <version>${compiler.plugin.version}</version>
-	            <configuration>
-	                <source>1.7</source>
-	                <target>1.7</target>
-	                <skipMain>true</skipMain>
-	                <skip>true</skip>
-	            </configuration>
-	        </plugin>
 
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
@@ -50,5 +35,6 @@
             <version>2.10.1</version>
         </dependency>
 	</dependencies>
+
 
 </project>

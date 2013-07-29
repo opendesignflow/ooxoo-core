@@ -32,18 +32,18 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     test("xelement from top class") {
 
-        given("xelement on class")
+        Given("xelement on class")
         //-------------------------
         var xelt = xelement_base(new TopClass)
 
 
-        given("instance is not null")
+        Given("instance is not null")
         //-------------------------
         assert(xelt!=null)
 
-        given("name if the name of the class")
+        Given("name if the name of the class")
         //-------------------------
-        expect("TopClass")(xelt.name)
+        expectResult("TopClass")(xelt.name)
 
 
 
@@ -57,18 +57,18 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
         }
 
-        given("xelement on class")
+        Given("xelement on class")
         //-------------------------
         var xelt = xelement_base(new EmbeddedClass)
 
 
-        given("instance is not null")
+        Given("instance is not null")
         //-------------------------
         assert(xelt!=null)
 
-        given("name is the name of the class (original class name: "+(new EmbeddedClass).getClass.getSimpleName+")")
+        Given("name is the name of the class (original class name: "+(new EmbeddedClass).getClass.getSimpleName+")")
         //-------------------------
-        expect("EmbeddedClass")(xelt.name)
+        expectResult("EmbeddedClass")(xelt.name)
 
 
     }
@@ -83,29 +83,29 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
         }
 
-        given("An EmbeddedClass instance")
+        Given("An EmbeddedClass instance")
         //----------------------------------------------------------
         var inst = new EmbeddedClass
 
-        then("Field must be detected")
+        Then("Field must be detected")
         //----------------------------------------------------------
         var fields = ScalaReflectUtils.getFields(inst)
 
         assert(fields.size>0)
 
-        then("There is one xelement field named elt")
+        Then("There is one xelement field named elt")
         //----------------------------------------------------------
         var xeltFields = ScalaReflectUtils.getAnnotatedFields(inst, classOf[xelement])
 
-        expect(1)(xeltFields.size)
-        expect("elt")(xeltFields.head.getName)
+        expectResult(1)(xeltFields.size)
+        expectResult("elt")(xeltFields.head.getName)
 
-        then("Name of xelement is the name of the field")
+        Then("Name of xelement is the name of the field")
         //----------------------------------------------------------
         var xelt = xelement_base(xeltFields.head)
 
         assert(xelt!=null)
-        expect("elt")(xelt.name)
+        expectResult("elt")(xelt.name)
 
     }
 
@@ -121,19 +121,19 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
         // Field must be detected
         //----------------------------
-        given("An EmbeddedClass instance")
+        Given("An EmbeddedClass instance")
         var inst = new EmbeddedClass
 
-        then("Field must be detected")
+        Then("Field must be detected")
         //-------------------------------------
         var fields = ScalaReflectUtils.getAnnotatedFields(inst, classOf[xattribute])
 
         assert(fields.size==1)
 
-        then("Name of xattribute is the name of the field")
+        Then("Name of xattribute is the name of the field")
         //-------------------------------------------------
         var xattr = xattribute_base(fields.head)
-        expect("attr")(xattr.name)
+        expectResult("attr")(xattr.name)
 
     }
 
@@ -144,11 +144,11 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         }
 
 
-        given("A SubClass instance")
+        Given("A SubClass instance")
         //---------------------------------------------
         var inst = new SubClassType
 
-        then("We can instanciate it per reflection")
+        Then("We can instanciate it per reflection")
         //var res = inst.getClass.newInstance
 
 
@@ -184,16 +184,16 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
 
 
-        given("An EmbeddedClass instance")
+        Given("An EmbeddedClass instance")
         //---------------------------------------------
         var inst = new EmbeddedClass
 
-        given("An attribute field, with subclass type")
+        Given("An attribute field, with subclass type")
         //---------------------------------------------
         var field = ScalaReflectUtils.getAnnotatedFields(inst, classOf[xattribute]).head
         assert(field!=null)
 
-        then("The Field can be instanciated")
+        Then("The Field can be instanciated")
         //---------------------------------------------
         var instance : Buffer = ScalaReflectUtils.instanciateFieldValue(inst,field)
         assert(instance!=null)

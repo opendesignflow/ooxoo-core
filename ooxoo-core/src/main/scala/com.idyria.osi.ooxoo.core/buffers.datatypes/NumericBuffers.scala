@@ -36,6 +36,9 @@ object IntegerBuffer {
     implicit def convertIntegerToIntegerBuffer(value: Integer): IntegerBuffer = IntegerBuffer(value)
     implicit def convertIntegerBufferToInteger(buffer: IntegerBuffer): Integer = buffer.data
 
+    implicit def convertIntToIntegerBuffer(value: Int): IntegerBuffer = IntegerBuffer(value)
+    implicit def convertIntegerBufferToInt(buffer: IntegerBuffer): Int = buffer.data
+
 }
 
 /**

@@ -161,7 +161,45 @@ class StreaminTest extends FunSuite with ShouldMatchers{
         root.name should not be === (null)
         root.name.toString should equal("hello")
 
-  }
+    }
+
+
+    test("Stream in a element with attribute in trait class") {
+
+
+        trait Named  {
+
+            @xattribute
+            var name : XSDStringBuffer = null
+
+         }
+
+        @xelement
+        class Test extends ElementBuffer with Named {
+
+        }
+
+
+        var xml =  <Test name="hello">
+                    </Test>
+
+
+        //-- Create StxAx IO
+        var xout = new StringWriter
+        scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
+        var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
+
+        //-- Instanciate Root and stream in
+        var root = new Test
+        root.appendBuffer(staxio)
+        staxio.streamIn
+
+        //-- Check attributes
+        //----------------------------
+        root.name should not be === (null)
+        root.name.toString should equal("hello")
+
+    }
 
 
 
@@ -234,7 +272,67 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
   }
 
+  test("Stream in a hierarchy with Class names different than XML names") {
 
+
+        trait Named  {
+
+            @xattribute
+            var name : XSDStringBuffer = null
+
+         }
+
+        @xelement(name="Test")
+        class TestTop extends ElementBuffer with Named {
+
+            @xelement(name="Sub")
+            var subElements = XList{new SubTop}
+
+            /*@xelement
+            var secondSubElements = XList{new SecondSubTop}*/
+
+        }
+
+        @xelement(name="Sub")
+        class SubTop extends ElementBuffer with Named  {
+
+        }
+
+        @xelement(name="Sub2")
+        class SecondSubTop extends ElementBuffer with Named  {
+
+        }
+
+
+        var xml =  <Test name="hello">
+                        <Sub name="hello2">theval</Sub>
+                        <Sub2 name="hello3">theval</Sub2>
+                    </Test>
+
+
+        //-- Create StxAx IO
+        var xout = new StringWriter
+        scala.xml.XML.write(xout, xml,"UTF-8",true,null,null)
+        var staxio = new StAXIOBuffer(new StringReader(xout.toString()))
+
+        //-- Instanciate Root and stream in
+        var root = new TestTop
+        root.appendBuffer(staxio)
+        staxio.streamIn
+
+        //-- Check attributes
+        //----------------------------
+        root.name should not be === (null)
+        root.name.toString should equal("hello")
+
+        //-- Check sub
+        //----------------------
+        root.subElements.size should be === (1)
+        root.subElements.head.name.toString should equal("hello2")
+
+        /*root.secondSubElements.size should be === (1)
+        root.secondSubElements.head.name.toString should equal("hello3")*/
+    }
 
     test("Search in a Sublevel element") {
 

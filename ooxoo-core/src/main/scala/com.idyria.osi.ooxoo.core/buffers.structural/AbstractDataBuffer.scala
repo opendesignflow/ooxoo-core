@@ -31,6 +31,30 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
   def dataFromString( str : String) : DT
 
 
+  // Data Set
+  //------------------
+
+  /**
+    Updates Internal value, and progagates
+  */
+  def set( data : DT ) = {
+
+    // Set
+    this.data = data
+
+    // Propagate
+    this.push
+
+  }
+
+  // Propagate
+  //-----------------
+
+
+  // Stream
+  //--------------
+
+
  /**
   * Create data unit using string conversion
   */
@@ -66,7 +90,8 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
     // Otheerwise, if we have a value, -> import data from string
     //------------
     if (du.value!=null) {
-      this.dataFromString(du.value)
+      var res = this.dataFromString(du.value)
+      this.set(res)
     }
 
     // Let parent do the job

@@ -29,13 +29,13 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("42")
-        expect(42)(buffer.data)
+        expectResult(42)(buffer.data)
 
 
         // To String
         //-----------------
         buffer.data = 2 * 42
-        expect("84")(buffer.dataToString)
+        expectResult("84")(buffer.dataToString)
 
     }
 
@@ -46,7 +46,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("0x42")
-        expect(66)(buffer.data)
+        expectResult(66)(buffer.data)
 
     }
 
@@ -57,13 +57,13 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("42")
-        expect(42)(buffer.data)
+        expectResult(42)(buffer.data)
 
 
         // To String
         //-----------------
         buffer.data = 2 * 42
-        expect("84")(buffer.dataToString)
+        expectResult("84")(buffer.dataToString)
 
     }
 
@@ -76,7 +76,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("0x42")
-        expect(66)(buffer.data)
+        expectResult(66)(buffer.data)
 
     }
 
@@ -88,13 +88,13 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("42.0")
-        expect(42.0)(buffer.data)
+        expectResult(42.0)(buffer.data)
 
 
         // To String
         //-----------------
         buffer.data = (2.0 * 42.0).toFloat
-        expect("84.0")(buffer.dataToString)
+        expectResult("84.0")(buffer.dataToString)
 
     }
 
@@ -106,13 +106,13 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         // From String
         //--------------------
         buffer.dataFromString("42.0")
-        expect(42.0)(buffer.data)
+        expectResult(42.0)(buffer.data)
 
 
         // To String
         //-----------------
         buffer.data = 2.0 * 42.0
-        expect("84.0")(buffer.dataToString)
+        expectResult("84.0")(buffer.dataToString)
 
 
     }

@@ -40,7 +40,7 @@ trait BaseBufferTrait extends Buffer {
 
     // Insert
     //-----------
-    currentBuffer insertNextBuffer (buffer)
+    currentBuffer.insertNextBuffer(buffer)
 
   }
 

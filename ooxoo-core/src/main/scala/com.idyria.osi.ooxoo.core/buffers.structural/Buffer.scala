@@ -29,17 +29,17 @@ trait Buffer{
 
 
   /**
-   * Propagates a data unit coming from previous buffer in chain
+   * Pushs a data unit coming from previous buffer in chain
    */
   def streamOut(du : DataUnit)
 
   /**
-   * Propagates a data unit created locally out to the next buffer chain (right direction)
+   * Pushs a data unit created locally out to the next buffer chain (right direction)
    */
   def streamOut
 
   /**
-   * Propagates a data unit created locally out to the next buffer chain
+   * Pushs a data unit created locally out to the next buffer chain
    * The provided closure is called on the locally created dataunit for injection purpose
    */
   def streamOut( cl : DataUnit => DataUnit)
@@ -79,32 +79,90 @@ trait Buffer{
   def <= (du: DataUnit) = streamIn(du)
 
 
-  // Propagate Interface
+  //-----------------------------
+  // Push / Pull Interface
   //-----------------------------
 
   /**
-    Propagate a Data Unit to the right of the buffer chain
-    The user should override this method to be able to react on propagate
+    Push Left and Right, and creates the data unit if none has been given
+
   */
-  def propagateRight( du: DataUnit ) : Unit = {
+  def push( du: DataUnit ) : Unit = {
+
+    // DU Preparation
+    //--------
+    var dataUnit = du
+    if (dataUnit==null) {
+      dataUnit = this.createDataUnit
+    }
+
+    // Push
+    //----------
+    this.pushRight(dataUnit)
+    this.pushLeft(dataUnit)
+  }
+  def push : Unit = push(null)
+
+  /**
+    Push a Data Unit to the right of the buffer chain
+    The user should override this method to be able to react on Push
+  */
+  def pushRight( du: DataUnit ) : Unit = {
 
     if (getNextBuffer!=null) {
-      getNextBuffer.propagateRight(du)
+      getNextBuffer.pushRight(du)
     }
 
   }
 
   /**
-    Propagate a Data Unit to the left of the buffer chain
-    The user should override this method to be able to react on propagate
+    Push a Data Unit to the left of the buffer chain
+    The user should override this method to be able to react on Push
   */
-  def propagateLeft( du: DataUnit ) : Unit  = {
+  def pushLeft( du: DataUnit ) : Unit  = {
 
     if (getPreviousBuffer!=null) {
-      getPreviousBuffer.propagateLeft(du)
+      getPreviousBuffer.pushLeft(du)
     }
 
   }
+
+
+  /**
+    Request value pull from right buffer
+    If we have someone on the left, respond using pull(dataUnit)
+
+    @return The Data Unit to be pulled in
+  */
+  def pull : DataUnit = {
+
+    var du : DataUnit = null
+
+    // Pull Right
+    if (getNextBuffer!=null)
+      du = getNextBuffer.pull
+
+
+    // Create Data Unit if necessary
+    if (du==null)
+      du = this.createDataUnit
+
+    // Pull in if no buffer on the left
+    if (getPreviousBuffer==null)
+      this.pull(du)
+
+    du
+  }
+
+
+  /**
+    Called on the buffer when some datas get pulled in
+  */
+  def pull(du:DataUnit) = {
+
+  }
+
+
 
 
   // Buffer Chain Management
@@ -165,6 +223,12 @@ trait Buffer{
    * @return The inserted buffer
    */
   def appendBuffer(buffer : Buffer) : Buffer
+
+  /**
+    Appends a Buffer at the end of the chain
+
+    @return The inserted buffer
+   */
   def - (buffer : Buffer) : Buffer = appendBuffer(buffer)
 
   /**
