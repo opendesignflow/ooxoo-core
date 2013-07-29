@@ -5,6 +5,7 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 import org.scalatest._
 import org.scalatest.matchers._
 
+
 import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
