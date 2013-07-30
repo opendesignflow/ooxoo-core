@@ -42,4 +42,55 @@ class DataUnit {
   @BeanProperty
   var hierarchical : Boolean = false
 
+
+  // DU Context
+  //------------------------
+
+  var contextMap = Map[String,AnyRef]()
+
+  /**
+    Add a new value to the DataUnit context map
+    Usage:
+
+      var du = new DataUnit
+      du("key" -> value)
+  */
+  def apply( tuple : (String,AnyRef)) = contextMap = contextMap + tuple
+
+  /**
+    Get the context value matching provided key
+  */
+  def apply( key : String ) = contextMap.get(key)
+
+
+  // Merge operation
+  //--------
+
+  def +(du:DataUnit) : DataUnit = {
+
+    // Copy Attributes and merge context maps
+    //---------
+    if (du.element!=null)
+      this.element = du.element
+
+    if (du.attribute!=null)
+      this.attribute = du.attribute
+
+    if (du.value!=null)
+      this.value = du.value
+
+    this.contextMap = du.contextMap ++ this.contextMap
+
+    this
+  }
+
+  //def +=(du: DataUnit) . DataUnit
+
+}
+
+object DataUnit {
+
+
+  def apply() : DataUnit = new DataUnit
+
 }

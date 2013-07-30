@@ -99,6 +99,9 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
 
             transaction.actions.size should equal (1)
 
+            And("If resetting value on same buffer, only one action is still present")
+            baseBuffer.set(42)
+            transaction.actions.size should equal (1)
         }
 
     }
@@ -212,6 +215,37 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             expectResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
 
         }
+
+    }
+
+    feature("Transaction Read Cache") {
+
+        Given("A Transactional Buffer chain")
+        //--------------------
+        var resultDataUnit : DataUnit = null
+        var pullCount = 0
+        var baseBuffer = new LongBuffer()
+        baseBuffer - new TransactionBuffer()
+        baseBuffer - new BaseBuffer() {
+
+            pullCount = 0
+
+            override def pull(du:DataUnit) : DataUnit = {
+                pullCount+=1
+                du.value = "45"
+                du
+            }
+
+        }
+
+        Then("Pulling Twice, should trigger only one pull on the buffer behind the transactional buffer")
+        baseBuffer.pull()
+        baseBuffer.pull()
+
+        expectResult(1)(pullCount)
+
+
+
 
     }
 

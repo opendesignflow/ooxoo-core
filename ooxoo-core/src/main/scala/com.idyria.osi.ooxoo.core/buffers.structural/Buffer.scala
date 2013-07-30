@@ -12,20 +12,29 @@ package com.idyria.osi.ooxoo.core.buffers.structural
  * @author rleys
  *
  */
-trait Buffer{
+trait Buffer {
 
 
 
+  // Data Unit Interface
+  //---------------------
 
-
-  // Streamout/in Interface
-  //---------------------------------
-
-  /**
+   /**
    * Creates a data unit from this buffer.
    * This is used when the buffer is the starting point of a streamOut or streamIn
    */
   def createDataUnit : DataUnit = null
+
+  /**
+    Import a Data Unit in the current buffer
+  */
+  def importDataUnit( du:DataUnit ) : Unit = {
+
+  }
+  // Streamout/in Interface
+  //---------------------------------
+
+
 
 
   /**
@@ -94,6 +103,8 @@ trait Buffer{
     var dataUnit = du
     if (dataUnit==null) {
       dataUnit = this.createDataUnit
+    } else if (dataUnit.value==null) {
+      dataUnit += this.createDataUnit
     }
 
     // Push
@@ -101,7 +112,7 @@ trait Buffer{
     this.pushRight(dataUnit)
     this.pushLeft(dataUnit)
   }
-  def push : Unit = push(null)
+  def push : Unit = push(DataUnit())
 
   /**
     Push a Data Unit to the right of the buffer chain
@@ -127,20 +138,19 @@ trait Buffer{
 
   }
 
-
   /**
     Request value pull from right buffer
     If we have someone on the left, respond using pull(dataUnit)
 
     @return The Data Unit to be pulled in
   */
-  def pull : DataUnit = {
+  def pull(indu:DataUnit) : DataUnit = {
 
     var du : DataUnit = null
 
     // Pull Right
     if (getNextBuffer!=null)
-      du = getNextBuffer.pull
+      du = getNextBuffer.pull(indu)
 
 
     // Create Data Unit if necessary
@@ -149,20 +159,12 @@ trait Buffer{
 
     // Pull in if no buffer on the left
     if (getPreviousBuffer==null)
-      this.pull(du)
+      this.importDataUnit(du)
 
     du
-  }
-
-
-  /**
-    Called on the buffer when some datas get pulled in
-  */
-  def pull(du:DataUnit) = {
 
   }
-
-
+  def pull() : DataUnit = this.pull(DataUnit())
 
 
   // Buffer Chain Management

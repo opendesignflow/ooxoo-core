@@ -51,9 +51,8 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
   //-----------------
 
 
-  // Stream
-  //--------------
-
+  // Data Unit
+  //---------------------
 
  /**
   * Create data unit using string conversion
@@ -67,6 +66,20 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
     du
 
   }
+
+  /**
+  * Create data unit using string conversion
+  */
+ override def importDataUnit(du:DataUnit) : Unit = {
+
+    var res = this.dataFromString(du.value)
+    this.data = res
+
+  }
+
+
+  // Stream
+  //--------------
 
 
   /**

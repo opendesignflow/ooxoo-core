@@ -14,12 +14,50 @@ class TransactionBuffer extends BaseBuffer {
     /**
         The DataUnit that is currently on hold before transaction commit
     */
-    var holdDataUnit : DataUnit = null
+    var pushDataUnit : DataUnit = null
+
+    var pullDataUnit : DataUnit = null
+
+
+    var transactionAction : PartialFunction[Transaction,Unit] = {
+
+        case Transaction.Commit(transaction) =>
+
+        //    println("Transaction Commit Called")
+
+            TransactionBuffer.this.doPushRight(pushDataUnit)
+
+        case Transaction.Discard(transaction) =>
+
+            this.pushDataUnit = null
+            this.pullDataUnit = null
+
+        case Transaction.Cancel(transaction)  =>
+
+            this.pushDataUnit = null
+            this.pullDataUnit = null
+
+        case _ =>
+
+    }
 
 
     // Get
     //----------
 
+    /**
+        Returned Transaction Cached read value, or propagate pull
+    */
+    override def pull(du:DataUnit) : DataUnit = {
+
+        // Return cached value if available, otherwise delegate
+        if (pullDataUnit!=null)
+            this.pullDataUnit
+        else {
+            this.pullDataUnit = super.pull(du)
+            this.pullDataUnit
+        }
+    }
 
     // Put
     //------------
@@ -31,23 +69,9 @@ class TransactionBuffer extends BaseBuffer {
 
         //println("In Propagate right")
 
-        this.holdDataUnit = du
+        this.pushDataUnit = du
 
-        Transaction() {
-
-            case Transaction.Commit(transaction) =>
-
-            //    println("Transaction Commit Called")
-
-                TransactionBuffer.this.doPushRight(holdDataUnit)
-
-            case Transaction.Cancel(transaction) =>
-
-                this.holdDataUnit = null
-
-            case _ =>
-
-        }
+        Transaction()(transactionAction)
 
     }
 
@@ -95,8 +119,9 @@ class Transaction {
     */
     def apply( action : PartialFunction[Transaction,Unit]) = {
 
-        //println("Recording transaction action")
-        actions = action :: actions
+       // println("Recording transaction action: "+action.hashCode)
+        if (!actions.contains(action))
+            actions = action :: actions
     }
 
 
@@ -158,7 +183,7 @@ object Transaction {
     */
     object State extends Enumeration {
         type State = Value
-        val Pending, Commit , Cancel, Rollback = Value
+        val Pending, Commit , Cancel, Rollback, Discard = Value
     }
 
     object Commit {
@@ -175,6 +200,16 @@ object Transaction {
 
         def unapply(transaction: Transaction) : Option[Transaction] = {
             if (transaction.state == Transaction.State.Cancel)
+                return Option(transaction)
+            else
+                return None
+        }
+    }
+
+    object Discard {
+
+        def unapply(transaction: Transaction) : Option[Transaction] = {
+            if (transaction.state == Transaction.State.Discard)
                 return Option(transaction)
             else
                 return None
