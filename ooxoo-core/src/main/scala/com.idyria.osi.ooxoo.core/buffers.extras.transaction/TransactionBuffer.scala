@@ -200,7 +200,6 @@ object Transaction {
         //-------------
         var thread = Thread.currentThread
 
-        println("Creating thread with initiator: "+initiator)
 
         // Create or return Transaction
         //---------------
