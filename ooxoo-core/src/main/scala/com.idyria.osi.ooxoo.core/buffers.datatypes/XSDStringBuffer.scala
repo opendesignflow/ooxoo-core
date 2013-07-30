@@ -5,6 +5,8 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
+import scala.language.implicitConversions
+
 /**
  * Buffer used to define a string
  * @author rleys

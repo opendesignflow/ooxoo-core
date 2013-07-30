@@ -2,6 +2,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
+import scala.language.implicitConversions
 
 /**
     Buffer to represent an Integer
@@ -71,9 +72,18 @@ object LongBuffer {
         res
     }
 
+    def apply( value: Long) = {
+        var res = new LongBuffer
+        res.data = value
+        res
+    }
+
     implicit def convertLongToLongBuffer(value: java.lang.Long): LongBuffer = LongBuffer(value)
     implicit def convertLongBufferToLong(buffer: LongBuffer): java.lang.Long = buffer.data
 
+
+    implicit def convertLong2ToLongBuffer(value: Long): LongBuffer = LongBuffer(value)
+    implicit def convertLongBufferToLong2(buffer: LongBuffer): Long = buffer.data
 }
 
 /**
