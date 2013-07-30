@@ -13,7 +13,20 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.tea.listeners._
 
 
-class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldMatchers {
+class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldMatchers with BeforeAndAfterEach {
+
+
+
+    override def beforeEach = {
+        Transaction.discardAll
+    }
+
+
+
+
+
+
+
 
     /**
         Buffer designed to catch transaction propagations and report what it saw
@@ -167,10 +180,39 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             //----------------
             var transactionAfterCancel = Transaction()
             assert(transaction.hashCode != transactionAfterCancel.hashCode)
-            expect(Transaction.State.Pending)(transactionAfterCancel.state)
+            expectResult(Transaction.State.Pending)(transactionAfterCancel.state)
 
 
         }
+    }
+
+
+    feature("Transaction Initiator") {
+
+
+        scenario("No Initiator Provided") {
+
+
+            Given("A Normal transaction")
+            var tr = Transaction()
+
+            Then("Initiator must be null")
+            assert(tr.initiator == null)
+
+        }
+
+        scenario("Initiator Provided") {
+
+
+            Given("A Normal transaction")
+            var tr = Transaction(TransactionBufferTest.this)
+
+            Then("Initiator must be null")
+
+            expectResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
+
+        }
+
     }
 
 

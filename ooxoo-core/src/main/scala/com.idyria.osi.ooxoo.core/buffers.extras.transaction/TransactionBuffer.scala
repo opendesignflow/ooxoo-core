@@ -2,6 +2,8 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
 
+import scala.language.implicitConversions
+
 /**
     This Buffer can be used to block propagations base on a transaction context,
     so that values get propagated
@@ -83,7 +85,7 @@ class Transaction {
     var actions = List[PartialFunction[Transaction,Unit]]()
 
     /// The object that initiated this transaction, if provided at creation
-    var initiator : Any = null
+    var initiator : AnyRef = null
 
     // Setup
     //------------
@@ -186,17 +188,19 @@ object Transaction {
 
 
 
-    implicit var defaultInitiator : Any = null
+    implicit val defaultInitiator : AnyRef = null
 
     /**
 
         @return The Transaction of the calling Buffer for the current Thread
     */
-    def apply( implicit initiator : Any) : Transaction = {
+    def apply(  implicit initiator : AnyRef = null) : Transaction = {
 
         // Take current Thread
         //-------------
         var thread = Thread.currentThread
+
+        println("Creating thread with initiator: "+initiator)
 
         // Create or return Transaction
         //---------------
@@ -212,7 +216,12 @@ object Transaction {
         }
 
     }
+    /*def apply : Transaction =  apply(null)
 
+    def apply( action : PartialFunction[Transaction,Unit]) = {
+
+        this(null)(action)
+    }*/
 
     /**
         Remove a transaction from Thread Mapping
@@ -224,6 +233,15 @@ object Transaction {
             case None =>
                 // FIXME : Return an error trying to discard a non registered transaction ?
         }
+
+    }
+
+    /**
+        Discard All the transactions, and cancels not closed one
+    */
+    def discardAll = {
+
+        currentTransactions.foreach { case (th , tr ) => discard(tr) }
 
     }
 
