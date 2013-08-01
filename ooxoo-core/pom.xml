@@ -10,13 +10,7 @@
 	<artifactId>ooxoo-core</artifactId>
 	<name>Core runtime for OOXOO</name>
 
-	<build>
-		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
-	</build>
-
 	<dependencies>
-
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
 			<artifactId>xml-utils</artifactId>
@@ -29,7 +23,11 @@
 			<groupId>com.idyria.osi.java-utils</groupId>
 			<artifactId>tea</artifactId>
 		</dependency>
-		
+		<dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>2.10.1</version>
+        </dependency>
 	</dependencies>
 
 </project>

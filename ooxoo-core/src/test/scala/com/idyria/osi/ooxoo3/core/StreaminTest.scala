@@ -1,19 +1,19 @@
 /**
  * 
  */
-package com.idyria.osi.ooxoo3.core
+package com.idyria.osi.ooxoo.core
 
 import java.io.StringReader
 import java.io.StringWriter
 import org.scalatest.FunSuite
-import com.idyria.osi.ooxoo3.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.ElementBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.VerticalBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.XList
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo3.core.buffers.structural.xattribute
-import com.idyria.osi.ooxoo3.core.buffers.structural.xelement
+import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.XList
+import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement
 import org.scalatest.matchers.ShouldMatchers
 
 
@@ -38,14 +38,8 @@ class StreaminTest extends FunSuite with ShouldMatchers{
     var attr2 : XSDStringBuffer = null
     
     @xelement
-    var subStringMultiple : XList[XSDStringBuffer] = new XList[XSDStringBuffer] { 
-      
-      
-      p=> 
-        
-      def createBuffer : XSDStringBuffer = new XSDStringBuffer
-    
-    }
+    var subStringMultiple : XList[XSDStringBuffer] =  XList[XSDStringBuffer] {  new XSDStringBuffer }
+     
     
     @xelement
     var subStringSingle : XSDStringBuffer = null
@@ -171,10 +165,7 @@ class StreaminTest extends FunSuite with ShouldMatchers{
       var SingleSubRoot : SingleSubRoot = null
       
       @xelement
-      var MultipleSubRoot : XList[MultipleSubRoot] =   new XList[MultipleSubRoot] { 
-    		def createBuffer : MultipleSubRoot = new MultipleSubRoot
-	    
-	   }
+      var MultipleSubRoot : XList[MultipleSubRoot] =   XList[MultipleSubRoot] {  new MultipleSubRoot   }
       
     }
   
