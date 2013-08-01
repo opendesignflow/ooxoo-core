@@ -8,167 +8,118 @@ import scala.reflect.runtime.universe._
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 
+import java.lang.reflect._
+
+import com.idyria.osi.tea.logging.TLog
+
 /**
  * @author rleys
  *
  */
 object ScalaReflectUtils {
 
-  
-  def getFields(source: AnyRef) : Iterable[Symbol] = {
-    
-     // Get type tag
-    //--------------------
-    var baseTT = scala.reflect.runtime.universe.manifestToTypeTag(scala.reflect.runtime.currentMirror, Manifest.singleType(source))
 
-    /*baseTT.tpe.members.foreach {
+  def getFields(source: AnyRef) : Iterable[Field] = {
 
-      (f:Any) => println("Available: " + f.toString())
-
-    }*/
-    
-    // Filter Methods out
-    //------------------
-    var allFields = Set[Symbol]()
-    
-    //-- Get over base classes
-    baseTT.tpe.baseClasses.foreach {
-      symbol => 
-        symbol.typeSignature.members.filter(
-        		(m: Any) =>
-        			m.asInstanceOf[scala.reflect.api.Universe#Symbol].isTerm 
-        			&& !m.asInstanceOf[scala.reflect.api.Universe#Symbol].isMethod
-        		).foreach(allFields += _.asInstanceOf[Symbol])
+    var allFields = Set[Field]()
+    var currentClass : Class[_]  = source.getClass
+    while (currentClass != null) {
+      for (field <- (currentClass.getFields()))
+       allFields += field
+      for (field <- (currentClass.getDeclaredFields()))
+        allFields += field
+      currentClass = currentClass.getSuperclass()
     }
-    
-    baseTT.tpe.members.filter(
-      (m: Any) =>
-        m.asInstanceOf[scala.reflect.api.Universe#Symbol].isTerm 
-        && !m.asInstanceOf[scala.reflect.api.Universe#Symbol].isMethod
-     ).foreach(allFields += _.asInstanceOf[Symbol])
-    
-     allFields
-    
+    allFields
+
+
   }
-  
+
   /**
    * Returns all the fields of the source that have the provided annotation types
    */
-  def getAnnotatedFields[AT <: Annotation](source: AnyRef,annotations: scala.reflect.runtime.universe.Type*) : Iterable[Symbol] = {
-    
-    
+  def getAnnotatedFields[AT <: java.lang.annotation.Annotation](source: AnyRef,annotationClass: Class[AT]) : Iterable[Field] = {
+
+
     // Get Fields
     //--------------------
     var fields = this.getFields(source);
-    
+
     var res = fields.filter {
-        field => field.annotations.count(a => annotations.count( _ == a.tpe.erasure)>0)>0
+        field => field.getAnnotation(annotationClass)!=null
     }
-    
+
 //    res.foreach {
 //      field =>
-//        println("Res Available: " + field.toString())
+//        TLog.logFine("Res Available: " + field.toString())
 //    }
-    
+
     res
-    
-    
+
+    //return null
+
+
   }
-  
-  
-  def getFieldValue[T <: Any](source: AnyRef,field: Symbol) : T = {
-    
-     // Get Instance mirror of source
-     var mirror = scala.reflect.runtime.universe.runtimeMirror(Thread.currentThread().getContextClassLoader());
-     var instanceMirror = mirror.reflect(source)
-     var fieldMirror = instanceMirror.reflectField(field.asTerm)
-     fieldMirror.get.asInstanceOf[T]
-     
+
+
+  def getFieldValue[T <: Any](source: AnyRef,field: Field) : T = {
+
+    // get Field and reutrn
+    //-----------------
+    field.setAccessible(true)
+    return field.get(source).asInstanceOf[T]
+
+
+
+
   }
-  
-  def instanciateFieldValue[T <: Any](source: AnyRef,field: Symbol) : T = {
-    
-    
-    // Get Instance mirror of source
-    //-----------
-     var mirror = scala.reflect.runtime.universe.runtimeMirror(Thread.currentThread().getContextClassLoader());
-     var instanceMirror = mirror.reflect(source)
-    
-    // Get instance mirror for field
-     //--------------------
-     var fieldMirror = instanceMirror.reflectField(field.asTerm)
-     
-     //var fieldInstanceMirror = mirror.reflect(fieldMirror.symbol)
-     
-     
-    
-     
-     var fieldClassMirror = if (! field.typeSignature.typeSymbol.asClass.isStatic) {
-       
-       println("This is a subclass")
-       var m = mirror.reflect(field.typeSignature.typeSymbol.asClass.owner)
-       
-       m.symbol.filter{ s => println(s"Found symbol: $s");true}
-       
-       instanceMirror.reflectClass(field.typeSignature.typeSymbol.asClass)
-       
-     } else {
-      
-       mirror.reflectClass(fieldMirror.symbol.typeSignature.typeSymbol.asClass)
-     }
-     
-     // Instanciate type
-     //-------------------
-     
-     //-- Pick constructor, but first alternative (default constructor)
-     var constructorSymbol = field.typeSignature.declaration(scala.reflect.runtime.universe.nme.CONSTRUCTOR).asTerm.alternatives.head 
-     var constructor = constructorSymbol.asMethod
-     
-     //-- Mirror field type class and constructor method
-     //mirror.reflectClass(field.typeSignature.typeSymbol.asClass)
-     //var fieldClassMirror = fieldInstanceMirror.reflectClass(field.typeSignatureIn(site).typeSignature.typeSymbol.asClass)
-     //var fieldClassMirror = fieldInstanceMirror.reflectClass(fieldMirror.symbol.typeSignature.typeSymbol.asClass)
-     var constructorMirror = fieldClassMirror.reflectConstructor(constructor);
-     
-     
-   
-     
-     //-- Apply constructor
-     
-     //println("--> Instanciate: "+constructorMirror());
-     
-     //-- Return
-    fieldMirror.set(constructorMirror())
-     fieldMirror.get.asInstanceOf[T]
-     
-    
-    
+
+  def instanciateFieldValue[T <: Any](source: AnyRef,field: Field) : T = {
+
+
+    // get Type, and see if it is a subclass
+    //--------------
+    var fieldType = field.getType
+
+   // println(s"Trying ot instancicate for field ${field.getName} of type ${field.getType}, with super: "+fieldType.getSuperclass())
+
+    fieldType.getEnclosingClass match {
+
+      // Enclosed class
+      case eClass if(eClass!=null) =>
+
+        //println(s"Type is an embedded type, with enclosing: ${eClass}")
+
+       // fieldType.getConstructors().foreach {
+       //   c => println("---> available constructor: "+c)
+        //}
+        var obj = fieldType.getDeclaredConstructor(eClass).newInstance(source).asInstanceOf[T]
+        field.setAccessible(true)
+        field.set(source,obj)
+        return obj
+
+      // Not an enclosing class
+      case null =>
+        var obj = field.getType.newInstance.asInstanceOf[T]
+        field.setAccessible(true)
+        field.set(source,obj)
+        return obj
+    }
+
+    // Instanciate type
+    //----------
+    //var obj = field.getType.newInstance
+
+    // Set and return
+    //-------------------
+    //field.setAccessible(true)
+    //field.set(source,obj)
+
+    //return obj.asInstanceOf[T]
+
+
   }
-  
-  
-  def instanciateType[T <: Any](sourceType: Symbol) : T = {
-    
-    // Get Instance mirror of source
-     var mirror = scala.reflect.runtime.universe.runtimeMirror(Thread.currentThread().getContextClassLoader());
-     
-     
-     // Instanciate type
-     //-------------------
-     
-     //-- Pick constructor, but first alternative (default constructor)
-     var constructor = sourceType.typeSignature.declaration(scala.reflect.runtime.universe.nme.CONSTRUCTOR).asTerm.alternatives.head.asMethod
-     
-     //-- Mirror field type class and constructor method
-     var fieldClassMirror = mirror.reflectClass(sourceType.typeSignature.typeSymbol.asClass)
-     var constructorMirror = fieldClassMirror.reflectConstructor(constructor);
-     
-     //-- Apply constructor
-     
-     //println("--> Instanciate: "+constructorMirror());
-     
-     //-- Return
-     constructorMirror().asInstanceOf[T]
-  }
-  
-  
+
+
+
 }

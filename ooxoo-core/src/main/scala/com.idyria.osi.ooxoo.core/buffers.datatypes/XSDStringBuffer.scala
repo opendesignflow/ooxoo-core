@@ -5,7 +5,10 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
+import scala.language.implicitConversions
+
 /**
+ * Buffer used to define a string
  * @author rleys
  *
  */
@@ -16,16 +19,16 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
   def dataToString: String = {
     this.data
   }
-  
+
   /**
    * Append provided string to existing one
    */
   def dataFromString(str: String): String = {
-    
+
     if (this.data==null)
     	this.data = str
 	else
-    	this.data+=str  
+    	this.data+=str
     this.data
   }
 
@@ -33,16 +36,20 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
     if (this.data==null)
       super.toString
     this.data
-    
+
   }
 
   def equals(comp: XSDStringBuffer): Boolean = {
     this.data == comp.data
   }
-  
+
+  def equals(comp: String): Boolean = {
+    this.data == comp
+  }
+
   def compareTo(comp:String) : Int = {
      this.data.compareTo(comp)
-  } 
+  }
 
 }
 object XSDStringBuffer {
