@@ -25,10 +25,12 @@ class TransactionBuffer extends BaseBuffer {
 
         //    println("Transaction Commit Called")
 
-            TransactionBuffer.this.doPushRight(pushDataUnit)
+            if (pushDataUnit!=null)
+                TransactionBuffer.this.doPushRight(pushDataUnit)
 
         case Transaction.Discard(transaction) =>
 
+            println("Discarding")
             this.pushDataUnit = null
             this.pullDataUnit = null
 
@@ -38,6 +40,9 @@ class TransactionBuffer extends BaseBuffer {
             this.pullDataUnit = null
 
         case _ =>
+
+            this.pushDataUnit = null
+            this.pullDataUnit = null
 
     }
 
@@ -51,9 +56,16 @@ class TransactionBuffer extends BaseBuffer {
     override def pull(du:DataUnit) : DataUnit = {
 
         // Return cached value if available, otherwise delegate
-        if (pullDataUnit!=null)
+        if (pullDataUnit!=null) {
+            println("Returning cached value")
             this.pullDataUnit
+        }
         else {
+
+            // Register to Transaction if not already
+            Transaction()(transactionAction)
+
+            // Pull, cache and return
             this.pullDataUnit = super.pull(du)
             this.pullDataUnit
         }
@@ -173,6 +185,26 @@ class Transaction {
         return this
 
     }
+
+    /**
+        Discard Transaction
+        Discard is called at the end of a transaction to cleanup
+    */
+    def discard() = {
+
+        println("Discarding transaction with: "+actions.size+" actions")
+
+        // Change State
+        //-------------
+        this.state = Transaction.State.Discard
+
+        // Discard
+        //----------------------
+        actions.foreach(_(this))
+
+
+
+    }
 }
 
 object Transaction {
@@ -258,12 +290,23 @@ object Transaction {
     }*/
 
     /**
+        Remove current Transaction from transaction mapping
+    */
+    def discard() : Unit = discard(Transaction())
+
+    /**
         Remove a transaction from Thread Mapping
     */
-    def discard(transaction : Transaction) = {
+    def discard(transaction : Transaction) : Unit = {
+
+        println("Searching for Transaction to discard for current Thread")
 
         currentTransactions.find{case (th , tr) => tr==transaction } match {
-            case Some((th,tr)) => currentTransactions -= th
+            case Some((th,tr)) =>
+
+                println("Found Transaction to discard for current Thread")
+                tr.discard
+                currentTransactions -= th
             case None =>
                 // FIXME : Return an error trying to discard a non registered transaction ?
         }

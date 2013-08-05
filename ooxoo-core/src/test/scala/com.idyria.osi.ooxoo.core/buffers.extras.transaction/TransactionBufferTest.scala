@@ -189,6 +189,17 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
         }
     }
 
+    feature("Transaction Rollback") {
+
+        scenario("Single Rollback") {
+
+
+
+
+        }
+
+    }
+
 
     feature("Transaction Initiator") {
 
