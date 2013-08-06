@@ -11,14 +11,16 @@ This functionality is usually provided by a framework, that makes data manipulat
 Those actions are called:
 
 - Commit: This is when the transaction tries to apply all the changes
-- Cancel/Rollback: When an error occured during the transaction or while committing, rollbacks all modifications to the state before the transaction 
+- Cancel/Rollback: When an error occured during the transaction or while committing, rollbacks all modifications to the state before the transaction
   FIXME: Is cancel different in operation than rollback
 
 # Overview
 
 
 The Transaction Buffer provides Transactional functionality when working with the OOXOO library.
-In the following picture, you can see the various calls and components provided by the transaction buffer
+In the following picture, you can see the various calls and components provided by the transaction buffer:
+
+
 
 - Transaction Buffer is to be inserted in a chain
 - Push:
@@ -38,46 +40,48 @@ The package also provides a Transaction Class and singleton to manage the living
 # Example
 
 - Commit:
+
+
 	
-	import com.idyria.osi.ooxoo.core.buffers.datatypes._
-	import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
+		import com.idyria.osi.ooxoo.core.buffers.datatypes._
+		import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
 
-	// Create a LongBuffer to work with a long
-	var longBuffer = Buffer(10)
+		// Create a LongBuffer to work with a long
+		var longBuffer = Buffer(10)
 
-	// Add a transaction buffer
-	longBuffer - new TransactionBuffer
+		// Add a transaction buffer
+		longBuffer - new TransactionBuffer
 
-	// Change value
-	longBufer.set(89)
+		// Change value
+		longBufer.set(89)
 
-	// Print (89)
-	println("Long: "+longBuffer.data)
+		// Print (89)
+		println("Long: "+longBuffer.data)
 
-	// Commit and print same result (89), but that's normal
-	Transaction().commit
-	println("Long: "+longBuffer.data)
+		// Commit and print same result (89), but that's normal
+		Transaction().commit
+		println("Long: "+longBuffer.data)
 
 
 - Cancel/Rollback
 
-	import com.idyria.osi.ooxoo.core.buffers.datatypes._
-	import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
+		import com.idyria.osi.ooxoo.core.buffers.datatypes._
+		import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
 
-	// Create a LongBuffer to work with a long
-	var longBuffer = Buffer(10)
+		// Create a LongBuffer to work with a long
+		var longBuffer = Buffer(10)
 
-	// Add a transaction buffer
-	longBuffer - new TransactionBuffer
+		// Add a transaction buffer
+		longBuffer - new TransactionBuffer
 
-	// Change value
-	longBufer.set(89)
+		// Change value
+		longBufer.set(89)
 
-	// Print (89)
-	println("Long: "+longBuffer.data)
+		// Print (89)
+		println("Long: "+longBuffer.data)
 
-	// Cancel and print back original value
-	Transaction().cancel
+		// Cancel and print back original value
+		Transaction().cancel
 
-	// (10)
-	println("Long: "+longBuffer.data)
+		// (10)
+		println("Long: "+longBuffer.data)
