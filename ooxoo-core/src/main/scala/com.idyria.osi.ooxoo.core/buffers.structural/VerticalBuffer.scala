@@ -25,9 +25,9 @@ abstract class VerticalBuffer extends BaseBuffer {
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
    */
-  private var inHierarchy = false
+  protected var inHierarchy = false
 
-  private var stackSize = 0
+  protected var stackSize = 0
 
 
   // Search

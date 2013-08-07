@@ -2,6 +2,8 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
 
+import com.idyria.osi.tea.logging.TLog
+
 import scala.language.implicitConversions
 
 /**
@@ -57,7 +59,7 @@ class TransactionBuffer extends BaseBuffer {
 
         // Return cached value if available, otherwise delegate
         if (pullDataUnit!=null) {
-            println("Returning cached value")
+            TLog.logFine("Returning cached value")
             this.pullDataUnit
         }
         else {
@@ -192,7 +194,7 @@ class Transaction {
     */
     def discard() = {
 
-        println("Discarding transaction with: "+actions.size+" actions")
+        //println("Discarding transaction with: "+actions.size+" actions")
 
         // Change State
         //-------------
@@ -275,6 +277,8 @@ object Transaction {
             case Some(transaction) => transaction
             case None =>
 
+                    TLog.logFine("-- Creating transaction for Thread --")
+
                     var transaction = new Transaction
                     transaction.initiator = initiator
                     currentTransactions+= (thread -> transaction)
@@ -299,12 +303,12 @@ object Transaction {
     */
     def discard(transaction : Transaction) : Unit = {
 
-        println("Searching for Transaction to discard for current Thread")
+        //println("Searching for Transaction to discard for current Thread")
 
         currentTransactions.find{case (th , tr) => tr==transaction } match {
             case Some((th,tr)) =>
 
-                println("Found Transaction to discard for current Thread")
+               // println("Found Transaction to discard for current Thread")
                 tr.discard
                 currentTransactions -= th
             case None =>
