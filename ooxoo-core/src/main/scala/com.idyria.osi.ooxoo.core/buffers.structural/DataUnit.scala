@@ -63,6 +63,11 @@ class DataUnit {
   def apply( key : String ) = contextMap.get(key)
 
 
+  // Utilities
+  //----------------------
+
+  def isHierarchyClose = (this.attribute==null && this.element==null && this.value==null)
+
   // Merge operation
   //--------
 

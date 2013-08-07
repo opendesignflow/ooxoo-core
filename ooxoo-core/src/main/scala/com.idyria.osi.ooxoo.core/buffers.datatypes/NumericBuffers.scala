@@ -62,6 +62,8 @@ class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java
 
     def compareTo(comp: java.lang.Long ) : Int = this.data.compareTo(comp)
 
+
+    def +( add: Long) : Long = this.data + add
 }
 
 object LongBuffer {
