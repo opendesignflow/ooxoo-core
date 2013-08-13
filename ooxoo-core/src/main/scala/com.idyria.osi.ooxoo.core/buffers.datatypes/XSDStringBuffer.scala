@@ -21,16 +21,10 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
   }
 
   /**
-   * Append provided string to existing one
+   * Set provided string to actual data
    */
-  def dataFromString(str: String): String = {
+  def dataFromString(str: String): String =  {this.data = str;data}
 
-    if (this.data==null)
-    	this.data = str
-	else
-    	this.data+=str
-    this.data
-  }
 
   override def toString: String = {
     if (this.data==null)
