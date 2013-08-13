@@ -32,7 +32,8 @@ class TransactionBuffer extends BaseBuffer {
 
         case Transaction.Discard(transaction) =>
 
-            println("Discarding")
+            //println("Discarding")
+            
             this.pushDataUnit = null
             this.pullDataUnit = null
 
@@ -84,7 +85,7 @@ class TransactionBuffer extends BaseBuffer {
         //println("In Propagate right")
 
         this.pushDataUnit = du
-
+        this.pullDataUnit = du
         Transaction()(transactionAction)
 
     }

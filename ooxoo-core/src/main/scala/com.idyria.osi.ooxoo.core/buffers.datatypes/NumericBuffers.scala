@@ -8,7 +8,7 @@ import scala.language.implicitConversions
     Buffer to represent an Integer
 
 */
-class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Integer] {
+class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Int] {
 
 
     def dataFromString(str: String) : Integer = {
@@ -22,7 +22,9 @@ class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Integer]
 
     def equals(comp: IntegerBuffer): Boolean = this.data == comp.data
 
-    def compareTo(comp: Integer ) : Int = this.data.compareTo(comp)
+    def compareTo(comp: Int ) : Int = this.data.compareTo(comp)
+
+   
 
 }
 
