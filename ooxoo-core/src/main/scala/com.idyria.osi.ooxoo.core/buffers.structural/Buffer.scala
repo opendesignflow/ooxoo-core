@@ -45,7 +45,7 @@ trait Buffer {
   /**
    * Pushs a data unit created locally out to the next buffer chain (right direction)
    */
-  def streamOut
+  def streamOut()
 
   /**
    * Pushs a data unit created locally out to the next buffer chain

@@ -193,7 +193,7 @@ trait BaseBufferTrait extends Buffer {
       this.nextBuffer -> du
 
   }
-  def streamOut = streamOut(createDataUnit)
+  def streamOut() = streamOut(createDataUnit)
   def streamOut( cl : DataUnit => DataUnit) = streamOut(cl(createDataUnit))
 
 
