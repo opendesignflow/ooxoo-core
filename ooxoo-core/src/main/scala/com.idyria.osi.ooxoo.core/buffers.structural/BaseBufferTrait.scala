@@ -71,6 +71,7 @@ trait BaseBufferTrait extends Buffer {
     if (buffer == this.previousBuffer)
       return buffer
 
+          
 
     this.previousBuffer = buffer
     buffer

@@ -5,6 +5,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural.io.sax
 
 import java.io.ByteArrayOutputStream
 import java.io.Reader
+import java.io.StringReader
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
@@ -61,8 +62,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
       case Some(mapObject) if (mapObject.isInstanceOf[Map[String,String]]) =>
 
             this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String,String]]
- 
-      case _ =>  
+      case Some(mapObject) => 
+      case None =>  
     }
 
     // Write
@@ -71,8 +72,12 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
     //-- Create output if none
     if (this.eventWriter == null) {
+
       this.output = new ByteArrayOutputStream()
+
       var of = XMLOutputFactory.newInstance()
+      of.setProperty("javax.xml.stream.isRepairingNamespaces",true);
+
       this.eventWriter = of.createXMLStreamWriter(this.output)
 
       // Begin document
@@ -225,4 +230,17 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
   }
 
+}
+
+object StAXIOBuffer {
+
+
+  /**
+    Creates a StAXIOBuffer with initial content to the provided string, ready to be streamed in
+  */
+  def apply(str : String) = {
+
+    new StAXIOBuffer(new StringReader(str))
+
+  }
 }

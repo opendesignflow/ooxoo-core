@@ -306,7 +306,6 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
         var xml =  <Test name="hello">
                         <Sub name="hello2">theval</Sub>
-                        <Sub2 name="hello3">theval</Sub2>
                     </Test>
 
 

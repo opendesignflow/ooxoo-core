@@ -183,6 +183,18 @@ trait Buffer {
 
   }
 
+  def printBackwardsChain : String = {
+
+    var buffers = Set[Buffer](this.firstBuffer)
+    this.foreachNextBuffer {
+      b =>
+          if (b!=null)
+          buffers+=b
+    }
+    buffers.mkString(" <- ")
+
+  }
+
 
   /**
    * Remove ourselves, and chain previous and next together
@@ -254,12 +266,39 @@ trait Buffer {
   }
 
   /**
+   * Apply a function to all the previous buffers, including this one
+   */
+  def foreachPreviousBuffer(closure: Buffer => Unit) = {
+
+    var currentBuffer = this
+    while (currentBuffer != null) {
+      if (currentBuffer!=null)
+        closure(currentBuffer)
+      currentBuffer = currentBuffer.getPreviousBuffer
+    }
+
+  }
+
+  /**
    * Get the last buffer in the chain
    */
   def lastBuffer : Buffer = {
 
     var res = this
     this.foreachNextBuffer {
+      b => res =  b
+    }
+    res
+
+  }
+
+  /**
+   * Get the first buffer in the chain
+   */
+  def firstBuffer : Buffer = {
+
+    var res = this
+    this.foreachPreviousBuffer {
       b => res =  b
     }
     res

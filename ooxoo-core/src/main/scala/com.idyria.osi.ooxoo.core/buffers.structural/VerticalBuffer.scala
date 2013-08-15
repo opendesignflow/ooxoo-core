@@ -14,13 +14,20 @@ import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import com.idyria.osi.tea.logging.TLog
 
 /**
+  Just a type marker
+*/
+trait HierarchicalBuffer {
+
+}
+
+/**
  *
  * Trait for a buffer to be declared "Vertical", meaning it will produce the result of other sub buffers
  *
  * @author rleys
  *
  */
-abstract class VerticalBuffer extends BaseBuffer {
+abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
@@ -109,6 +116,8 @@ abstract class VerticalBuffer extends BaseBuffer {
 
       f => 
 
+        TLog.logFine(s"Streamout for any field in ${getClass}")
+
           //-- Get value
           var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
 
@@ -119,7 +128,7 @@ abstract class VerticalBuffer extends BaseBuffer {
 
     }
 
-    // Close
+    // Close hierarchy
     //--------------
     super.streamOut(new DataUnit)
 
@@ -131,67 +140,10 @@ abstract class VerticalBuffer extends BaseBuffer {
    * Call up the provided closure to all the subfields that can be fetched in or pushedout
    * @param complete, true allows null fields to be seen, false does not
    */
-  def propagate(nullFields: Boolean)(cl: (Symbol, Buffer) => Unit) = {
-
-    var ioChainRoot: IOBuffer = null
-
-    // Inspect for complete class hierarchy
-    //------------
-    /* this.allFields(this.getClass) filter {
-      // Filter non annotated, null  and private values
-      f =>
-         f.setAccessible(true)
-        ((f.getAnnotation[element](classOf[element]) != null || f.getAnnotation[attribute](classOf[attribute]) != null)
-            &&( nullFields || f.get(this)!=null ))
-    } foreach {
-      f =>
-
-        //-- Get Buffer
-        var fieldBuffer = (f.get(this).asInstanceOf[Buffer])
-
-        // Clone and add IO Chain
-        //--------
-
-        //-- Create first: Find all the IO Buffers of current chain
-        if (ioChainRoot == null) {
-          var allIos = Set[IOBuffer]()
-          this.foreachNextBuffer {
-            b =>
-              if (classOf[IOBuffer].isAssignableFrom(b.getClass()))
-                allIos += (b.asInstanceOf[IOBuffer]).cloneIO
-          }
-
-          //-- Rewire them together
-          if (allIos.size > 0) {
-            ioChainRoot = allIos.head
-            var currentInChain = ioChainRoot
-            allIos = allIos.takeRight(0)
-            for (iobuffer <- allIos) {
-              currentInChain.insertNextBuffer(iobuffer)
-              currentInChain = iobuffer
-            }
-          }
-        }
-
-        // Append io to current buffer
-        fieldBuffer.appendBuffer(ioChainRoot)
-
-        // Push and inject the element/attribute type
-        //---------------
-        cl(f,fieldBuffer)
+  /*def propagate(nullFields: Boolean)(cl: (Symbol, Buffer) => Unit) = {
 
 
-        // Close hierarchy level for this
-
-        TLog.logFine(s"Found field: ${f.getName()}")
-    } // EOF All Fields
-
-    // Notify end of level to IO Buffers
-    if (ioChainRoot!=null) {
-      ioChainRoot.foreachNextBuffer(b => (b.asInstanceOf[IOBuffer]).eofLevel)
-    }
-    */
-  }
+  }*/
 
   /**
    * Gets a data unit from chain
@@ -226,8 +178,11 @@ abstract class VerticalBuffer extends BaseBuffer {
     //----------------
     else if (du.attribute==null && du.element==null && du.hierarchical==false && du.value==null) {
 
-      if (this.lastBuffer.isInstanceOf[IOBuffer])
+      if (this.lastBuffer.isInstanceOf[IOBuffer]) {
+
+        TLog.logFine("VerticalBuffer: removing last IO buffer from chain because end of hierarchy")
         this.lastBuffer.remove
+      }
 
     }
     // Attribute
@@ -240,10 +195,25 @@ abstract class VerticalBuffer extends BaseBuffer {
         case Some(buffer) =>
 
           TLog.logFine(s"Found attribute Buffer to pass in value: ${du.value}")
-          buffer.dataFromString(du.value)
+          
+          //buffer.dataFromString(du.value)
+          buffer <= du
+          
           TLog.logFine(s"-------> ${buffer}")
 
-        case None => TLog.logFine("---> No field instance returned for attribute <---")
+        case None => 
+
+              this.getAnyField match {
+
+                // Any
+                case Some(any) => 
+
+                    // Stream in DU to element
+                    any <= du
+
+                case None => 
+                    TLog.logFine("---> No field instance returned for attribute <---")
+              }     
       }
 
 
@@ -252,44 +222,56 @@ abstract class VerticalBuffer extends BaseBuffer {
     //--------------------
     else if (du.element != null && !this.inHierarchy) {
 
+      // If we are on an any Class, then don't do this
+      //----------------
+      if (!this.getClass.isAnnotationPresent(classOf[any])) 
+        // Verify the element matches the expected one
+        //---------------
+        try {
 
-      // Verify the element matches the supposed one
-      //---------------
-      try {
+          var expected = xelement_base(this)
+          if (!du.element.name.equals(expected.name)) {
+            throw new RuntimeException(s"Vertical buffer on ${VerticalBuffer.this.getClass()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
+          }
 
-        var expected = xelement_base(this)
-        if (!du.element.name.equals(expected.name)) {
-          throw new RuntimeException(s"Vertical buffer on ${VerticalBuffer.this.getClass()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
+        } catch {
+          // No @xelement annotation defined
+          case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
         }
 
-        if (du.hierarchical)
+      // Set hierarchy
+      if (du.hierarchical)
           this.inHierarchy = true;
 
-      } catch {
-        // No @xelement annotation defined
-        case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
-      }
-
     }
-    // In Hierarchy
+    // Element In Hierarchy
     //--------------------
     else if (du.element != null) {
 
       TLog.logFine(s"Got an XML element for subfield: ${du.element.name}");
 
-      // Increase Stack Size
-      this.stackSize+=1
+      
 
       // Proceed to element
+      //-----------------------
       this.getElementField(du.element.name) match {
 
+        // Found A Buffer Matching
+        //-----------------------------
         case Some(buffer) =>
 
           TLog.logFine(s"Found element Buffer to pass in value: ${du.value}")
 
+          // Increase Stack size if we are fetching a non hierarchical buffer as a hierarchy in this element
+          // Typical: Elements that only contain a value, and thus are DataBuffers which are non hierarchical
+          
+          if (!buffer.isInstanceOf[HierarchicalBuffer]) {
+              // Increase Stack Size
+              this.stackSize+=1
+          }
+          
 
-
-           // Clone this IO to the buffer
+          // Clone this IO to the buffer
           //--------------
           buffer.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
 
@@ -301,7 +283,31 @@ abstract class VerticalBuffer extends BaseBuffer {
 
           TLog.logFine(s"-------> ${buffer}")
 
-        case None => TLog.logFine("---> No field instance returned for element <---")
+        // Nothing -> Can we stream into any ?
+        //---------------
+        case None =>
+
+            this.getAnyField match {
+
+              // Any
+              //------------
+              case Some(any) => 
+
+                  // Clone this IO to the buffer
+                  //--------------
+                  any.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
+
+                  // Stream in DU to element
+                  //---------------------
+                  any <= du
+
+
+
+              case None => 
+                TLog.logFine("---> No field instance returned for element <---")
+            }
+
+            
       }
 
 
@@ -395,6 +401,30 @@ abstract class VerticalBuffer extends BaseBuffer {
   }
 
 
+  /**
+    Only returns the first found field marked as @any
+  */
+  protected def getAnyField : Option[Buffer] = ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).headOption match {
+
+      case Some(field) => 
+
+            // Get Value
+            var fieldValue : Buffer = ScalaReflectUtils.getFieldValue(this, field)
+
+            // Instanciate
+            //------------------
+            if (fieldValue==null) {
+
+              fieldValue = ScalaReflectUtils.instanciateFieldValue(this, field)
+ 
+            }
+
+            // Return
+            return Option(fieldValue)
+      case None => None
+
+  }
+    
 
 }
 
