@@ -75,22 +75,13 @@ abstract class VerticalBuffer extends BaseBuffer {
        	    du
 
        	}
-
-      	// Create DU
-        //---------------
-       /* var du = new DataUnit
-        var attribute = xattribute.instanciate(f)
-        du.attribute = attribute
-        du.value = ScalaReflectUtils.getFieldValue(this,f).toString
-
-        super.streamOut(du)*/
     }
 
 
 
     // Sub Elements
     //-------------------
-     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
       f =>
 
         //-- Get value
@@ -109,48 +100,30 @@ abstract class VerticalBuffer extends BaseBuffer {
 
 
 
-      	// Create DU
-        //---------------
-       /* var du = new DataUnit
-        var element = xelement.instanciate(f)
-        du.element = element
+
+    }
+
+    // Any
+    //-----------------
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach {
+
+      f => 
+
+          //-- Get value
+          var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
+
+          //-- streamOut
+          value.appendBuffer(this.lastBuffer)
+          value ->
 
 
-        du.value = ScalaReflectUtils.getFieldValue(this,f).toString
-
-        super.streamOut(du)*/
     }
 
     // Close
     //--------------
     super.streamOut(new DataUnit)
 
-    //TLog.logFine("Inspecting fields for class: "+this.getClass().getSimpleName())
-
-    /*propagate(false) {
-
-      (f, buffer) =>
-        buffer.streamOut {
-          du =>
-
-            // Type
-           // f.annotations.find(a => a.tpe.erasure == typeOf[xelement])
-
-            /*var elt = f.getAnnotation[element](classOf[element])
-            if (elt!=null) {
-              du.setElement(elt)
-            }else {
-              du.setAttribute(f.getAnnotation[attribute](classOf[attribute]))
-            }
-
-            // Hierarchical?
-            if (classOf[VerticalBuffer].isAssignableFrom(f.getType()))
-              du.setHierarchical(true)
-            */
-            du
-        }
-
-    }*/
+   
 
   }
 

@@ -18,12 +18,12 @@ trait Buffer {
 
   // Data Unit Interface
   //---------------------
-
+ 
    /**
    * Creates a data unit from this buffer.
    * This is used when the buffer is the starting point of a streamOut or streamIn
    */
-  def createDataUnit : DataUnit = null
+  def createDataUnit : DataUnit = new DataUnit
 
   /**
     Import a Data Unit in the current buffer

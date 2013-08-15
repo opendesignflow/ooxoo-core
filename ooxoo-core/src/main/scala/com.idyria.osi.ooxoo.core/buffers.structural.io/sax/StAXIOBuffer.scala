@@ -25,14 +25,45 @@ import com.idyria.osi.tea.logging.TLog
 @transient
 class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
+  // Stream in parameters 
+  //-----------------------
+
   var output: ByteArrayOutputStream = null
 
   var eventWriter: XMLStreamWriter = null
+
+
+  // Stream out parameters
+  //-----------------------
+  var namespacePrefixesMap = Map[String,String]()
+
+  /**
+    Returns the last set prefix for the namespace, or generate one if non existent
+  */
+  def getPrefixForNamespace( ns : String) : String = this.namespacePrefixesMap.getOrElse(ns, {s"ns${this.namespacePrefixesMap.size}"})
+ 
+ /*   this.namespacePrefixesMap.get(ns) match {
+      case None => 
+
+      case Some()
+    }
+
+  }*/
 
   /**
    * Writes the data unit to the output stream, then pass it on
    */
   override def streamOut(du: DataUnit) = {
+
+    // Fetch Prefixes from data unit context
+    //-----------------
+    du("prefixes") match {
+      case Some(mapObject) if (mapObject.isInstanceOf[Map[String,String]]) =>
+
+            this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String,String]]
+ 
+      case _ =>  
+    }
 
     // Write
     //-----------
@@ -55,7 +86,11 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
     if (du.element != null && documentElement) {
 
       TLog.logFine("Stax: Start Element")
-      this.eventWriter.writeStartElement(du.element.name)
+      du.element.ns match {
+        case "" =>  this.eventWriter.writeStartElement(du.element.name)
+        case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
+      }
+      
 
 
     } else if (du.element != null) {
@@ -63,7 +98,10 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
       TLog.logFine(s"Stax: Element ${du.element.name} / ${du.value}")
 
       //-- Normal Element
-      this.eventWriter.writeStartElement(du.element.name)
+      du.element.ns match {
+        case "" =>  this.eventWriter.writeStartElement(du.element.name)
+        case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
+      }
 
       //-- With text content
       if (du.value != null)
@@ -78,7 +116,10 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
     //----------------------------
     else if (du.attribute != null) {
 
-      this.eventWriter.writeAttribute(du.attribute.name, du.value)
+      du.attribute.ns match {
+        case "" =>  this.eventWriter.writeAttribute(du.attribute.name, du.value)
+        case _  =>  this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns),du.attribute.ns,du.attribute.name, du.value)
+      }
 
     }
     //-- Close Element

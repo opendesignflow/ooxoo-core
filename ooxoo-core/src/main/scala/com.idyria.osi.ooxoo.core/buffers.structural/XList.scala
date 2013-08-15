@@ -29,10 +29,48 @@ class  XList[T <: Buffer] (
 
 
 
+  override def streamOut(du : DataUnit) = {
+
+      this.foreach {
+
+        content =>
+
+          content.appendBuffer(this.lastBuffer)
+
+          //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
+
+          // If No xelement / attribute annotation, try to take from content
+          if (du.element==null && du.attribute==null) {
+
+            xelement_base(content) match {
+              case null => throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
+              case annot => 
+ 
+                // Set element annotation and hierarchical to open element
+                du.element = annot
+                du.hierarchical = true
+
+                content -> du
+
+                // Reset
+                du.element = null
+                du.hierarchical = false
+            }
+
+
+          }
+          
+
+
+    }
+
+  }
+
   /**
    * Repeat for all elements in the set
    */
-  override def streamOut(cl: DataUnit => DataUnit) = {
+  /*override def streamOut(cl: DataUnit => DataUnit) = {
+
 
 
     this.foreach {
@@ -40,12 +78,34 @@ class  XList[T <: Buffer] (
       content =>
 
         content.appendBuffer(this.lastBuffer)
-        content -> cl
+
+        //content -> cl
+        content -> {
+            du =>
+              
+              // First let provided closure work (it might set element informations)
+              var resDu = cl(du)
+
+              // If No xelement / attribute annotation, try to take from content
+              if (resDu.element==null && resDu.attribute==null) {
+
+                xelement_base(content) match {
+                  case null => throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
+                  case annot => resDu.element = annot
+                }
+
+
+              }
+
+              resDu
+
+             
+        } 
 
     }
 
 
-  }
+  }*/
 
   /**
    * streamIng for XLIst:
