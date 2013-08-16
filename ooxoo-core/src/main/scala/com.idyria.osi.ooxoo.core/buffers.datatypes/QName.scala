@@ -5,9 +5,19 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import scala.language.implicitConversions
 
-class QName(localPart:String) extends javax.xml.namespace.QName(localPart) {
+class QName(localPart:String) extends XSDStringBuffer {
 
+    // QName wrapper
+    //-------------
+    var qname = new javax.xml.namespace.QName(localPart) 
 
+    data = localPart
+
+    def getLocalPart() = qname.getLocalPart
+
+    override def toString = qname.toString
+
+    
 
 
 }

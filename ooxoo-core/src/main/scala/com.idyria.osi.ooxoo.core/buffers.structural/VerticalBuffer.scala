@@ -62,12 +62,16 @@ abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
     // Normal streamOut
     //----------
+
     super.streamOut(du)
 
     // Attributes
     //------------------
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
       f =>
+
+
+       // println(s"Streamout for attribute "+f.getName)
 
       	//-- Get value
         var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
@@ -90,6 +94,7 @@ abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
     //-------------------
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _)!=null).foreach{
       f =>
+
 
         //-- Get value
         var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
@@ -123,13 +128,14 @@ abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
           //-- streamOut
           value.appendBuffer(this.lastBuffer)
-          value ->
+          value.->
 
 
     }
 
     // Close hierarchy
     //--------------
+    //println("Closing from VBuffer")
     super.streamOut(new DataUnit)
 
    

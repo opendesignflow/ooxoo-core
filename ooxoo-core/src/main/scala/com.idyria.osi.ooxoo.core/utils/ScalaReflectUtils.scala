@@ -30,6 +30,12 @@ object ScalaReflectUtils {
         allFields += field
       currentClass = currentClass.getSuperclass()
     }
+
+    /*println("On "+source)
+    allFields.foreach {
+      f => println("  -> "+f.getName)
+    }*/
+
     allFields
 
 

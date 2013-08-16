@@ -26,13 +26,13 @@ object xelement_base {
     */
    def apply(baseClass: Class[_]) : xelement_base = {
 
-      println("Searching for xelement on baseclass: "+baseClass)
+      //println("Searching for xelement on baseclass: "+baseClass)
 
-      baseClass.getClasses.foreach {
-          cl => println("-> "+cl)
-      }
+      //baseClass.getClasses.foreach {
+     //     cl => println("-> "+cl)
+     // }
 
-      println("Superclass: "+baseClass.getSuperclass())
+     // println("Superclass: "+baseClass.getSuperclass())
 
       var cl : Class[_] = baseClass
       do {

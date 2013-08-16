@@ -14,10 +14,14 @@ class ElementBuffer extends VerticalBuffer {
     //------------------
     var element = xelement_base(this)
     if (element==null) {
+      throw new IllegalArgumentException(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
     	TLog.logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
 
     }
-    require(element!=null)
+
+    if (element.name==null || element.name=="") {
+      throw new IllegalArgumentException(s"xelement annotation on ElementBuffer ${getClass().getCanonicalName()} did not reutnr any name")
+    }
 
 
     // Create Empty Data Unit

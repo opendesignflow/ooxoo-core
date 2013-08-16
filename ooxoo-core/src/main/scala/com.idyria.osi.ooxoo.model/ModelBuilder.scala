@@ -2,6 +2,7 @@ package com.idyria.osi.ooxoo.model
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
+import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 
 import scala.language.implicitConversions
 
@@ -11,7 +12,8 @@ import scala.language.implicitConversions
    The model can then be exported to documentation or Source files
 
 */
-class ModelBuilder extends Model with ModelBuilderLanguage {
+@xelement(name="Model")
+class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     /*class IsWordElementWrapper( var left: Element) {
 
@@ -27,6 +29,10 @@ class ModelBuilder extends Model with ModelBuilderLanguage {
     // Element Creation/Editing
     //--------------------
 
+    //-- Top Elements list
+    @xelement(name="XElement")
+    var topElements = XList{ du => new Element(du)}
+
     //-- Element stack and current
     var elementsStack = scala.collection.mutable.Stack[Element]()
     //var current
@@ -38,14 +44,16 @@ class ModelBuilder extends Model with ModelBuilderLanguage {
 
     elt : Element => 
 
-        // If there is a current element, add new element to it
+        println("Inside element.start")
+
+        // If there is a current element, add new element to it, otherwise it is a top element
         elementsStack.headOption match {
             case Some(top) => top.elements += elt
-            case _ =>
+            case None => topElements+=elt
         }
 
         // Stack element
-        elementsStack.push elt
+        elementsStack.push(elt)
 
     }
 
@@ -63,6 +71,30 @@ class ModelBuilder extends Model with ModelBuilderLanguage {
 
 
 
+    // Utilities
+    //-----------------
+    def toXML : String = {
+
+        println(s"Top Elements count ${topElements.size}")
+
+        // Create StaxIO
+        //-------------------
+        var io = new StAXIOBuffer()
+        this - io
+
+        // Streamout
+        //--------------
+        this.streamOut {
+            du => 
+                du("prefixes" -> Map( (com.idyria.osi.ooxoo.core.ns -> "ooxoo")  ))
+                du
+        }
+        //this.streamOut()
+
+        // Return res
+        new String(io.output.toByteArray)
+
+    }
 
 }
 
@@ -78,16 +110,21 @@ object ModelBuilder {
 
 // Element Model
 //-----------------------
-@xelement
-class Element(var name : QName ) {
+@xelement(name="XElement")
+class Element(
+    inputName : QName
+       ) extends ElementBuffer {
 
     // Sub Elements
     //-------------------
 
-    @xelement
+    @xattribute(name="xname")
+    var name : QName = inputName
+
+    @xelement(name="XElement")
     var elements = XList { du => new Element(du)}
 
-    @xelement
+    @xelement(name="XAttribute")
     var attributes = XList { du => new Attribute(du)}
 
 }
@@ -99,9 +136,11 @@ object Element {
 
 // Attribute Model
 //-------------------------
-class Attribute(var name : QName ) {
+@xelement(name="Attribute")
+class Attribute(var name : QName ) extends ElementBuffer {
 
-    var type : Class[_ <: Buffer] = classOf[XSDStringBuffer]
+    @xattribute(name="ClassType")
+    var classType : Class[_ <: Buffer] = classOf[XSDStringBuffer]
 
 }
 object Attribute {

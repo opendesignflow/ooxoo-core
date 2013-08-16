@@ -33,7 +33,7 @@ class  XList[T <: Buffer] (
 
   override def streamOut(du : DataUnit) = {
 
-      TLog.logFine(s"Streamout in XList for ${size} elements")
+     // println(s"Streamout in XList for ${size} elements")
 
       this.foreach {
 
@@ -41,7 +41,7 @@ class  XList[T <: Buffer] (
 
           content.appendBuffer(this.lastBuffer)
 
-          TLog.logFine(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
+          //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
 
           // If No xelement / attribute annotation, try to take from content
           if (du.element==null && du.attribute==null) {
@@ -62,7 +62,14 @@ class  XList[T <: Buffer] (
             }
 
 
+          } else {
+            content ->
           }
+
+          /*else if (du.element!=null || du.attribute!=null) {
+
+            content -> du
+          }*/
           
 
 

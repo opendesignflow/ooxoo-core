@@ -22,7 +22,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
  * @author rleys
  *
  */
-abstract class BaseBuffer extends BaseBufferTrait {
+trait BaseBuffer extends BaseBufferTrait {
 
   
 

@@ -35,8 +35,8 @@ trait BaseBufferTrait extends Buffer {
     // Find Tail
     //-------------
     var currentBuffer: Buffer = this
-    while ((currentBuffer getNextBuffer) != null)
-      currentBuffer = currentBuffer getNextBuffer
+    while ((currentBuffer.getNextBuffer) != null)
+      currentBuffer = currentBuffer.getNextBuffer
 
     // Insert
     //-----------
@@ -138,8 +138,8 @@ trait BaseBufferTrait extends Buffer {
     // Find Head
     //-------------
     var currentBuffer: Buffer = this
-    while ((currentBuffer getPreviousBuffer) != null)
-      currentBuffer = currentBuffer getPreviousBuffer
+    while ((currentBuffer.getPreviousBuffer) != null)
+      currentBuffer = currentBuffer.getPreviousBuffer
 
     // Insert
     //-----------

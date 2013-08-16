@@ -90,7 +90,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
     //-------------------------
     if (du.element != null && documentElement) {
 
-      TLog.logFine("Stax: Start Element")
+      //println("Stax: Start Element ${du.element.name}")
       du.element.ns match {
         case "" =>  this.eventWriter.writeStartElement(du.element.name)
         case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
@@ -100,7 +100,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
 
     } else if (du.element != null) {
 
-      TLog.logFine(s"Stax: Element ${du.element.name} / ${du.value}")
+      //println(s"Stax: Element ${du.element.name} / ${du.value} on ${this.eventWriter}")
 
       //-- Normal Element
       du.element.ns match {
@@ -113,24 +113,42 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
     	  this.eventWriter.writeCharacters(du.value)
 
       //-- Close already if non hierarchical
-      if (!du.getHierarchical)
+      if (!du.getHierarchical) {
+          //println(s"-> Closing already!")
         this.eventWriter.writeEndElement()
+
+      }
 
     }
     //-- Output Attribute
     //----------------------------
     else if (du.attribute != null) {
 
+      
+      // try {
       du.attribute.ns match {
-        case "" =>  this.eventWriter.writeAttribute(du.attribute.name, du.value)
-        case _  =>  this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns),du.attribute.ns,du.attribute.name, du.value)
+        case "" =>  
+          //println(s"--> Attribute ${du.attribute.name} / ${du.value}")
+          this.eventWriter.writeAttribute(du.attribute.name, du.value)
+        case _  =>  
+          //println(s"--> NS Attribute ${du.attribute.name} / ${du.value}")
+          this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns),du.attribute.ns,du.attribute.name, du.value)
       }
+      // } catch {
+      //  case e : Throwable => println(s"--> Failed Attribute ${du.attribute.name} on ${this.eventWriter}")
+      //} 
 
     }
     //-- Close Element
     //--------------
     else if (du.attribute==null && du.element==null && du.value==null) {
-      this.eventWriter.writeEndElement()
+
+      //println("StaxIO Closing")
+      //try {
+        this.eventWriter.writeEndElement()
+      //} catch {
+        //case e : Throwable => 
+     // } 
     }
 
     // Pass it on

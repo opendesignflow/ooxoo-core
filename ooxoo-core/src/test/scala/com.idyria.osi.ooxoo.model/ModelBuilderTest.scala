@@ -23,6 +23,14 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
 
                 println("Inside Element building")
 
+                "env:Header" is {
+
+                }
+
+                 "env:Body" is {
+
+                }
+
                /* "env:Header" {
 
                 }
@@ -34,6 +42,8 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
             }
 
         }
+
+        println(s"Resulting Model: ${model.toXML}")
 
     }
 
