@@ -10,7 +10,6 @@
 	<artifactId>ooxoo-core</artifactId>
 	<name>Core runtime for OOXOO</name>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
