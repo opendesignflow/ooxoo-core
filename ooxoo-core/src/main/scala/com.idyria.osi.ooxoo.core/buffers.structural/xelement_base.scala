@@ -21,37 +21,57 @@ class xelement_base(var name: String = null,var ns: String = "")  {
 
 object xelement_base {
 
+    /**
+      Try to find annotation on class hiearchy
+    */
+   def apply(baseClass: Class[_]) : xelement_base = {
 
-   def apply(cl: Class[_]) : xelement_base = {
+      println("Searching for xelement on baseclass: "+baseClass)
 
-    // Get Annotation and instanciate base object
-    //--------------------
-    var annot = cl.getAnnotation(classOf[xelement])
-    if (annot!=null) {
-
-      // Name: annotation content, or Object name
-      //---------
-      var name = annot.name() match {
-        case aname if (aname.length==0) =>
-
-          // Class Name, name can have some funny $annon$...$1 constructs
-          // So we need to filter
-          var regexp = """(?:.*\$)?([a-zA-Z][\w]+)(?:\$[0-9]+)?\z""".r
-          regexp.findFirstMatchIn(cl.getSimpleName) match {
-            case Some(m) => m.group(1)
-            case None    =>
-              //println("Could not match in class name filter")
-              cl.getSimpleName
-          }
-
-        case aname => aname
+      baseClass.getClasses.foreach {
+          cl => println("-> "+cl)
       }
 
-      // NS: annotation content
-      //---------
+      println("Superclass: "+baseClass.getSuperclass())
 
-      return new xelement_base(name=name,ns=annot.ns())
-    }
+      var cl : Class[_] = baseClass
+      do {
+
+          // Get Annotation and instanciate base object
+          //--------------------
+          var annot = cl.getAnnotation(classOf[xelement])
+          if (annot!=null) {
+
+            // Name: annotation content, or Object name
+            //---------
+            var name = annot.name() match {
+              case aname if (aname.length==0) =>
+
+                // Class Name, name can have some funny $annon$...$1 constructs
+                // So we need to filter
+                var regexp = """(?:.*\$)?([a-zA-Z][\w]+)(?:\$[0-9]+)?\z""".r
+                regexp.findFirstMatchIn(cl.getSimpleName) match {
+                  case Some(m) => m.group(1)
+                  case None    =>
+                    //println("Could not match in class name filter")
+                    cl.getSimpleName
+                }
+
+              case aname => aname
+            }
+
+            // NS: annotation content
+            //---------
+
+            return new xelement_base(name=name,ns=annot.ns())
+          }
+
+          // Next superclass ?
+          cl = cl.getSuperclass
+
+      } while ( cl != null)
+    
+    
 
     return null
 
