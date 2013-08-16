@@ -10,7 +10,7 @@ import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
 import java.lang.reflect._
 
-class xelement_base(var name: String = null,var ns: String = null)  {
+class xelement_base(var name: String = null,var ns: String = "")  {
 
 
   //def name() : String = name
@@ -22,13 +22,11 @@ class xelement_base(var name: String = null,var ns: String = null)  {
 object xelement_base {
 
 
-
-
-  def apply(source: AnyRef) : xelement_base = {
+   def apply(cl: Class[_]) : xelement_base = {
 
     // Get Annotation and instanciate base object
     //--------------------
-    var annot = source.getClass.getAnnotation(classOf[xelement])
+    var annot = cl.getAnnotation(classOf[xelement])
     if (annot!=null) {
 
       // Name: annotation content, or Object name
@@ -39,11 +37,11 @@ object xelement_base {
           // Class Name, name can have some funny $annon$...$1 constructs
           // So we need to filter
           var regexp = """(?:.*\$)?([a-zA-Z][\w]+)(?:\$[0-9]+)?\z""".r
-          regexp.findFirstMatchIn(source.getClass.getSimpleName) match {
+          regexp.findFirstMatchIn(cl.getSimpleName) match {
             case Some(m) => m.group(1)
             case None    =>
               //println("Could not match in class name filter")
-              source.getClass.getSimpleName
+              cl.getSimpleName
           }
 
         case aname => aname
@@ -58,6 +56,8 @@ object xelement_base {
     return null
 
   }
+
+  def apply(source: AnyRef) : xelement_base = this(source.getClass)
 
    def apply(source: Field) : xelement_base = {
 
