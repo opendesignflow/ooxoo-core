@@ -98,4 +98,6 @@ object DataUnit {
 
   def apply() : DataUnit = new DataUnit
 
+  implicit def convertDUtoQName = 
+
 }
