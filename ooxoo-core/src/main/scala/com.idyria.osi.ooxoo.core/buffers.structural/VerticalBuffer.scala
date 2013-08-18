@@ -72,20 +72,26 @@ abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
 
        // println(s"Streamout for attribute "+f.getName)
+      try {
 
-      	//-- Get value
-        var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
 
-        //-- streamOut
-       	value.appendBuffer(this.lastBuffer)
-       	value -> {
+          //-- Get value
+          var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
 
-       	  du =>
-       	    var attribute = xattribute_base(f)
-       	    du.attribute = attribute
-       	    du
+          //-- streamOut
+        	value.appendBuffer(this.lastBuffer)
+        	value -> {
 
-       	}
+        	  du =>
+        	    var attribute = xattribute_base(f)
+        	    du.attribute = attribute
+        	    du
+
+        	}
+
+      } catch {
+        case e : Throwable => throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}",e)
+      }
     }
 
 

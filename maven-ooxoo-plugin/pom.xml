@@ -12,7 +12,9 @@
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>../ooxoo-all/</relativePath>
 	</parent>
-	
+	<properties>
+		<scala.mojo.version>0.5-SNAPSHOT</scala.mojo.version>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -23,7 +25,7 @@
 					<dependency>
 						<groupId>com.jsuereth</groupId>
 						<artifactId>scala-mojo-support_2.10</artifactId>
-						<version>0.5-SNAPSHOT</version>
+						<version>${scala.mojo.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -51,6 +53,14 @@
 		          </execution>
 		        </executions>
 	      	</plugin>
+	      	<plugin>
+				<groupId>net.alchim31.maven</groupId>
+        		<artifactId>scala-maven-plugin</artifactId>
+        		<configuration>
+        			<useZincServer>true</useZincServer>
+        			<addZincArgs>-no-color</addZincArgs>
+        		</configuration>
+			</plugin>
 		</plugins>
 		
 	</build>
@@ -85,7 +95,7 @@
 	    <dependency>
 			<groupId>com.jsuereth</groupId>
 			<artifactId>scala-mojo-support_2.10</artifactId>
-			<version>0.5-SNAPSHOT</version>
+			<version>${scala.mojo.version}</version>
 		</dependency>
 	</dependencies>
 

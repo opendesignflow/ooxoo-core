@@ -10,6 +10,19 @@
 	<artifactId>ooxoo-core</artifactId>
 	<name>Core runtime for OOXOO</name>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+        		<artifactId>scala-maven-plugin</artifactId>
+        		<configuration>
+        			<useZincServer>true</useZincServer>
+        			<addZincArgs>-no-color</addZincArgs>
+        		</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
@@ -32,6 +45,11 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-reflect</artifactId>
             <version>2.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
         </dependency>
 	</dependencies>
 

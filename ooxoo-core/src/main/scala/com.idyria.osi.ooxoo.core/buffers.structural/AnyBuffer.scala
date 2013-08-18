@@ -22,6 +22,16 @@ class AnyAttributeBuffer extends XSDStringBuffer with AnyBufferTrait {
 
 }
 
+/**
+    Trait to add any content variable to a class
+*/
+trait AnyContent {
+
+    @any
+    var content = AnyXList()
+
+}
+
 /*class AnyXList( cl: => AnyElementBuffer) extends XList[AnyElementBuffer](AnyXList) {
 
 }*/

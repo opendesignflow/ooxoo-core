@@ -15,27 +15,13 @@ import scala.language.implicitConversions
 @xelement(name="Model")
 class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
-    /*class IsWordElementWrapper( var left: Element) {
-
-        def is(right: => Unit) = {
-
-            println("in is definition for Element")
-            right
-
-        }
-    }
-    implicit def elementToIsWordWrapping(str: String) :  IsWordElementWrapper = new IsWordElementWrapper(str)*/
 
     // Element Creation/Editing
-    //--------------------
-
-    //-- Top Elements list
-    @xelement(name="XElement")
-    var topElements = XList{ du => new Element(du)}
-
+    //-----------------------
+    
     //-- Element stack and current
     var elementsStack = scala.collection.mutable.Stack[Element]()
-    //var current
+    
 
     /**
         When an element is added
@@ -44,7 +30,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     elt : Element => 
 
-        println("Inside element.start")
+        println("Inside element.start for "+elt.name)
 
         // If there is a current element, add new element to it, otherwise it is a top element
         elementsStack.headOption match {
@@ -57,7 +43,9 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     }
 
-    on("element.end") {
+    onWith("element.end") { elt : Element => 
+
+        println("Inside element.end for "+elt.name)
 
         // Unstack element
         if (elementsStack.size > 0) {
@@ -66,10 +54,77 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         }
     }
 
+    def withTrait(traitType: String) = {
+
+        elementsStack.headOption match {
+            case Some(element) => element.traits+=traitType
+            case None => throw new RuntimeException("Cannot call trait() outside of an element")
+        }
+
+    }
+
+    def any = {
+
+        elementsStack.headOption match {
+            case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
+            case None => throw new RuntimeException("Cannot call any() outside of an element")
+        }
+
+    }
+
     // Attribute Creation/Editing
     //---------------------
 
+    def attribute(name: String) : Attribute  = {
 
+        var attr = new Attribute(name)
+        @->("attribute.add",attr)
+        attr
+    }
+
+    def attribute(attr: IsWordAttributeWrapper) : Attribute  = {
+
+        attr.left
+        
+    }
+
+    onWith("attribute.add") {
+        attribute : Attribute =>
+
+        // Add only if not already added
+        // Fail if no elements on stack
+        //-----------
+        this.elementsStack.headOption match {
+
+            case Some(element) if (!element.attributes.contains(attribute)) => element.attributes+=attribute
+            case Some(element) => 
+            case None => 
+                throw new RuntimeException("Cannot create attribute outside an element")
+
+        }
+        
+
+    }
+
+    // Multiple
+    //-------------------
+    /*def multiple(strType : String) : Class[ _ <: Buffer] = {
+
+        this.multiple()
+        getType(strType)
+    }
+    def multiple() = {
+
+        println("calling simple multiple")
+
+        this.elementsStack.headOption match {
+            case Some(element) => element.maxOccurs = 10
+            case None =>
+        }
+    }
+    def multiple(elt:IsWordElementWrapper) = {
+        elt.left.maxOccurs = 10
+    }*/
 
     // Utilities
     //-----------------
@@ -108,42 +163,73 @@ object ModelBuilder {
 
 }
 
+// Common
+//--------------------
+trait Common {
+
+    @xattribute(name="name")
+    var name :XSDStringBuffer = null
+
+    @xattribute(name="minOccurs")
+    var minOccurs = IntegerBuffer(1)
+
+    @xattribute(name="maxOccurs")
+    var maxOccurs = IntegerBuffer(1)
+
+    @xattribute(name="ClassType")
+    var classType : XSDStringBuffer = null
+
+}
+
 // Element Model
 //-----------------------
-@xelement(name="XElement")
+@xelement(name="Element")
 class Element(
-    inputName : QName
-       ) extends ElementBuffer {
+    inputName : String
+       ) extends ElementBuffer with Common {
+
+    // Defaults
+    //-------------
+    this.classType = classOf[ElementBuffer].getCanonicalName
+    this.name = inputName
 
     // Sub Elements
     //-------------------
 
-    @xattribute(name="xname")
-    var name : QName = inputName
+    @xelement(name="Element")
+    var elements = XList { du => new Element(du.element.name)}
 
-    @xelement(name="XElement")
-    var elements = XList { du => new Element(du)}
+    @xelement(name="Attribute")
+    var attributes = XList { du => new Attribute(du.element.name)}
 
-    @xelement(name="XAttribute")
-    var attributes = XList { du => new Attribute(du)}
+    @xelement(name="Trait")
+    var traits = XList{ new XSDStringBuffer }
 
 }
 object Element {
 
-    implicit def stringToElement(str: String) :  Element = new Element(str)
+    implicit def stringToElement(str: String) :  Element = {
+
+
+        new Element(str)
+  
+
+    }
 
 }
 
 // Attribute Model
 //-------------------------
 @xelement(name="Attribute")
-class Attribute(var name : QName ) extends ElementBuffer {
+class Attribute( inputName : String ) extends ElementBuffer with Common {
 
-    @xattribute(name="ClassType")
-    var classType : Class[_ <: Buffer] = classOf[XSDStringBuffer]
+    // Defaults
+    //-------------
+    this.classType = classOf[XSDStringBuffer].getCanonicalName
+    this.name = inputName
 
 }
 object Attribute {
 
-    implicit def stringToAttribute(str: String) :  Element = new Element(str)
+    implicit def stringToAttribute(str: String) :  Attribute = new Attribute(str)
 }

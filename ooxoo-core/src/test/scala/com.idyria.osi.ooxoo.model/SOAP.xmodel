@@ -1,0 +1,27 @@
+
+
+
+object SOAP extends ModelBuilder {
+
+    name="SOAPModel"
+    
+    namespace("env" -> "superNamespace")
+
+    "env:Envelope" is {
+
+
+
+        "env:Header" is {
+
+           
+
+        }
+
+        "env:Body" is {
+
+         
+        }
+
+    }
+
+}
