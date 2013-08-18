@@ -100,5 +100,6 @@
     </dependencyManagement>
     <modules>
     	<module>../ooxoo-core</module>
+	<module>../maven-ooxoo-plugin</module>
     </modules>
 </project>
