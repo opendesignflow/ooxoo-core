@@ -27,7 +27,7 @@ trait HierarchicalBuffer {
  * @author rleys
  *
  */
-abstract class VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
+trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field

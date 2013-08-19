@@ -2,9 +2,9 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.tea.logging.TLog
 
-class ElementBuffer extends VerticalBuffer {
+trait ElementBuffer extends VerticalBuffer {
 
-
+ 
   /**
     Creates a DataUnit representing an Element
   */
