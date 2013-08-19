@@ -58,7 +58,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        def multiple(right: => Unit) = {
+        def multiple(right: => Unit) : Element = {
 
             @->("element.start",left)
 
@@ -68,9 +68,26 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.end",left)
 
+            left 
+
         }
 
-        def is(right: => Unit) = {
+        def multiple(right: Element ) : Element = {
+
+            @->("element.start",left)
+
+            left.maxOccurs = 10
+
+            left.classType = right.name
+            left.instanceOfElement = right
+
+            @->("element.end",left)
+
+            left 
+
+        }
+
+        def is(right: => Unit) : Element = {
 
             println("in is definition for Element")
 
@@ -80,26 +97,31 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.end",left)
 
+            left
         }
 
        
 
-        def as ( right: Class[_ <: Buffer]) = {
+        def as ( right: Class[_ <: Buffer]) : Element = {
 
             @->("element.start",left)
 
             left.classType = right.getCanonicalName
 
             @->("element.end",left)
+
+            left 
         }
 
-        def as(right: String) = {
+        def as(right: String): Element = {
 
             @->("element.start",left)
 
             left.classType = getType(right).getCanonicalName
 
             @->("element.end",left)
+
+            left
 
         }
     }

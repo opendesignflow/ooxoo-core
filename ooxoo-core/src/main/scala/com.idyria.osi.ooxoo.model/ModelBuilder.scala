@@ -189,6 +189,7 @@ trait Common {
     @xattribute(name="ClassType")
     var classType : XSDStringBuffer = null
 
+
 }
 
 // Element Model
@@ -197,6 +198,14 @@ trait Common {
 class Element(
     inputName : String
        ) extends ElementBuffer with Common {
+
+    // Related Type
+    //------------------
+
+    /**
+        If set, this element is just instanciating the defined Element, so no need to write it out as oyn type
+    */
+    var instanceOfElement : Element = null
 
     // Defaults
     //-------------

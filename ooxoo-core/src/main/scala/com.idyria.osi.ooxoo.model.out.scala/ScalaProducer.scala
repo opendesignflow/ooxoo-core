@@ -31,6 +31,12 @@ class ScalaProducer extends Producer {
 
         def writeElement( element : Element ) : Unit = {
 
+            // If Element is an instance of another element, don't write out
+            //------------
+            if (element.instanceOfElement!=null) {
+                return
+            }
+
             // Check Name
             //-------------------
             var namespace = ""
@@ -73,7 +79,7 @@ import ${classOf[xelement].getCanonicalName}
             element.traits.foreach { t => traits+=s"with $t "  }
 
             //-- End of class start
-            out << s"""class $name extends ${element.classType} $traits {
+            out << s"""trait $name extends ${element.classType} $traits {
             """
 
             //-- Attributes
@@ -157,8 +163,12 @@ import ${classOf[xelement].getCanonicalName}
         //-----------------
         if (model.sourceFile!=null && model.sourceFile.exists) {
 
+            var fileName = model.name 
+            if (fileName==null)
+                fileName = model.sourceFile.getName
+
             // Write out package definition
-            out.file("./"+targetPackage+"/"+model.name+".scala")
+            out.file("./"+targetPackage+"/"+fileName+".scala")
             out << s"package ${targetPackage}"
 
             // Add Model Builder import
