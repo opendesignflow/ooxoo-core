@@ -1,4 +1,4 @@
-package com.idyira.osi.ooxoo.maven
+package com.idyria.osi.ooxoo.maven
 
 
 import org.apache.maven.plugin.AbstractMojo
@@ -75,7 +75,8 @@ class GenerateSourcesMojo extends AbstractMojo {
                             // Get Producer
                             //---------
                             var producer = producers.get(producerAnnotation.value) match {
-                                    case Some(producer) => producer 
+                                    case Some(producer) => 
+                                        producer 
                                     case None =>  
                                         var producer = producerAnnotation.value.newInstance
                                         producers = producers +  (producerAnnotation.value -> producer)
@@ -97,10 +98,9 @@ class GenerateSourcesMojo extends AbstractMojo {
                             if (outputFolder.exists) {
                                 this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
                             }
-                    }
 
-                    // Copy Model to output
-                    //-------------------------
+                    }
+                    // EOF Foreach producers
                 } 
         }
         // EOF Xfiles loop

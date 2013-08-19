@@ -149,7 +149,26 @@ import ${classOf[xelement].getCanonicalName}
             element.elements.foreach(writeElement(_))
         }
 
+        // Start on top elements
+        //----------------------------
         model.topElements.foreach {writeElement(_)}
+
+        // Try to copy source File to output if available
+        //-----------------
+        if (model.sourceFile!=null && model.sourceFile.exists) {
+
+            // Write out package definition
+            out.file("./"+targetPackage+"/"+model.name+".scala")
+            out << s"package ${targetPackage}"
+
+            // Add Model Builder import
+            out << s"import ${classOf[Model].getPackage.getName}._"
+
+            // Write out File 
+            out << model.sourceFile
+
+            out.finish
+        }
 
     }
 }

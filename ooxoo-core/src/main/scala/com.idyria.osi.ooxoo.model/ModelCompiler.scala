@@ -123,7 +123,9 @@ $inputModel
 
                 // Get Annotations
                 imain.bindValue("modelInfos",modelInfos)
+                imain.bindValue("file",file)
                 imain.interpret(s"modelInfos.producers=${modelInfos.name}.producers")
+                imain.interpret(s"${modelInfos.name}.sourceFile = file")
 
                 modelInfos
 

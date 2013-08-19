@@ -1,5 +1,7 @@
 package com.idyria.osi.ooxoo.model
 
+import java.io._
+import scala.io._
 
 /**
     Produce an output based on:
@@ -39,12 +41,19 @@ trait Writer {
     /**
         Opens a file at provided path
     */
-    def file(path: String)
+    def file(path: String) : Unit
 
     /**
         Writes a line to output
     */
-    def <<(str: String)
+    def <<(str: String) : Unit
+
+    /**
+        Writes a File to output
+    */
+    def <<(file:File) : Unit = {
+        this.<<(Source.fromFile(file).mkString)
+    }
 
     /**
         Finish writing

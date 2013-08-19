@@ -3,6 +3,8 @@ package com.idyria.osi.ooxoo.model
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
 
+import java.io.File 
+
 /**
     Generic trait to represent an XML Model
 
@@ -18,6 +20,12 @@ trait Model {
         Model name
     */  
     var name : XSDStringBuffer = null
+
+    /**
+        The source file of this model, is possible to determine at runtime
+    */
+    var sourceFile : File = null
+
 
     //-- Top Elements list
     @xelement(name="Element")
