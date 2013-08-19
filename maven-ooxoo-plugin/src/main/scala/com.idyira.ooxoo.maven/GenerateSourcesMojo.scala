@@ -133,7 +133,10 @@ class GenerateSourcesMojo extends AbstractMojo {
         }
         // EOF Xfiles loop
 
-        
+        // Add All Target Folder generated sources as compile unit
+        //-------------------
+        outputBaseFolder.listFiles.filter(_.isDirectory).foreach(f => this.project.addCompileSourceRoot(f.getAbsolutePath))
+         
 
     }
 }
