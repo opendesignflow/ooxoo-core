@@ -1,6 +1,10 @@
 
 
+import com.idyria.osi.ooxoo.model.out.scala._
 
+@producers(Array(
+    new producer(value=classOf[ScalaProducer])
+))
 object SOAP extends ModelBuilder {
 
     name="SOAPModel"

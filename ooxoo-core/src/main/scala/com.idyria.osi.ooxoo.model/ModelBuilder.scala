@@ -16,6 +16,16 @@ import scala.language.implicitConversions
 class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
 
+    // Producers configuration
+    //-------------------------------
+
+    def producers : producers =  {
+
+        getClass.getAnnotation(classOf[producers])
+
+    }
+
+
     // Element Creation/Editing
     //-----------------------
     

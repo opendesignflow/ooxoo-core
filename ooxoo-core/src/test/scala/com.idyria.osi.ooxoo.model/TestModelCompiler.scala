@@ -11,14 +11,22 @@ import com.idyria.osi.ooxoo.model.out.scala._
 
 
 import scala.language.postfixOps
-
+import scala.collection.JavaConversions._
 
 
 class TestModelCompiler extends FunSuite with GivenWhenThen {
 
     test("Compiler test") {
 
-        ModelCompiler.compile(new File("src/test/scala/com.idyria.osi.ooxoo.model/SOAP.xmodel"))
+        var modelInfos = ModelCompiler.compile(new File("src/test/scala/com.idyria.osi.ooxoo.model/SOAP.xmodel"))
+
+        expectResult("SOAP")(modelInfos.name)
+
+        assert(modelInfos.producers!=null,"ModelInfos should contain a producers annotation")
+        expectResult(1)(modelInfos.producers.value.length)
+        expectResult(classOf[ScalaProducer])(modelInfos.producers.value()(0).value)
+
+
 
     }
 

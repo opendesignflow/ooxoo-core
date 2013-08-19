@@ -12,6 +12,22 @@ import java.net._
 
 import scala.collection.JavaConversions._
 
+/**
+    Return informations about a model
+*/
+class ModelInfos(
+
+    var name : String
+
+    ) {
+
+    /**
+        The list of @producer annotation instances declared on model
+    */
+    var producers : producers = null
+
+}
+
 /*
     The SpeakRunner Object runs a speak script by wrapping it around necessary code and compiling/running
 
@@ -70,7 +86,7 @@ object ModelCompiler {
     /**
         @return The Model name
     */
-    def compile(file: File) : String = {
+    def compile(file: File) : ModelInfos = {
 
          // Get Script input
         //-----------------------
@@ -90,7 +106,7 @@ $inputModel
         // Determine object name
         //------------
         var modelName = ""
-        """^\s*object (.+) extends .+""".r.findFirstMatchIn(inputModel) match {
+        """object\s+([A-Za-z]+)\s+extends\s+ModelBuilder\s+.+""".r.findFirstMatchIn(inputModel) match {
             case Some(matchRes) => modelName = matchRes.group(1) 
             case None =>
                 throw new RuntimeException(s"Could not determine object name of model: $inputModel")
@@ -100,30 +116,46 @@ $inputModel
         //--------------
         imain.compileString(wrappedModel) match {
 
-            // OK -> Interpret
+            // OK -> Return Model
             case true =>
                 
+                var modelInfos = new ModelInfos(modelName)
+
+                // Get Annotations
+                imain.bindValue("modelInfos",modelInfos)
+                imain.interpret(s"modelInfos.producers=${modelInfos.name}.producers")
+
+                modelInfos
 
             case false =>
                 throw new RuntimeException("Could not compile")
         }
 
-        return modelName
 
     }
 
-    def produce( file: File , producer: Producer, out: Writer) = {
+    /**
+        Compile and produce a file
+    */
+    def produce( file: File , producer: Producer, out: Writer) : Unit = {
 
         // Compile
         //-------------------
-        var modelName = this.compile(file)
-
-        // Produce
-        //-----------------------
-        imain.bindValue("producer",producer)
-        imain.bindValue("writer",out)
-        imain.interpret(s"${modelName}.produce(producer,writer)")
+        var modelInfos = this.compile(file)
+        this.produce(modelInfos,producer,out)
+        
     }
 
+    /**
+        Produce an already compiled file
+    */
+    def produce( modelInfos: ModelInfos , producer: Producer, out: Writer)  : Unit = {
 
+
+        imain.bindValue("producer",producer)
+        imain.bindValue("writer",out)
+        imain.interpret(s"${modelInfos.name}.produce(producer,writer)")
+    }
+
+ 
 }

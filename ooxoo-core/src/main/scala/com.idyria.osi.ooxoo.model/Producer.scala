@@ -11,6 +11,11 @@ package com.idyria.osi.ooxoo.model
 */
 abstract class Producer {
 
+    /**
+        To be overriden by Implementations
+        Used for example by maven plugin to determine output folder
+    */
+    var outputType = "undefined"
 
     def produce(mode: Model, output: Writer)
 

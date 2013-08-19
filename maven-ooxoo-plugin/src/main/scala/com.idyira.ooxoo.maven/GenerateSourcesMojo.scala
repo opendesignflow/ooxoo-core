@@ -27,13 +27,18 @@ class GenerateSourcesMojo extends AbstractMojo {
 
     var modelsFolder = new File("src/main/xmodels")
 
-    var outputFolder = new File("target/generated-sources/scala/")
+    var outputBaseFolder = new File("target/generated-sources/")
  
     @throws(classOf[MojoExecutionException])
     override def execute()  {
         getLog().info( "Looking for xmodels to generate" );
 
 
+        //-- Parameters
+        //-------------------
+
+        //-- Map to store instances of producers, for reuse purpose
+        var producers = Map[Class[ _ <: Producer],Producer]()
 
         //-- Search the xmodels
         //---------------------------------
@@ -56,29 +61,51 @@ class GenerateSourcesMojo extends AbstractMojo {
                 var source = Source.fromFile(f)
                 var content = source.mkString
 
-                // Prepare Producer
-                //-----------------------
-                var scalaProducer = new ScalaProducer()
 
-                // Prepare Writer
-                //----------------------
-                outputFolder.mkdirs()
-                var out = new FileWriters(outputFolder)
-
-
-                // Compile
+                // Compile to get annotated producers
                 //---------------------
-                ModelCompiler.produce(f,scalaProducer,out)
+                var modelInfos = ModelCompiler.compile(f)
 
-                // Check Result
-                //-------------------------
-        }
+                // Produce for all defined producers
+                //---------------
+                if (modelInfos.producers!=null && modelInfos.producers.value()!=null) {
+                    modelInfos.producers.value().foreach {
+                        producerAnnotation => 
 
-        // Add Target Folder to compile source if existing
-        //-----------------
-        if (outputFolder.exists) {
-            this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+                            // Get Producer
+                            //---------
+                            var producer = producers.get(producerAnnotation.value) match {
+                                    case Some(producer) => producer 
+                                    case None =>  
+                                        var producer = producerAnnotation.value.newInstance
+                                        producers = producers +  (producerAnnotation.value -> producer)
+                                        producer
+                            }
+
+                            // Prepare Output
+                            //--------------
+                            var outputFolder = new File(outputBaseFolder,producer.outputType)
+                            outputFolder.mkdirs()
+                            var out = new FileWriters(outputFolder)
+
+                            // Produce
+                            //----------
+                            ModelCompiler.produce(modelInfos,producer,out)
+
+                            // Add Target Folder to compile source if existing
+                            //-----------------
+                            if (outputFolder.exists) {
+                                this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+                            }
+                    }
+
+                    // Copy Model to output
+                    //-------------------------
+                } 
         }
+        // EOF Xfiles loop
+
+        
 
     }
 }

@@ -9,6 +9,9 @@ import com.idyria.osi.ooxoo.core.buffers.structural._
 */
 class ScalaProducer extends Producer {
 
+    this.outputType = "scala"
+
+
     /**
         The output package
 
