@@ -51,16 +51,44 @@ class GenerateSourcesMojo extends AbstractMojo {
         })
 
         //-- Process all models
+        //--  - First Filter the on that don't have to be regenerated
+        //--  - Then Produce
         //------------------
-        xmodelsFiles.foreach {
+        xmodelsFiles.filter {
+            f =>
+                // Get or set a timestamp file to detect if model file changed since last run
+                //-------------------
+
+                //-- Set timestamps. If modified is bigger than last timestamp -> regenerate
+                var lastTimeStamp : Long = 0
+                var lastModified = f.lastModified
+
+                var statusFolder = new File("target/maven-status/maven-ooxoo-plugin")
+                statusFolder.mkdirs
+                var timestampFile = new File(statusFolder,s"${f.getName}.ts")
+                timestampFile.exists match {
+                    case true => 
+                        lastTimeStamp = java.lang.Long.parseLong(Source.fromFile(timestampFile).mkString)
+                    case false =>
+                }
+ 
+                // Write Actual timestamp
+                //-------------
+                java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
+
+                lastModified > lastTimeStamp
+
+        }.foreach {
             f => 
-                getLog().info( "Processing model: "+f );
+                getLog().info( "(Re)generating model: "+f );
 
                 // Get Model as String
                 //--------------------------
                 var source = Source.fromFile(f)
                 var content = source.mkString
 
+                
+                
 
                 // Compile to get annotated producers
                 //---------------------
