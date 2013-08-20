@@ -103,37 +103,6 @@ object DataUnit {
 
   def apply() : DataUnit = new DataUnit
 
-  implicit def convertDUtoQName( du : DataUnit) : QName = {
-
-    // Prepare local Name and create
-    var name =""
-    (du.element,du.attribute) match {
-                    
-        // Element
-        //------------
-        case (element,null) => 
-
-          if (element.ns!="") {
-            name = s"${element.ns}:"
-          }
-          name = s"${name}${element.name}"
-
-            
-
-        // Attribute
-        //----------------
-        case (null,attribute) =>
-
-          if (attribute.ns!="") {
-            name = s"${attribute.ns}:"
-          }
-          name = s"${name}${attribute.name}"
-    
-
-        case _ => 
-    }
-
-    name
-  } 
+  
 
 }

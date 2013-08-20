@@ -44,7 +44,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
         // If there is a current element, add new element to it, otherwise it is a top element
         elementsStack.headOption match {
-            case Some(top) => top.elements += elt
+            case Some(top) => elt.parent=top;top.elements += elt
             case None => topElements+=elt
         }
 
@@ -202,6 +202,8 @@ class Element(
     // Related Type
     //------------------
 
+    var parent : Element = null
+
     /**
         If set, this element is just instanciating the defined Element, so no need to write it out as oyn type
     */
@@ -211,6 +213,11 @@ class Element(
     //-------------
     this.classType = classOf[ElementBuffer].getCanonicalName
     this.name = inputName
+
+    // Description
+    //-----------------------
+    @xattribute(name="isTrait")
+    var isTrait : BooleanBuffer = false
 
     // Sub Elements
     //-------------------

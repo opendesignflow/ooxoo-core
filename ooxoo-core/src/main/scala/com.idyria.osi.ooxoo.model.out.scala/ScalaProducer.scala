@@ -79,7 +79,12 @@ import ${classOf[xelement].getCanonicalName}
             element.traits.foreach { t => traits+=s"with $t "  }
 
             //-- End of class start
-            out << s"""trait $name extends ${element.classType} $traits {
+            var classOrTrait = "class"
+            if (element.isTrait) {
+                classOrTrait = "trait"
+            }
+
+            out << s"""$classOrTrait $name extends ${element.classType} $traits {
             """
 
             //-- Attributes
