@@ -73,6 +73,15 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     }
 
+    def isTrait = {
+
+        elementsStack.headOption match {
+            case Some(element) => element.isTrait = true
+            case None => throw new RuntimeException("Cannot call isTrait() outside of an element")
+        }
+
+    }
+
     def any = {
 
         elementsStack.headOption match {
