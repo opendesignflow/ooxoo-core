@@ -164,6 +164,8 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
    // require(du.attribute != null || du.element != null)
 
+   //println(s"In VBuffer streaming for ${getClass}")
+
     TLog.logFine("Got DU "+du)
 
     // If stack size > 0, we are not concerned
@@ -316,7 +318,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
 
               case None => 
-                TLog.logFine("---> No field instance returned for element <---")
+                //println(s"---> No field instance returned for element ${du.element.name} under ${getClass} <---")
             }
 
             
