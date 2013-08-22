@@ -10,29 +10,34 @@
 		<groupId>com.idyria.osi.ooxoo</groupId>
 		<artifactId>ooxoo-all</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
-		<relativePath>../ooxoo-all/</relativePath>
+		<relativePath>../</relativePath>
 	</parent>
+
+	<!-- Site Distribution -->
+    <!-- ################# -->
+	<!-- <distributionManagement>
+        <site>
+          <id>idyria.central</id>
+          <url>scpexe://wurst.idyria.com/access/osi/${parent.project.groupId}/${parent.project.artifactId}/maven-site/${project.artifactId}</url>
+        </site>
+    </distributionManagement>-->
+	
 	<properties>
 		<scala.mojo.version>0.5-SNAPSHOT</scala.mojo.version>
 	</properties>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
+		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-plugin-plugin</artifactId>
 		        <version>3.2</version>
-				<dependencies>
+		        <dependencies>
 					<dependency>
 						<groupId>com.jsuereth</groupId>
 						<artifactId>scala-mojo-support_2.10</artifactId>
 						<version>${scala.mojo.version}</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-plugin-plugin</artifactId>
-		        <version>3.2</version>
 		        <configuration>
 		          <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
 		          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
