@@ -5,6 +5,9 @@ import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.project.MavenProject
 
+import org.apache.maven.reporting.MavenReport
+import org.apache.maven.reporting.MavenReportException
+
 import org.apache.maven.plugins.annotations._
 
 import com.idyria.osi.ooxoo.model._
@@ -20,7 +23,7 @@ import scala.io.Source
 
 */
 @Mojo( name = "generate-sources")
-class GenerateSourcesMojo extends AbstractMojo {
+class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
 
     @Parameter(defaultValue="${project}")
     var project : MavenProject = null
@@ -28,7 +31,7 @@ class GenerateSourcesMojo extends AbstractMojo {
     var modelsFolder = new File("src/main/xmodels")
 
     var outputBaseFolder = new File("target/generated-sources/")
- 
+
     @throws(classOf[MojoExecutionException])
     override def execute()  {
         getLog().info( "Looking for xmodels to generate" );
@@ -40,6 +43,14 @@ class GenerateSourcesMojo extends AbstractMojo {
         //-- Map to store instances of producers, for reuse purpose
         var producers = Map[Class[ _ <: Producer],Producer]()
 
+        // Variables for compiler
+        //------------------
+
+        //-- Version
+        ModelCompiler.bind("groupId",project.getGroupId)
+        ModelCompiler.bind("artifactId",project.getArtifactId)
+        ModelCompiler.bind("version",project.getVersion)
+ 
         //-- Search the xmodels
         //---------------------------------
         var xmodelsFiles = modelsFolder.listFiles(new FilenameFilter() {
@@ -109,23 +120,35 @@ class GenerateSourcesMojo extends AbstractMojo {
                                         var producer = producerAnnotation.value.newInstance
                                         producers = producers +  (producerAnnotation.value -> producer)
                                         producer
-                            }
+                            }               
 
-                            // Prepare Output
-                            //--------------
-                            var outputFolder = new File(outputBaseFolder,producer.outputType)
-                            outputFolder.mkdirs()
-                            var out = new FileWriters(outputFolder)
-
-                            // Produce
+                            // Produce or produce later
                             //----------
-                            ModelCompiler.produce(modelInfos,producer,out)
+                            producer.outputType match {
+                                
+                                // Report, so save and generate when reports are generated
+                                case outputType if(outputType.startsWith("report.")) =>
 
-                            // Add Target Folder to compile source if existing
-                            //-----------------
-                            if (outputFolder.exists) {
-                                this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+
+
+                                // Produce now as sources
+                                case _ => 
+
+                                    // Prepare Output
+                                    //--------------
+                                    var outputFolder = new File(outputBaseFolder,producer.outputType)
+                                    outputFolder.mkdirs()
+                                    var out = new FileWriters(outputFolder)
+
+                                    ModelCompiler.produce(modelInfos,producer,out)
+
+                                    // Add Target Folder to compile source if existing
+                                    //-----------------
+                                    if (outputFolder.exists) {
+                                        this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+                                    }
                             }
+                            
 
                     }
                     // EOF Foreach producers
@@ -139,4 +162,46 @@ class GenerateSourcesMojo extends AbstractMojo {
          
 
     }
+
+
+    // Reporting
+    //---------------------------
+    var defferedReporting = List[(ModelInfos,Producer)]()
+
+    var reportingOutputDirectory : java.io.File = null 
+
+
+
+    def canGenerateReport(): Boolean =  {
+        defferedReporting.size > 0
+    }
+
+    def generate(sink: org.codehaus.doxia.sink.Sink,locale: java.util.Locale): Unit = {
+        
+    }
+    def getCategoryName(): String = {
+        "OOXOO"
+    }
+    def getDescription(x$1: java.util.Locale): String = {
+        "OOXOO Reports"
+    }
+    def getName(locale: java.util.Locale): String = {
+        "OOXOO"
+    }
+    def getOutputName(): String = {
+        "OOXOO"
+    }
+    def getReportOutputDirectory(): java.io.File = {
+        this.reportingOutputDirectory match {
+            case dir if(dir==null) => new File(project.getBasedir, project.getReporting.getOutputDirectory + "/OOXOO").getAbsoluteFile
+            case dir =>  dir
+        }
+    }
+    def isExternalReport(): Boolean = {
+        true
+    }
+    def setReportOutputDirectory(dir: java.io.File): Unit ={
+        this.reportingOutputDirectory = dir
+    }
+
 }

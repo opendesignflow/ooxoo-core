@@ -84,6 +84,16 @@ object ModelCompiler {
     // Compilation result
 
     /**
+        Binds a named variable to a value for the model compiler
+    */
+    def bind(name:String,value: Any) = {
+
+        imain.bindValue(name,value)
+        
+
+    }
+
+    /**
         @return The Model name
     */
     def compile(file: File) : ModelInfos = {
@@ -156,6 +166,11 @@ $inputModel
 
         imain.bindValue("producer",producer)
         imain.bindValue("writer",out)
+        imain.interpret(s"""
+            if (${modelInfos.name}.name==null) {
+                ${modelInfos.name}.name = "${modelInfos.name}"
+            }
+        """)
         imain.interpret(s"${modelInfos.name}.produce(producer,writer)")
     }
 

@@ -13,8 +13,9 @@ class PrintStreamWriter( var out : PrintStream ) extends Writer {
 
     }
 
-    def <<(str: String)= {
+    def <<(str: String) : Writer = {
         out.println(s"${this.indentString}$str")
+        this
     }
 
     def finish = {

@@ -94,19 +94,30 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     // Attribute Creation/Editing
     //---------------------
 
-    def attribute(name: String) : Attribute  = {
 
+    implicit val defaultDesc = { "" } 
+    def attribute(name: String)(implicit desc: String) : Attribute  = {
+
+        // Create Attribute 
         var attr = new Attribute(name)
         @->("attribute.add",attr)
         attr
+
+        // Set Description
+        attr.description = desc
+
+        attr
     }
 
-    def attribute(attr: IsWordAttributeWrapper) : Attribute  = {
+    def attribute(attr: IsWordAttributeWrapper)(implicit desc: String) : Attribute  = {
+
+        // Set Description
+        attr.left.description = desc
 
         attr.left
         
     }
-
+ 
     onWith("attribute.add") {
         attribute : Attribute =>
 
@@ -122,6 +133,24 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
         }
         
+
+    }
+
+    // General Descriptions and such
+    //---------------------
+
+    /**
+        Sets the description of current element
+    */
+    def withDescription(desc: String) : Unit = {
+
+        this.elementsStack.headOption match {
+
+            case Some(element)  => element.description = desc
+            case None => 
+                throw new RuntimeException("Cannot set description outside an element")
+
+        }
 
     }
 
@@ -189,6 +218,9 @@ trait Common {
     @xattribute(name="name")
     var name :XSDStringBuffer = null
 
+    @xelement(name="Description")
+    var description : XSDStringBuffer = null 
+
     @xattribute(name="minOccurs")
     var minOccurs = IntegerBuffer(1)
 
@@ -213,6 +245,17 @@ class Element(
 
     var parent : Element = null
 
+    def depth : Int = {
+
+        var res = 0
+        var current = this 
+        while(current.parent!=null) {
+            res += 1 
+            current = current.parent
+        }
+        res 
+    }
+
     /**
         If set, this element is just instanciating the defined Element, so no need to write it out as oyn type
     */
@@ -225,14 +268,29 @@ class Element(
 
     // Description
     //-----------------------
+
     @xattribute(name="isTrait")
     var isTrait : BooleanBuffer = false
+
+    def apply(desc: String) = {
+        this.description = desc
+    }
+
+    /*def :+ (desc: String) = {
+
+        println("Setting Description on element") 
+        this.description = desc
+    }*/
 
     // Sub Elements
     //-------------------
 
     @xelement(name="Element")
-    var elements = XList { du => new Element(du.element.name)}
+    var elements = XList { du => 
+            var elt = new Element(du.element.name)
+            elt.parent = this
+            elt
+    }
 
     @xelement(name="Attribute")
     var attributes = XList { du => new Attribute(du.element.name)}

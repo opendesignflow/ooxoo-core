@@ -82,7 +82,15 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
 
                     withTrait("com.idyria.osi.ooxoo.model.TestTrait")
 
-                    attribute("name")  
+                    withDescription {
+                        "SOAP Protocol Header"
+                    }
+
+                    attribute("name") {
+                        
+                            "name description"
+                    }
+
                     attribute("count") is "int"
                     "timestamp" attribute "string"
 
@@ -90,8 +98,8 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
 
                 "env:Body" is {
 
-
-                    "StringElement" as "string"
+  
+                    "StringElement" is "string"  and "Just a string element"
 
                     //"MultipleStringElement" as multiple ("string")
 

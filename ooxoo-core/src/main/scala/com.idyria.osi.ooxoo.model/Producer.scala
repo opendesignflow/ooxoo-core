@@ -35,6 +35,8 @@ trait Writer {
 
     def indentString = indentList.mkString
 
+    def indentCount = indentList.size
+
     // Output
     //------------
 
@@ -46,13 +48,14 @@ trait Writer {
     /**
         Writes a line to output
     */
-    def <<(str: String) : Unit
+    def <<(str: String) : Writer
 
     /**
         Writes a File to output
     */
-    def <<(file:File) : Unit = {
+    def <<(file:File) : Writer = {
         this.<<(Source.fromFile(file).mkString)
+        this
     }
 
     /**

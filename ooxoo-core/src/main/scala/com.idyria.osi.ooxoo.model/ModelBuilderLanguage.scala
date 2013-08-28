@@ -43,9 +43,6 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
     class IsWordElementWrapper( var left: Element) {
 
-        def apply(str:String) = {
-
-        }
 
         def multiple(typeStr: String) = {
 
@@ -58,7 +55,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        def multiple(right: => Unit) : Element = {
+        def multiple(right: => Any) : Element = {
 
             @->("element.start",left)
 
@@ -72,7 +69,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        def multiple(right: Element ) : Element = {
+        def multipleOf(right: Element ) : Element = {
 
             @->("element.start",left)
 
@@ -87,9 +84,33 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        def is(right: => Unit) : Element = {
+        //implicit val defaultDesc = { "" } 
+        def is(right: String): IsWordElementWrapper = {
 
-            println("in is definition for Element")
+            // Description
+            //left.description = desc
+        
+
+            @->("element.start",left)
+
+            left.classType = getType(right).getCanonicalName
+
+            @->("element.end",left)
+
+            this
+
+        }
+
+        def and(str: String) : IsWordElementWrapper = {
+
+            left.description = str
+            this 
+        }
+
+ 
+        def is(right: => Any) : Element = {
+
+            //println("in is definition for Element")
 
             @->("element.start",left)
 
