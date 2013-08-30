@@ -187,16 +187,16 @@ trait BaseBufferTrait extends Buffer {
   /**
    * This implementation simply passes to neighbor
    */
-  def streamOut(du: DataUnit) = {
+  def streamOut(du: DataUnit) : Unit = {
 
     // Pass
     if (this.nextBuffer != null)
-      this.nextBuffer -> du
+      this.nextBuffer.streamOut(du)
 
   }
-  def streamOut() = streamOut(createDataUnit)
+  /*def streamOut() = streamOut(createDataUnit)
   def streamOut( cl : DataUnit => DataUnit) = streamOut(cl(createDataUnit))
-
+*/
 
 
   def streamIn(du: DataUnit) = {

@@ -5,7 +5,6 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 import java.io.StringReader
 import java.io.StringWriter
 import org.scalatest._
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.XList

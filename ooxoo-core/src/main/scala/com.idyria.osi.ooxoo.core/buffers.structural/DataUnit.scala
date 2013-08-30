@@ -7,7 +7,6 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import scala.beans.BeanProperty
 
 
-import scala.language.implicitConversions
 
 
 /**

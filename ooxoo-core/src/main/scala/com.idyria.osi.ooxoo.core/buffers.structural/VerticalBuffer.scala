@@ -11,7 +11,7 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
-import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.tea.logging._
 
 /**
   Just a type marker
@@ -27,7 +27,7 @@ trait HierarchicalBuffer {
  * @author rleys
  *
  */
-trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
+trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource {
 
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
@@ -58,10 +58,11 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
    *  - The local class is inspected for eventual field buffers to also push out to
    *
    */
-  override def streamOut(du: DataUnit) = {
+  override def streamOut(du: DataUnit) : Unit = {
 
-    // Normal streamOut
+    // Normal streamOut (will output this element name and such)
     //----------
+
 
     super.streamOut(du)
 
@@ -80,7 +81,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
           //-- streamOut
         	value.appendBuffer(this.lastBuffer)
-        	value -> {
+        	value streamOut {
 
         	  du =>
         	    var attribute = xattribute_base(f)
@@ -107,7 +108,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
         //-- streamOut
        	value.appendBuffer(this.lastBuffer)
-       	value -> {
+       	value streamOut {
        	  du =>
 
        	    var element = xelement_base(f)
@@ -127,14 +128,14 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
       f => 
 
-        TLog.logFine(s"Streamout for any field in ${getClass}")
+        logFine(s"Streamout for any field in ${getClass}")
 
           //-- Get value
           var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
 
           //-- streamOut
           value.appendBuffer(this.lastBuffer)
-          value.->
+          value.streamOut
 
 
     }
@@ -166,7 +167,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
    //println(s"In VBuffer streaming for ${getClass}")
 
-    TLog.logFine("Got DU "+du)
+    logFine("Got DU "+du)
 
     // If stack size > 0, we are not concerned
     //----------------------
@@ -194,7 +195,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
       if (this.lastBuffer.isInstanceOf[IOBuffer]) {
 
-        TLog.logFine("VerticalBuffer: removing last IO buffer from chain because end of hierarchy")
+        logFine("VerticalBuffer: removing last IO buffer from chain because end of hierarchy")
         this.lastBuffer.remove
       }
 
@@ -208,12 +209,12 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
         case Some(buffer) =>
 
-          TLog.logFine(s"Found attribute Buffer to pass in value: ${du.value}")
+          logFine(s"Found attribute Buffer to pass in value: ${du.value}")
           
           //buffer.dataFromString(du.value)
           buffer <= du
           
-          TLog.logFine(s"-------> ${buffer}")
+          logFine(s"-------> ${buffer}")
 
         case None => 
 
@@ -226,7 +227,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
                     any <= du
 
                 case None => 
-                    TLog.logFine("---> No field instance returned for attribute <---")
+                    logFine("---> No field instance returned for attribute <---")
               }     
       }
 
@@ -262,7 +263,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
     //--------------------
     else if (du.element != null) {
 
-      TLog.logFine(s"Got an XML element for subfield: ${du.element.name}");
+      logFine(s"Got an XML element for subfield: ${du.element.name}");
 
       
 
@@ -274,7 +275,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
         //-----------------------------
         case Some(buffer) =>
 
-          TLog.logFine(s"Found element Buffer to pass in value: ${du.value}")
+          logFine(s"Found element Buffer to pass in value: ${du.value}")
 
           // Increase Stack size if we are fetching a non hierarchical buffer as a hierarchy in this element
           // Typical: Elements that only contain a value, and thus are DataBuffers which are non hierarchical
@@ -295,7 +296,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
 
 
-          TLog.logFine(s"-------> ${buffer}")
+          logFine(s"-------> ${buffer}")
 
         // Nothing -> Can we stream into any ?
         //---------------
@@ -336,14 +337,14 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
    */
   private def getElementField(name : QName) : Option[Buffer] = {
 
-    //TLog.logFine("*Looking for field for element: /"+name.getLocalPart()+"/")
+    //logFine("*Looking for field for element: /"+name.getLocalPart()+"/")
 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter {
       a =>
         var xelt = xelement_base(a)
-        //TLog.logFine("xelement annotation name:/"+xelt.name+"/");
+        //logFine("xelement annotation name:/"+xelt.name+"/");
         xelt !=null && name.getLocalPart().equals(xelt.name);
     } match {
 
@@ -371,13 +372,13 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
    */
   private def getAttributeField(name : QName) : Option[AbstractDataBuffer[AnyRef]] = {
 
-    TLog.logFine("*Looking for field for attribute: "+name.getLocalPart())
+    logFine("*Looking for field for attribute: "+name.getLocalPart())
 
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter {
       f =>
         	var xattr = xattribute_base(f);
-//        	TLog.logFine("Found field with xattribute annotation, and name:"+xattr.name)
+//        	logFine("Found field with xattribute annotation, and name:"+xattr.name)
         	xattr!=null && name.getLocalPart().equals( xattr.name)
 
     } match {
@@ -388,7 +389,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
 
         var targetField = x.head
 
-         TLog.logFine(s"*Found field: $name")
+         logFine(s"*Found field: $name")
 
 
       	// Get Value
@@ -398,7 +399,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer {
       	//------------------
       	if (fieldValue==null) {
 
-      	  TLog.logFine(s"Instanciating field for attribute: $name")
+      	  logFine(s"Instanciating field for attribute: $name")
       	  fieldValue = ScalaReflectUtils.instanciateFieldValue(this, targetField)
 
         }
@@ -457,7 +458,7 @@ object VerticalBuffer {
 
     baseTT.tpe.foreach {
 
-      t => TLog.logFine("Available: " + t.toString())
+      t => logFine("Available: " + t.toString())
 
     }
 
@@ -467,7 +468,7 @@ object VerticalBuffer {
         f =>
 
           // Filter based on annotation presence
-          TLog.logFine("Available: " + f)
+          logFine("Available: " + f)
           f.annotations.find(a => (a.tpe.erasure == typeOf[xelement] || a.tpe.erasure == typeOf[xattribute])) match {
             case None => false
             case _ => true
@@ -482,7 +483,7 @@ object VerticalBuffer {
 
     /*typeTag.tpe.erasure.members.foreach{
 
-      t : scala.reflect.api.Universe#Symbol => TLog.logFine("Available: "+t.toString())
+      t : scala.reflect.api.Universe#Symbol => logFine("Available: "+t.toString())
 
     }*/
 

@@ -17,14 +17,14 @@ import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
 
-import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.tea.logging._
 
 /**
  * @author rleys
  *
  */
 @transient
-class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
+class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogSource {
 
   // Stream in parameters 
   //-----------------------
@@ -54,7 +54,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
   /**
    * Writes the data unit to the output stream, then pass it on
    */
-  override def streamOut(du: DataUnit) = {
+  override def streamOut(du: DataUnit) : Unit = {
 
     // Fetch Prefixes from data unit context
     //-----------------
@@ -194,7 +194,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
           du.value = reader.getText()
 
         //-- send
-        TLog.logFine(s"Produced element DataUnit: " + du.element.name);
+        logFine(s"Produced element DataUnit: " + du.element.name);
         this.streamIn(du)
 
         //-- Send attributes if any
@@ -209,7 +209,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  {
         	du.value = reader.getAttributeValue(i)
 
             //-- send
-        	TLog.logFine(s"Produced attribute DataUnit: " + du.attribute.name);
+        	logFine(s"Produced attribute DataUnit: " + du.attribute.name);
         	this.streamIn(du)
           }
         }

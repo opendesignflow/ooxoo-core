@@ -1,8 +1,8 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-import com.idyria.osi.tea.logging.TLog
-
-trait ElementBuffer extends VerticalBuffer {
+ 
+ 
+trait ElementBuffer extends VerticalBuffer  {
 
  
   /**
@@ -15,7 +15,7 @@ trait ElementBuffer extends VerticalBuffer {
     var element = xelement_base(this)
     if (element==null) {
       throw new IllegalArgumentException(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
-    	TLog.logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
+    	logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
 
     }
 

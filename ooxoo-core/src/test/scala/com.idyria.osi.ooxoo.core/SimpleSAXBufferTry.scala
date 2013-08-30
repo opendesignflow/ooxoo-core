@@ -52,7 +52,7 @@ object SimpleSAXBufferTry extends App {
   var root = new SimpleRoot()
   root.appendBuffer(outBuffer)
   
-  root ->
+  root.streamOut() 
   
   println("Res Streamout1: ")
   println(outBuffer.output.toString())

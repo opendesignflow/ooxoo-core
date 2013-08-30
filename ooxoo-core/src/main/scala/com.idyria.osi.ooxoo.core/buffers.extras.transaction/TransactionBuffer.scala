@@ -2,7 +2,7 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
 
-import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.tea.logging._
 
 import scala.language.implicitConversions
 
@@ -11,7 +11,7 @@ import scala.language.implicitConversions
     so that values get propagated
 
 */
-class TransactionBuffer extends BaseBuffer {
+class TransactionBuffer extends BaseBuffer with TLogSource {
 
     /**
         The DataUnit that is currently on hold before transaction commit
@@ -60,7 +60,7 @@ class TransactionBuffer extends BaseBuffer {
 
         // Return cached value if available, otherwise delegate
         if (pullDataUnit!=null) {
-            TLog.logFine("Returning cached value")
+            logFine("Returning cached value")
             this.pullDataUnit
         }
         else {
@@ -210,7 +210,7 @@ class Transaction {
     }
 }
 
-object Transaction {
+object Transaction extends TLogSource {
 
 
     /**
@@ -278,7 +278,7 @@ object Transaction {
             case Some(transaction) => transaction
             case None =>
 
-                    TLog.logFine("-- Creating transaction for Thread --")
+                    logFine("-- Creating transaction for Thread --")
 
                     var transaction = new Transaction
                     transaction.initiator = initiator

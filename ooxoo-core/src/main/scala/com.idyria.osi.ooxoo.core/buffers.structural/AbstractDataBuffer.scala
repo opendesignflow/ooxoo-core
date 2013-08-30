@@ -6,7 +6,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import scala.beans.BeanProperty
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 
-import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.tea.logging._
 
 /**
  *
@@ -24,7 +24,7 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
 				(
 				    // Variable for local Data
 					@BeanProperty()
-					var data : DT = null ) extends BaseBuffer {
+					var data : DT = null ) extends BaseBuffer with TLogSource {
 
 
   def dataToString : String
@@ -94,11 +94,11 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
     //----------------------------
     if (du.attribute==null && du.element==null && du.hierarchical==false && du.value==null) {
-      TLog.logFine("---- End of hierarchy for data buffer ("+this.getClass()+") -> remove IO chain");
-      TLog.logFine("---- BCBefore: "+this.printForwardChain)
+      logFine("---- End of hierarchy for data buffer ("+this.getClass()+") -> remove IO chain");
+      logFine("---- BCBefore: "+this.printForwardChain)
       if (this.lastBuffer.isInstanceOf[IOBuffer])
     	  this.lastBuffer.remove
-	  TLog.logFine("---- BCAfter: "+this.printForwardChain)
+	  logFine("---- BCAfter: "+this.printForwardChain)
 
     }
 

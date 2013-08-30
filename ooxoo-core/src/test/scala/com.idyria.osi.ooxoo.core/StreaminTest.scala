@@ -389,7 +389,7 @@ class StreaminTest extends FunSuite with ShouldMatchers{
     root.appendBuffer(io)
 
     //-- Streamout
-    root ->
+    root.streamOut()
 
     println("Result: "+io.output.toString())
 

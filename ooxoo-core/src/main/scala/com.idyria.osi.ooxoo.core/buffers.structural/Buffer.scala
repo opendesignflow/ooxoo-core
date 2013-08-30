@@ -40,33 +40,23 @@ trait Buffer {
   /**
    * Pushs a data unit coming from previous buffer in chain
    */
-  def streamOut(du : DataUnit)
+  def streamOut(du : DataUnit) : Unit 
 
   /**
    * Pushs a data unit created locally out to the next buffer chain (right direction)
    */
-  def streamOut()
+  //def streamOut() : Unit
+
+  def streamOut() : Unit = {
+
+    streamOut(createDataUnit)
+  }
 
   /**
    * Pushs a data unit created locally out to the next buffer chain
    * The provided closure is called on the locally created dataunit for injection purpose
    */
-  def streamOut( cl : DataUnit => DataUnit)
-
-  /**
-   * Alias for streamOut
-   */
-  def -> = streamOut
-
-  /**
-   * Alias for propagatin streamOut
-   */
-  def ->(du: DataUnit) = streamOut(du)
-
-  /**
-   * Alias for streamOut with closure on DU
-   */
-  def ->( cl : DataUnit => DataUnit)  = streamOut(cl)
+  def streamOut( cl : DataUnit => DataUnit) : Unit  =  streamOut(cl(createDataUnit))
 
 
 

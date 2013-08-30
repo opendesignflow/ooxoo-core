@@ -12,7 +12,7 @@ import java.lang.reflect.ParameterizedType
 
 import scala.language.implicitConversions
 
-import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.tea.logging._
 
 /**
  *
@@ -25,7 +25,7 @@ class  XList[T <: Buffer] (
 
 				val createBuffer:  DataUnit  => T
 
-			) extends MutableList[T] with BaseBufferTrait with HierarchicalBuffer {
+			) extends MutableList[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource {
 
   var currentBuffer : Buffer = null
 
@@ -63,7 +63,7 @@ class  XList[T <: Buffer] (
 
 
           } else {
-            content ->
+            content.streamOut
           }
 
           /*else if (du.element!=null || du.attribute!=null) {
@@ -82,17 +82,17 @@ class  XList[T <: Buffer] (
 
   override def streamIn(du: DataUnit) =  {
 
-    TLog.logFine(s"IN LIST streamIn...............: ${du.element}");
+    logFine(s"IN LIST streamIn...............: ${du.element}");
     if (du.element!=null) {
 
-      TLog.logFine(s"  xlist element: ${du.element.name} (current: $currentBuffer) ");
+      logFine(s"  xlist element: ${du.element.name} (current: $currentBuffer) ");
 
     }
 
     // If there is a current -> stream in
     //--------------------
     if (this.currentBuffer!=null) {
-      //TLog.logFine(s"---- Giving to buffer");
+      //logFine(s"---- Giving to buffer");
       //this.currentBuffer <= du
     }
     // If there is no current -> instanciate and streaming
@@ -104,13 +104,13 @@ class  XList[T <: Buffer] (
 
       // Add I/O Buffer
       //---------
-      TLog.logFine("---- Chain before: "+this.printForwardChain);
+      logFine("---- Chain before: "+this.printForwardChain);
       if(this.lastBuffer.isInstanceOf[IOBuffer])
         this.currentBuffer.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO)
 
-      TLog.logFine("---- XLIST: Created Buffer instance");
-      TLog.logFine("---- Chain now: "+this.printForwardChain);
-      TLog.logFine("---- Buffer Chain now: "+this.currentBuffer.lastBuffer.printBackwardsChain);
+      logFine("---- XLIST: Created Buffer instance");
+      logFine("---- Chain now: "+this.printForwardChain);
+      logFine("---- Buffer Chain now: "+this.currentBuffer.lastBuffer.printBackwardsChain);
 
       //-- Streamin
       this.currentBuffer <= du
@@ -122,7 +122,7 @@ class  XList[T <: Buffer] (
     //--------------
     if (this.currentBuffer!=null && !this.currentBuffer.lastBuffer.isInstanceOf[IOBuffer]) {
 
-      TLog.logFine("---- XLIST: Current Buffer has stopped receiving events, we should too");
+      logFine("---- XLIST: Current Buffer has stopped receiving events, we should too");
 
       this.currentBuffer = null
     //if (du.attribute==null && du.element==null && du.hierarchical==false) {
@@ -131,21 +131,21 @@ class  XList[T <: Buffer] (
       //---------------
       var lastb = this.lastBuffer
 
-      TLog.logFine(s"   ----> lastb $lastb");
+      logFine(s"   ----> lastb $lastb");
 
       if (lastb!=null && lastb.isInstanceOf[IOBuffer]) {
 
-        TLog.logFine("    ---- Chain now: "+this.printForwardChain);
+        logFine("    ---- Chain now: "+this.printForwardChain);
         
         this.lastBuffer.remove
         
-        TLog.logFine("    ---- Chain now: "+this.printForwardChain);
+        logFine("    ---- Chain now: "+this.printForwardChain);
 
         // Replay Event because it should be treated by the container of this XList
         //-----------
         if(lastb.getPreviousBuffer!=null) {
             
-           TLog.logFine("---- Replaying to: "+lastb.getPreviousBuffer.getClass());
+           logFine("---- Replaying to: "+lastb.getPreviousBuffer.getClass());
           
             lastb.getPreviousBuffer <= du
         }
