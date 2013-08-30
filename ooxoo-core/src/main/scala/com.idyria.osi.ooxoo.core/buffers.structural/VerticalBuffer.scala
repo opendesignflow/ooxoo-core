@@ -121,6 +121,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
 
     }
+    
 
     // Any
     //-----------------
@@ -128,7 +129,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
       f => 
 
-        logFine(s"Streamout for any field in ${getClass}")
+        //println(s"Streamout for any field in ${getClass}")
 
           //-- Get value
           var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]

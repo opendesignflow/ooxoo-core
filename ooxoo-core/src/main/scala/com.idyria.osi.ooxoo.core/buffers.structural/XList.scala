@@ -54,7 +54,7 @@ class  XList[T <: Buffer] (
                 du.element = annot
                 du.hierarchical = true
 
-                content -> du
+                content.streamOut(du)
 
                 // Reset
                 du.element = null
@@ -63,7 +63,7 @@ class  XList[T <: Buffer] (
 
 
           } else {
-            content.streamOut
+            content.streamOut()
           }
 
           /*else if (du.element!=null || du.attribute!=null) {

@@ -104,6 +104,29 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
         expectResult("test2")(parsed.content.last.asInstanceOf[SomeModeledElement2].name.toString)
     }
 
+    // Streamout 
+    //------------------------------------------
+
+
+    test("Stream Out Any Content") {
+
+        // Create
+        var gen = new RootTest()
+        gen.content += new SomeModeledElement()
+
+        // Streamout
+        var io = new StAXIOBuffer()
+        gen - io
+        gen.streamOut()
+
+        var res = new String(io.output.toByteArray)
+
+        // Check
+        println(s"Res: $res") 
+        expectResult(true,"RootTest must contain an any content element")(res.matches(".*<SomeModeledElement.*"))
+        
+    }
+
 /*
     test("Streamin Any Content that matches an existing model with no default constructor") {
 
