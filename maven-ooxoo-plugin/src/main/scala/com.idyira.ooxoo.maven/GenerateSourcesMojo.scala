@@ -37,6 +37,11 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
         getLog().info( "Looking for xmodels to generate" );
 
 
+        // Checks
+        //---------------
+        if (!modelsFolder.exists)
+            return
+
         //-- Parameters
         //-------------------
 
@@ -47,9 +52,9 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
         //------------------
 
         //-- Version
-        ModelCompiler.bind("groupId",project.getGroupId)
+        /*ModelCompiler.bind("groupId",project.getGroupId)
         ModelCompiler.bind("artifactId",project.getArtifactId)
-        ModelCompiler.bind("version",project.getVersion)
+        ModelCompiler.bind("version",project.getVersion)*/
  
         //-- Search the xmodels
         //---------------------------------
