@@ -11,7 +11,7 @@ import scala.io._
 
 
 */
-abstract class Producer {
+abstract class ModelProducer {
 
     /**
         To be overriden by Implementations

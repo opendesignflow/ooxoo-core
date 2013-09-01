@@ -82,7 +82,7 @@ trait Model {
 
     // Produce
     //--------------------
-    def produce(producer: Producer,out: Writer) = {
+    def produce(producer: ModelProducer,out: Writer) = {
         producer.produce(this,out)
     }
 

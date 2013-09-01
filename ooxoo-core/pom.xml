@@ -28,6 +28,18 @@
         		<configuration>
         			<addZincArgs>-no-color</addZincArgs>
         		</configuration>
+        		<executions>
+	              <execution>
+	                <id>add-source</id>
+	                <phase>generate-sources</phase>
+	                <goals>
+	                  <goal>add-source</goal>
+	                </goals>
+	                <configuration>
+	                  <sourceDir>${basedir}/src/main/java</sourceDir>
+	                </configuration>
+	              </execution>
+	            </executions>
 			</plugin>
 		</plugins>
 	</build>

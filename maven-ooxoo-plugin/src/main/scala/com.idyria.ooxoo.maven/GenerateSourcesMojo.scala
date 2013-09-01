@@ -1,6 +1,6 @@
 package com.idyria.osi.ooxoo.maven
 
-
+ 
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.project.MavenProject
@@ -32,6 +32,8 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
 
     var outputBaseFolder = new File("target/generated-sources/")
 
+     var statusFolder = new File("target/maven-status/maven-ooxoo-plugin")
+    
     @throws(classOf[MojoExecutionException])
     override def execute()  {
         getLog().info( "Looking for xmodels to generate" );
@@ -45,7 +47,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
             //-------------------
 
             //-- Map to store instances of producers, for reuse purpose
-            var producers = Map[Class[ _ <: Producer],Producer]()
+            var producers = Map[Class[ _ <: ModelProducer],ModelProducer]()
 
             // Variables for compiler
             //------------------
@@ -78,7 +80,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
                     var lastTimeStamp : Long = 0
                     var lastModified = f.lastModified
 
-                    var statusFolder = new File("target/maven-status/maven-ooxoo-plugin")
+                   
                     statusFolder.mkdirs
                     var timestampFile = new File(statusFolder,s"${f.getName}.ts")
                     timestampFile.exists match {
@@ -89,7 +91,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
      
                     // Write Actual timestamp
                     //-------------
-                    java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
+                    //java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
 
                     lastModified > lastTimeStamp
 
@@ -157,6 +159,13 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
                         }
                         // EOF Foreach producers
                     } 
+                    // EOF Something to produce
+                    
+                    // Write Actual timestamp
+                    //-------------
+                    var timestampFile = new File(statusFolder,s"${f.getName}.ts")
+                    java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
+
             }
             // EOF Xfiles loop
 
@@ -179,7 +188,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
 
     // Reporting
     //---------------------------
-    var defferedReporting = List[(ModelInfos,Producer)]()
+    var defferedReporting = List[(ModelInfos,ModelProducer)]()
 
     var reportingOutputDirectory : java.io.File = null 
 
