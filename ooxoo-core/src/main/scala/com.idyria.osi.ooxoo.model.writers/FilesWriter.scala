@@ -36,6 +36,10 @@ class FileWriters(
         //----------------
         this.out = new PrintStream(new FileOutputStream(file))
 
+        // Save as file written
+        //----------
+        filesWritten =  path :: filesWritten 
+
         println(s"Opened File to : $file")
     }
 

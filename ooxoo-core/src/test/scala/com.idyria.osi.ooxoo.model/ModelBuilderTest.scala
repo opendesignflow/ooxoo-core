@@ -33,7 +33,10 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
 
                 "env:Header" is {
 
-                    attribute("name")  
+                    attribute("name") 
+
+                    -@("name2")
+
                     attribute("count") is "string"
                     "timestamp" attribute "string"
 
@@ -51,7 +54,7 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
                 }
 
                 "env:Body" {
-
+ 
                 }*/
 
             }

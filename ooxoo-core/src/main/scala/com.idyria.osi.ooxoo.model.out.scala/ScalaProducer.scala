@@ -51,10 +51,17 @@ class ScalaProducer extends Producer {
                 case None =>
             }*/
 
+            // If Type has already been written, don't overwrite it
+            //-----------------------
+            var fileName = "./"+targetPackage+"/"+name+".scala"
+            if (out.fileWritten(fileName)) {
+                return
+            }
+            
             // Write File
             //-----------------------
 
-            out.file("./"+targetPackage+"/"+name+".scala")
+            out.file(fileName)
 
             //-- Package
             out << s"""package $targetPackage

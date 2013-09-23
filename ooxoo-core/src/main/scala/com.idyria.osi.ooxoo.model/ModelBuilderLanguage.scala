@@ -23,8 +23,12 @@ trait ModelBuilderLanguage extends ListeningSupport {
     var typesMap = Map[String,Class[_ <: Buffer]](
         ("string" ->  classOf[XSDStringBuffer]),
         ("int" ->  classOf[IntegerBuffer]),
+        ("integer" ->  classOf[IntegerBuffer]),
         ("long" ->  classOf[LongBuffer]),
-        ("float" ->  classOf[FloatBuffer])
+        ("float" ->  classOf[FloatBuffer]),
+        ("dateTime" ->  classOf[DateTimeBuffer]),
+        ("boolean" ->  classOf[BooleanBuffer]),
+        ("bool" ->  classOf[BooleanBuffer])
     )
 
     def getType(str: String) : Class[_ <: Buffer] = {
@@ -69,7 +73,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        def multipleOf(right: Element ) : Element = {
+        def multipleOf(right: Element ) : IsWordElementWrapper = {
 
             @->("element.start",left)
 
@@ -80,7 +84,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.end",left)
 
-            left 
+            this
 
         }
 
@@ -90,6 +94,21 @@ trait ModelBuilderLanguage extends ListeningSupport {
             // Description
             //left.description = desc
         
+
+            @->("element.start",left)
+
+            left.classType = getType(right).getCanonicalName
+
+            @->("element.end",left)
+
+            this
+
+        }
+
+         /**
+            Set type of element based on string
+        */
+        def ofType( right : String) : IsWordElementWrapper = {
 
             @->("element.start",left)
 
@@ -168,7 +187,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
         /**
             Set type of attribute based on string
         */
-        def is( right : String) = {
+        def is( right : String) : IsWordAttributeWrapper = {
 
             @->("attribute.add",left)
 
@@ -176,12 +195,38 @@ trait ModelBuilderLanguage extends ListeningSupport {
             //--------------------------
             left.classType = getType(right).getCanonicalName
 
+            this
+
+        }
+
+        /**
+            Set type of attribute based on string
+        */
+        def ofType( right : String) : IsWordAttributeWrapper = {
+
+            @->("attribute.add",left)
+
+            // Search for type in internal map
+            //--------------------------
+            left.classType = getType(right).getCanonicalName
+
+            this
+
         }
 
         def is ( right: Class[_ <: Buffer]) = {
 
             @->("attribute.add",left)
             left.classType = right.getCanonicalName
+        }
+
+        /**
+            Description
+        */
+        def and(str: String) : IsWordAttributeWrapper = {
+
+            left.description = str
+            this 
         }
     }
 

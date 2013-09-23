@@ -40,11 +40,19 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     elt : Element => 
 
-        println("Inside element.start for "+elt.name)
+        //println("Inside element.start for "+elt.name)
 
-        // If there is a current element, add new element to it, otherwise it is a top element
+        // - If there is a current element, add new element to it, otherwise it is a top element
+        // - If the target element lists already contains this one, just stack
         elementsStack.headOption match {
-            case Some(top) => elt.parent=top;top.elements += elt
+
+            case Some(top) if(top.elements.contains(elt)) =>
+
+            case Some(top) => 
+                    elt.parent=top;
+                    top.elements += elt
+
+            case None if(topElements.contains(elt)) => topElements+=elt
             case None => topElements+=elt
         }
 
@@ -55,8 +63,8 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     onWith("element.end") { elt : Element => 
 
-        println("Inside element.end for "+elt.name)
-
+       // println("Inside element.end for "+elt.name)
+ 
         // Unstack element
         if (elementsStack.size > 0) {
 
@@ -68,6 +76,15 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
         elementsStack.headOption match {
             case Some(element) => element.traits+=traitType
+            case None => throw new RuntimeException("Cannot call trait() outside of an element")
+        }
+
+    }
+
+    def withTrait(traitType: Element) = {
+
+        elementsStack.headOption match {
+            case Some(element) => element.traits+=traitType.name
             case None => throw new RuntimeException("Cannot call trait() outside of an element")
         }
 
@@ -108,6 +125,8 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
         attr
     }
+
+    def -@(name:String)(implicit desc: String) : Attribute  = attribute(name)(desc)
 
     def attribute(attr: IsWordAttributeWrapper)(implicit desc: String) : Attribute  = {
 

@@ -116,6 +116,35 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     }
 
+    test("DateTimeBuffer") {
+
+        // Parse String
+        //------------------
+        var dateString="1998-12-14T23:54:02+0200"
+
+        var buffer = new DateTimeBuffer
+        buffer.dataFromString(dateString)
+
+        // Check fields
+        //------------------
+        expectResult(1998)(buffer.data.get(java.util.Calendar.YEAR))
+        expectResult(12)(buffer.data.get(java.util.Calendar.MONTH)+1)
+        expectResult(14)(buffer.data.get(java.util.Calendar.DAY_OF_MONTH))
+
+        // The returned hour is the local hour based on the target timezone (the /(3600*1000) is to convert from milliseconds to hours)
+        //println(s"parsed timezone: ${buffer.data.get(java.util.Calendar.ZONE_OFFSET)}")
+        //println(s"local timezone: ${java.util.TimeZone.getDefault.getRawOffset/(3600*1000)}")
+        expectResult(23)(buffer.data.get(java.util.Calendar.HOUR_OF_DAY)+(2-(java.util.TimeZone.getDefault.getRawOffset)/(3600*1000)))
+
+        expectResult(54)(buffer.data.get(java.util.Calendar.MINUTE))
+        expectResult(2)(buffer.data.get(java.util.Calendar.SECOND))
+
+        // Reformat and check output, which is now in our local timezone
+        //-------------------
+        expectResult("1998-12-14T22:54:02+0100")(buffer.toString)
+
+    }
+
 
 
 }

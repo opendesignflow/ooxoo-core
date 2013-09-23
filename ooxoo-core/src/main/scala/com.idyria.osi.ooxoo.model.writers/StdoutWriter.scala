@@ -7,9 +7,21 @@ import java.io.PrintStream
 
 class PrintStreamWriter( var out : PrintStream ) extends Writer {
 
+    var filesWritten = List[String]()
+
+    /**
+        Also saves the path of written file for the fileWritten
+    */
     def file(path: String) = {
 
         out.println(s"---------- File: $path -----------------")
+
+        filesWritten =  path :: filesWritten
+    }
+
+    def fileWritten(path:String): Boolean = {
+
+        this.filesWritten.contains(path)
 
     }
 

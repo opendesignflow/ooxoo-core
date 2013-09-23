@@ -46,6 +46,11 @@ trait Writer {
     def file(path: String) : Unit
 
     /**
+        Returns true if the file for the given path has already been written
+    */
+    def fileWritten(path:String) : Boolean
+
+    /**
         Writes a line to output
     */
     def <<(str: String) : Writer
