@@ -7,7 +7,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural._
     This Producer creates scala class implementations for the models
 
 */
-class ScalaProducer extends Producer {
+class ScalaProducer extends ModelProducer {
 
     this.outputType = "scala"
 

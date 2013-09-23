@@ -43,15 +43,19 @@ object ModelCompiler {
     // Prepare Class Loader for compiler
     //-------------------------
     var bootclasspath = List[URL]()
+    var bootclasspath2 = List[String]()
 
     //--- Scala Compiler and library
     val compilerPath = java.lang.Class.forName("scala.tools.nsc.Interpreter").getProtectionDomain.getCodeSource.getLocation
     val libPath = java.lang.Class.forName("scala.Some").getProtectionDomain.getCodeSource.getLocation
     
+    println("Updated code")
+    val runtimeObject = java.lang.Class.forName("scala.runtime.RichInt").getProtectionDomain.getCodeSource.getLocation
+    
     //-- Mex
     val mexPath = java.lang.Class.forName("com.idyria.osi.ooxoo.model.ModelCompiler").getProtectionDomain.getCodeSource.getLocation
 
-    bootclasspath = compilerPath :: libPath :: mexPath :: bootclasspath 
+    bootclasspath = compilerPath :: libPath :: mexPath :: runtimeObject ::bootclasspath 
 
     //-- If Classloader is an URL classLoader, add all its urls to the compiler
     //println("Classloader type: "+getClass().getClassLoader())
@@ -60,7 +64,15 @@ object ModelCompiler {
         //println("Adding URLs from class loader to boot class path")
 
         //-- Gather URLS
-        getClass.getClassLoader.asInstanceOf[URLClassLoader].getURLs().foreach( url => bootclasspath = url ::  bootclasspath )
+        getClass.getClassLoader.asInstanceOf[URLClassLoader].getURLs().foreach {
+            url => 
+              
+               var urlFile = new File(url.getFile)
+               bootclasspath2 = urlFile.getAbsolutePath :: bootclasspath2
+              	
+               //println(s" -> URL translated: ${urlFile.toURI.toURL}")
+               bootclasspath = url ::  bootclasspath 
+        }
 
     }
 
@@ -71,8 +83,10 @@ object ModelCompiler {
         error => println(error)
     })
     settings2.usejavacp.value = true
-    settings2.bootclasspath.value = bootclasspath  mkString java.io.File.pathSeparator
+    settings2.bootclasspath.value = (bootclasspath  mkString java.io.File.pathSeparator)+ ";" + (bootclasspath2  mkString java.io.File.pathSeparator)
+    
 
+    
     //-- Show some infos
     //println("compilerPath=" + compilerPath);
     //println("settings.bootclasspath.value=" + settings2.bootclasspath.value);
@@ -149,7 +163,7 @@ $inputModel
     /**
         Compile and produce a file
     */
-    def produce( file: File , producer: Producer, out: Writer) : Unit = {
+    def produce( file: File , producer: ModelProducer, out: Writer) : Unit = {
 
         // Compile
         //-------------------
@@ -161,7 +175,7 @@ $inputModel
     /**
         Produce an already compiled file
     */
-    def produce( modelInfos: ModelInfos , producer: Producer, out: Writer)  : Unit = {
+    def produce( modelInfos: ModelInfos , producer: ModelProducer, out: Writer)  : Unit = {
 
 
         imain.bindValue("producer",producer)

@@ -22,5 +22,5 @@ public @interface producer {
         }
 
     */
-    public Class<? extends Producer> value() ; 
+    public Class<? extends ModelProducer> value() ; 
 }
