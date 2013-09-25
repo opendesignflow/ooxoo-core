@@ -71,12 +71,23 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
             elementsStack.pop
         }
     }
+    
+    def classType(classType: String) : Unit  = {
+      
+      elementsStack.headOption match {
+            case Some(element) => element.classType = classType
+            case None => throw new RuntimeException("Cannot call classType() outside of an element")
+        }
+      
+    }
+    
+    def classType(element: Element) : Unit = classType(element.classType.toString)
 
     def withTrait(traitType: String) = {
 
         elementsStack.headOption match {
             case Some(element) => element.traits+=traitType
-            case None => throw new RuntimeException("Cannot call trait() outside of an element")
+            case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
         }
 
     }
@@ -85,7 +96,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
         elementsStack.headOption match {
             case Some(element) => element.traits+=traitType.name
-            case None => throw new RuntimeException("Cannot call trait() outside of an element")
+            case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
         }
 
     }
