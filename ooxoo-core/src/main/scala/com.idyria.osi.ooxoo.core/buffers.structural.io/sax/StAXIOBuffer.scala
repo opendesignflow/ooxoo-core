@@ -16,8 +16,9 @@ import javax.xml.stream.XMLStreamWriter
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
-
 import com.idyria.osi.tea.logging._
+import java.io.InputStreamReader
+import java.net.URL
 
 /**
  * @author rleys
@@ -26,6 +27,10 @@ import com.idyria.osi.tea.logging._
 @transient
 class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogSource {
 
+  // Constructors
+  //----------------
+  def this(url: URL) = this(new InputStreamReader(url.openStream()))
+  
   // Stream in parameters 
   //-----------------------
 
