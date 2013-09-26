@@ -11,6 +11,28 @@ class ScalaProducer extends ModelProducer {
 
     this.outputType = "scala"
 
+    // Name Cleaning
+      //-------------------
+      
+    val forbiddenKeyWords= List("for","trait","class","package","var","val","def")
+    
+    /**
+     * Returns a scala friendly name from base name, without reserved keywords etc...
+     */
+    def cleanName(name: String) : String = {
+      
+      // Trim Lower case
+      var res = name.trim().toLowerCase()
+      
+      // Prefix with _ is the name is a keyword
+      forbiddenKeyWords.contains(res) match {
+        case true => res = "_"+res
+        case false => 
+      }
+      
+      res
+    }
+      
 
     /**
         The output package
@@ -91,14 +113,15 @@ import ${classOf[xelement].getCanonicalName}
                 classOrTrait = "trait"
             }
 
-            out << s"""$classOrTrait $name extends ${element.classType} $traits {
+            out << s"""$classOrTrait ${name} extends ${element.classType} $traits {
             """
 
             //-- Attributes
+            //---------------------------
             out.indent
             element.attributes.foreach { attribute => 
 
-                // Annotation
+                //--- Annotation
                 var resolvedName = model.splitName(attribute.name)
                 resolvedName match {
                     case ("",name) =>  
@@ -108,17 +131,18 @@ import ${classOf[xelement].getCanonicalName}
 
                         out << s"""@xattribute(name="$name",ns="$namespace")"""
                 }
-
+                
+                //-- Field
                 attribute.maxOccurs match {
 
                     case count  if (count>1) =>
 
-                        out << s"""var ${resolvedName._2.toLowerCase} = XList { new ${attribute.classType}}
+                        out << s"""var ${cleanName(resolvedName._2)}s = XList { new ${attribute.classType}}
                         """
 
                     case _ => 
 
-                        out << s"""var ${resolvedName._2.toLowerCase} : ${attribute.classType} = null
+                        out << s"""var ${cleanName(resolvedName._2)} : ${attribute.classType} = null
                         """
                 }
                 
@@ -127,6 +151,7 @@ import ${classOf[xelement].getCanonicalName}
             out.outdent
 
             //-- Sub Element
+            //---------------------------
             out.indent
             element.elements.foreach { element =>
 
@@ -147,12 +172,12 @@ import ${classOf[xelement].getCanonicalName}
 
                     case count if (count>1) =>
          
-                        out << s"""var ${resolvedName._2.toLowerCase} = XList { new $targetPackage.${resolvedName._2}}
+                        out << s"""var ${cleanName(resolvedName._2)}s = XList { new $targetPackage.${resolvedName._2}}
                         """
  
                     case _ =>
 
-                        out << s"""var ${resolvedName._2.toLowerCase} : $targetPackage.${resolvedName._2} = null
+                        out << s"""var ${cleanName(resolvedName._2)} : $targetPackage.${resolvedName._2} = null
                         """
                 }
             }

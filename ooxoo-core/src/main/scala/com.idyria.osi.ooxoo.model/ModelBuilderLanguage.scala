@@ -28,7 +28,8 @@ trait ModelBuilderLanguage extends ListeningSupport {
         ("float" ->  classOf[FloatBuffer]),
         ("dateTime" ->  classOf[DateTimeBuffer]),
         ("boolean" ->  classOf[BooleanBuffer]),
-        ("bool" ->  classOf[BooleanBuffer])
+        ("bool" ->  classOf[BooleanBuffer]),
+        ("regexp" ->  classOf[RegexpBuffer])
     )
 
     def getType(str: String) : Class[_ <: Buffer] = {
