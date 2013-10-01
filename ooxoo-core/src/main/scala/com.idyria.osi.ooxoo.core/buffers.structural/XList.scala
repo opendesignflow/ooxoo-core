@@ -181,7 +181,11 @@ object XList {
   */
 	def apply[T <: Buffer] (cl: DataUnit  => T ) : XList[T] = {
 
-		return new XList[T](cl)
+	   var realClosure : (DataUnit => T) = {
+        du => cl(du)
+      }
+	  
+		return new XList[T](realClosure)
 
 	}
 

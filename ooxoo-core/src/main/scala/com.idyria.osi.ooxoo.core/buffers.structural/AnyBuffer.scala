@@ -55,14 +55,14 @@ object AnyXList {
 
         @warning The model class MUST have an empty constructor, otherwise a runtime error will be thrown
     */
-    var modelsMap = Map[ Tuple2[String,String], Class[_ <: ElementBuffer]]()
+    var modelsMap = Map[ Tuple2[String,String], Class[_ <: Buffer]]()
 
     /**
         Register a new model in the models map
 
         @throws IllegalArgumentException if cannot determine xelement parameters from class
     */
-    def apply[T <: ElementBuffer]( cl : Class[T]) = {
+    def apply[T <: Buffer]( cl : Class[T]) = {
 
         //println("Registering model class in XList")
 
@@ -87,12 +87,18 @@ object AnyXList {
         XList[Buffer] {
             du : DataUnit => 
 
+              
+              	println("Got Buffer for this Header content")
+              	
+              	var res : Buffer = null
                 (du.element,du.attribute) match {
                     
                     // Element
                     //------------
                     case (element,null) => 
 
+                      	println(s"AnyXList got a DU to translate to buffer: ${element.name} ${element.ns}")
+                      
                         // Is there a registered model for the element ?
                         //-------------
                         modelsMap.get((element.ns -> element.name)) match {
@@ -102,10 +108,14 @@ object AnyXList {
 
                                 //-- Instanciate
                                 try {
-                                    modelClass.newInstance.asInstanceOf[Buffer]
+                                   res =  modelClass.newInstance.asInstanceOf[Buffer]
                                     
+                                   println(s"Created from model class: ${res}")
+                                   
                                 } catch {
-                                    case e: Throwable => throw new RuntimeException(s"The Any content list found a model for element: ${element.ns}:${element.name}, but the model instance could not be created, does it have an empty constructor? if not, you MUST add one ",e)
+                                    case e: Throwable => 
+                                      e.printStackTrace()
+                                      throw new RuntimeException(s"The Any content list found a model for element: ${element.ns}:${element.name}, but the model instance could not be created, does it have an empty constructor? if not, you MUST add one ",e)
                                 }
 
                             //-> No, create a generic element
@@ -114,7 +124,7 @@ object AnyXList {
                                 var elementBuffer = new AnyElementBuffer
                                 elementBuffer.name = element.name
 
-                                elementBuffer
+                                res = elementBuffer
                         }
 
                         
@@ -126,13 +136,15 @@ object AnyXList {
                         var attributeBuffer = new AnyAttributeBuffer
                         attributeBuffer.name = attribute.name
 
-                        attributeBuffer
+                        res = attributeBuffer
 
                        //null 
 
                     case _ => null
                 }
-
+        
+              	// Return
+              	res
                 
                  
         }

@@ -198,11 +198,21 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
 
         //-- Prepare data unit
         var du = new DataUnit
+        du.hierarchical = true
         du.element = new xelement_base()
         du.element.name = reader.getLocalName()
-        du.hierarchical = true
-        if (reader.hasText())
+        
+        //-- NS
+        reader.getNamespaceURI() match {
+          case ns if(ns!=null && ns!="") => du.element.ns = ns
+          case _ =>
+        }
+        
+        //-- Text value
+        if (reader.hasText()) {
           du.value = reader.getText()
+        }
+          
 
         //-- send
         logFine(s"Produced element DataUnit: " + du.element.name);
@@ -236,6 +246,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
       }
       else if (reader.isCharacters()) {
 
+        println("Sending characters")
+        
         // Send a value only event
         var du =  new DataUnit
         du.value = reader.getText()
