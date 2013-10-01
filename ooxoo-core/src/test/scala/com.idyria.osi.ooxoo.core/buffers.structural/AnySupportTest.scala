@@ -4,6 +4,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 import org.scalatest._
+import java.io.ByteArrayOutputStream
 
 
 @xelement(name="RootTest")
@@ -119,7 +120,7 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
         gen - io
         gen.streamOut()
 
-        var res = new String(io.output.toByteArray)
+        var res = new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray)
 
         // Check
         println(s"Res: $res") 

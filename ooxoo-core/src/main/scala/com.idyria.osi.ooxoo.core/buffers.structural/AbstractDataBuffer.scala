@@ -65,8 +65,20 @@ abstract class AbstractDataBuffer[DT <: AnyRef]
     //------------------
     var du = new DataUnit
     du.setValue(this.dataToString)
-    du
+    
 
+    // Try to add element/attribute content if implementation class has some
+    //--------------
+    xelement_base(this) match {
+      case null => 
+      case base => du.element = base
+    }
+    xattribute_base(this) match {
+      case null => 
+      case base => du.attribute = base
+    }
+    
+    du
   }
 
   /**

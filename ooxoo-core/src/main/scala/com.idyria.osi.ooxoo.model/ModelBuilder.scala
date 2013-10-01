@@ -3,8 +3,8 @@ package com.idyria.osi.ooxoo.model
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
-
 import scala.language.implicitConversions
+import java.io.ByteArrayOutputStream
 
 /**
    Contains the methods and tree stacking utilities to be able to define an XML model in a convienient way.
@@ -225,7 +225,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         //this.streamOut()
 
         // Return res
-        new String(io.output.toByteArray)
+        new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray)
 
     }
 

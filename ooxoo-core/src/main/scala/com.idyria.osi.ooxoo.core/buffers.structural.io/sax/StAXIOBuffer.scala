@@ -20,6 +20,7 @@ import com.idyria.osi.tea.logging._
 import java.io.InputStreamReader
 import java.net.URL
 import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * @author rleys
@@ -36,7 +37,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
   // Stream in parameters 
   //-----------------------
 
-  var output: ByteArrayOutputStream = null
+  var output: OutputStream = null
 
   var eventWriter: XMLStreamWriter = null
 
@@ -78,9 +79,12 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
     var documentElement = false
 
     //-- Create output if none
-    if (this.eventWriter == null) {
-
+    if (this.output==null) {
+      
       this.output = new ByteArrayOutputStream()
+      
+    }
+    if (this.eventWriter == null) {
 
       var of = XMLOutputFactory.newInstance()
       of.setProperty("javax.xml.stream.isRepairingNamespaces",true);
