@@ -88,7 +88,7 @@ object AnyXList {
             du : DataUnit => 
 
               
-              	println("Got Buffer for this Header content")
+              	//println("Got Buffer for this Header content")
               	
               	var res : Buffer = null
                 (du.element,du.attribute) match {
@@ -97,7 +97,7 @@ object AnyXList {
                     //------------
                     case (element,null) => 
 
-                      	println(s"AnyXList got a DU to translate to buffer: ${element.name} ${element.ns}")
+                      	//println(s"AnyXList got a DU to translate to buffer: ${element.name} ${element.ns}")
                       
                         // Is there a registered model for the element ?
                         //-------------
@@ -110,7 +110,7 @@ object AnyXList {
                                 try {
                                    res =  modelClass.newInstance.asInstanceOf[Buffer]
                                     
-                                   println(s"Created from model class: ${res}")
+                                  // println(s"Created from model class: ${res}")
                                    
                                 } catch {
                                     case e: Throwable => 

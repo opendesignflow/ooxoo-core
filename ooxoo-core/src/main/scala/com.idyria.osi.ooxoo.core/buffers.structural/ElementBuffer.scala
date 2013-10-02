@@ -31,6 +31,16 @@ trait ElementBuffer extends VerticalBuffer  {
     du.hierarchical = true
     du
   }
+  
+  /**
+   * Make sure elementbuffer declares a hierarchical data unit
+   */
+  override def streamOut(du:DataUnit) = {
+    
+    du.hierarchical = true
+    
+    super.streamOut(du)
+  }
 
 
 }

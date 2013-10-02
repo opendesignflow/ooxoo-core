@@ -107,6 +107,10 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
         case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
       }
       
+      //-- With text content
+      if (du.value != null)
+    	  this.eventWriter.writeCharacters(du.value)
+      
 
 
     } else if (du.element != null) {
@@ -246,8 +250,6 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
       }
       else if (reader.isCharacters()) {
 
-        println("Sending characters")
-        
         // Send a value only event
         var du =  new DataUnit
         du.value = reader.getText()
@@ -283,5 +285,14 @@ object StAXIOBuffer {
 
     new StAXIOBuffer(new StringReader(str))
 
+  }
+  
+  /**
+   * Creates a StaxIOBuffer with a specific data output stream
+   */
+  def apply(out: OutputStream) = {
+    var b = new StAXIOBuffer
+    b.output = out
+    b
   }
 }

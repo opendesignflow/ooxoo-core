@@ -3,6 +3,8 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+
 /**
  *
  * Base common Buffer trait
@@ -14,40 +16,59 @@ package com.idyria.osi.ooxoo.core.buffers.structural
  */
 trait Buffer {
 
-
-
   // Data Unit Interface
   //---------------------
- 
-   /**
+
+  /**
    * Creates a data unit from this buffer.
    * This is used when the buffer is the starting point of a streamOut or streamIn
    */
-  def createDataUnit : DataUnit = new DataUnit
+  def createDataUnit: DataUnit = new DataUnit
 
   /**
-    Import a Data Unit in the current buffer
-  */
-  def importDataUnit( du:DataUnit ) : Unit = {
+   * Import a Data Unit in the current buffer
+   */
+  def importDataUnit(du: DataUnit): Unit = {
 
   }
   // Streamout/in Interface
   //---------------------------------
 
+  def cleanIOChain = {
 
+    this.foreachNextBuffer {
+      case io: IOBuffer =>
 
+        //println("Removing IO Buffer")
+        io.remove
+      case _ =>
+    }
+
+  }
 
   /**
    * Pushs a data unit coming from previous buffer in chain
+   *
+   * After Streamout, this method removes the possible remaining I/O Chain
+   * So this method should always be called after implementation streamOut
+   *
    */
-  def streamOut(du : DataUnit) : Unit 
+  def streamOut(du: DataUnit): Unit = {
+
+    // Pass
+    if (this.getNextBuffer != null)
+      this.getNextBuffer.streamOut(du)
+
+    
+
+  }
 
   /**
    * Pushs a data unit created locally out to the next buffer chain (right direction)
    */
   //def streamOut() : Unit
 
-  def streamOut() : Unit = {
+  def streamOut(): Unit = {
 
     streamOut(createDataUnit)
   }
@@ -56,16 +77,13 @@ trait Buffer {
    * Pushs a data unit created locally out to the next buffer chain
    * The provided closure is called on the locally created dataunit for injection purpose
    */
-  def streamOut( cl : DataUnit => DataUnit) : Unit  =  streamOut(cl(createDataUnit))
-
-
+  def streamOut(cl: DataUnit => DataUnit): Unit = streamOut(cl(createDataUnit))
 
   /**
-    Streamin without dataUnit is used if element is supposed to produce input DataUnits.
-    Per default this method does nothing
-  */
+   * Streamin without dataUnit is used if element is supposed to produce input DataUnits.
+   * Per default this method does nothing
+   */
   def streamIn = {}
-
 
   /**
    * streamIn a data unit from the next buffer
@@ -75,25 +93,24 @@ trait Buffer {
   /**
    *  Alias for streamIn
    */
-  def <= (du: DataUnit) = streamIn(du)
-
+  def <=(du: DataUnit) = streamIn(du)
 
   //-----------------------------
   // Push / Pull Interface
   //-----------------------------
 
   /**
-    Push Left and Right, and creates the data unit if none has been given
-
-  */
-  def push( du: DataUnit ) : Unit = {
+   * Push Left and Right, and creates the data unit if none has been given
+   *
+   */
+  def push(du: DataUnit): Unit = {
 
     // DU Preparation
     //--------
     var dataUnit = du
-    if (dataUnit==null) {
+    if (dataUnit == null) {
       dataUnit = this.createDataUnit
-    } else if (dataUnit.value==null) {
+    } else if (dataUnit.value == null) {
       dataUnit += this.createDataUnit
     }
 
@@ -102,94 +119,90 @@ trait Buffer {
     this.pushRight(dataUnit)
     this.pushLeft(dataUnit)
   }
-  def push : Unit = push(DataUnit())
+  def push: Unit = push(DataUnit())
 
   /**
-    Push a Data Unit to the right of the buffer chain
-    The user should override this method to be able to react on Push
-  */
-  def pushRight( du: DataUnit ) : Unit = {
+   * Push a Data Unit to the right of the buffer chain
+   * The user should override this method to be able to react on Push
+   */
+  def pushRight(du: DataUnit): Unit = {
 
-    if (getNextBuffer!=null) {
+    if (getNextBuffer != null) {
       getNextBuffer.pushRight(du)
     }
 
   }
 
   /**
-    Push a Data Unit to the left of the buffer chain
-    The user should override this method to be able to react on Push
-  */
-  def pushLeft( du: DataUnit ) : Unit  = {
+   * Push a Data Unit to the left of the buffer chain
+   * The user should override this method to be able to react on Push
+   */
+  def pushLeft(du: DataUnit): Unit = {
 
-    if (getPreviousBuffer!=null) {
+    if (getPreviousBuffer != null) {
       getPreviousBuffer.pushLeft(du)
     }
 
   }
 
   /**
-    Request value pull from right buffer
-    If we have someone on the left, respond using pull(dataUnit)
+   * Request value pull from right buffer
+   * If we have someone on the left, respond using pull(dataUnit)
+   *
+   * @return The Data Unit to be pulled in
+   */
+  def pull(indu: DataUnit): DataUnit = {
 
-    @return The Data Unit to be pulled in
-  */
-  def pull(indu:DataUnit) : DataUnit = {
-
-    var du : DataUnit = null
+    var du: DataUnit = null
 
     // Pull Right
-    if (getNextBuffer!=null)
+    if (getNextBuffer != null)
       du = getNextBuffer.pull(indu)
 
-
     // Create Data Unit if necessary
-    if (du==null)
+    if (du == null)
       du = this.createDataUnit
 
     // Pull in if no buffer on the left
-    if (getPreviousBuffer==null)
+    if (getPreviousBuffer == null)
       this.importDataUnit(du)
 
     du
 
   }
-  def pull() : DataUnit = this.pull(DataUnit())
-
+  def pull(): DataUnit = this.pull(DataUnit())
 
   // Buffer Chain Management
   //-------------------------------
 
-
-  def printForwardChain : String = {
+  def printForwardChain: String = {
 
     var buffers = Set[Buffer](this)
     this.foreachNextBuffer {
       b =>
-          if (b!=null)
-          buffers+=b
+        if (b != null)
+          buffers += b
     }
     buffers.mkString(" -> ")
 
   }
 
-  def printBackwardsChain : String = {
+  def printBackwardsChain: String = {
 
     var buffers = Set[Buffer](this.firstBuffer)
     this.foreachNextBuffer {
       b =>
-          if (b!=null)
-          buffers+=b
+        if (b != null)
+          buffers += b
     }
     buffers.mkString(" <- ")
 
   }
 
-
   /**
    * Remove ourselves, and chain previous and next together
    */
-  def remove : Buffer = {
+  def remove: Buffer = {
 
     // Get previous and next
     var previous = this.getPreviousBuffer
@@ -197,12 +210,12 @@ trait Buffer {
 
     // Next becomes next of previous
     //----------
-    if (previous!=null)
+    if (previous != null)
       previous.setNextBuffer(next)
 
     // Previous becomes previous of next
     //------------
-    if (next!=null)
+    if (next != null)
       next.setPreviousBuffer(previous)
 
     // Return this
@@ -214,32 +227,32 @@ trait Buffer {
   /**
    * Gets the next buffer
    */
-  def getNextBuffer : Buffer
+  def getNextBuffer: Buffer
 
   /**
    * Set the next buffer
    */
-  def setNextBuffer(buffer:Buffer) : Buffer
+  def setNextBuffer(buffer: Buffer): Buffer
 
   /**
    * Appends a buffer at the end of the chain
    *
    * @return The inserted buffer
    */
-  def appendBuffer(buffer : Buffer) : Buffer
+  def appendBuffer(buffer: Buffer): Buffer
 
   /**
-    Appends a Buffer at the end of the chain
-
-    @return The inserted buffer
+   * Appends a Buffer at the end of the chain
+   *
+   * @return The inserted buffer
    */
-  def - (buffer : Buffer) : Buffer = appendBuffer(buffer)
+  def -(buffer: Buffer): Buffer = appendBuffer(buffer)
 
   /**
    * Inserts a buffer after this buffer
    * @return The inserted buffer
    */
-  def insertNextBuffer(buffer: Buffer) : Buffer
+  def insertNextBuffer(buffer: Buffer): Buffer
 
   /**
    * Apply a function to all the next buffers, including this one
@@ -248,8 +261,8 @@ trait Buffer {
 
     var currentBuffer = this
     while (currentBuffer != null) {
-      if (currentBuffer!=null)
-    	  closure(currentBuffer)
+      if (currentBuffer != null)
+        closure(currentBuffer)
       currentBuffer = currentBuffer.getNextBuffer
     }
 
@@ -262,7 +275,7 @@ trait Buffer {
 
     var currentBuffer = this
     while (currentBuffer != null) {
-      if (currentBuffer!=null)
+      if (currentBuffer != null)
         closure(currentBuffer)
       currentBuffer = currentBuffer.getPreviousBuffer
     }
@@ -272,11 +285,11 @@ trait Buffer {
   /**
    * Get the last buffer in the chain
    */
-  def lastBuffer : Buffer = {
+  def lastBuffer: Buffer = {
 
     var res = this
     this.foreachNextBuffer {
-      b => res =  b
+      b => res = b
     }
     res
 
@@ -285,35 +298,33 @@ trait Buffer {
   /**
    * Get the first buffer in the chain
    */
-  def firstBuffer : Buffer = {
+  def firstBuffer: Buffer = {
 
     var res = this
     this.foreachPreviousBuffer {
-      b => res =  b
+      b => res = b
     }
     res
 
   }
 
-
   /**
    * Get the previous buffer
    */
-  def getPreviousBuffer : Buffer
+  def getPreviousBuffer: Buffer
 
-  def setPreviousBuffer(buffer:Buffer) : Buffer
+  def setPreviousBuffer(buffer: Buffer): Buffer
 
   /**
    * Sets the provided buffer at the head of the buffer chain
    * @return The inserted buffer
    */
-  def prependBuffer(buffer: Buffer) : Buffer
+  def prependBuffer(buffer: Buffer): Buffer
 
   /**
    * Inserts the provided buffer before this buffer
    * @return The inserted buffer
    */
-  def insertPreviousBuffer(buffer: Buffer) : Buffer
-
+  def insertPreviousBuffer(buffer: Buffer): Buffer
 
 }

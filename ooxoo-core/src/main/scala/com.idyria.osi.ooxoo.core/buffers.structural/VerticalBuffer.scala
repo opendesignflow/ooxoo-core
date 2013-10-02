@@ -89,6 +89,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
         	    du
 
         	}
+            //value.lastBuffer.remove
 
       } catch {
         case e : Throwable => throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}",e)
@@ -106,6 +107,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
         //-- Get value
         var value = ScalaReflectUtils.getFieldValue(this,f).asInstanceOf[Buffer]
 
+        
         //-- streamOut
        	value.appendBuffer(this.lastBuffer)
        	value streamOut {
@@ -116,6 +118,10 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
        	    du
 
        	}
+        /*value.lastBuffer match {
+          case e : IOBuffer => e.remove
+          case _ => 
+        }*/
 
 
 
@@ -137,7 +143,8 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
           //-- streamOut
           value.appendBuffer(this.lastBuffer)
           value.streamOut
-
+          
+          //value.lastBuffer.remove
 
     }
 
@@ -147,6 +154,19 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     super.streamOut(new DataUnit)
 
    
+    // Clean all IO Buffers
+    //-----------------------
+    //-- Clean
+    cleanIOChain
+    
+    this.foreachNextBuffer {
+      case io : IOBuffer => 
+        
+        //println("Removing IO Buffer")
+        //io.remove
+      case _ => 
+    }
+    
 
   }
 

@@ -33,7 +33,7 @@ class  XList[T <: Buffer] (
 
   override def streamOut(du : DataUnit) = {
 
-     // println(s"Streamout in XList for ${size} elements")
+      //println(s"Streamout in XList for ${size} elements")
 
       this.foreach {
 
@@ -44,6 +44,7 @@ class  XList[T <: Buffer] (
           //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
 
           // If No xelement / attribute annotation, try to take from content
+          //--------------
           if (du.element==null && du.attribute==null) {
 
             xelement_base(content) match {
@@ -52,7 +53,14 @@ class  XList[T <: Buffer] (
  
                 // Set element annotation and hierarchical to open element
                 du.element = annot
-                du.hierarchical = true
+                
+                  
+			    //-- If this is not a vertical buffer, it must never be hirarchical
+                content match {
+                  case e : VerticalBuffer =>  du.hierarchical = true
+                  case _ => du.hierarchical = false
+                }
+			    
 
                 content.streamOut(du)
 
@@ -63,8 +71,12 @@ class  XList[T <: Buffer] (
 
 
           } else {
-            content.streamOut()
+            content.streamOut(du)
           }
+          
+         
+          
+          //content.lastBuffer.remove
 
           /*else if (du.element!=null || du.attribute!=null) {
 
@@ -74,7 +86,12 @@ class  XList[T <: Buffer] (
 
 
     }
+   // EOF Each element
 
+      
+   // Clean IO Chain
+   cleanIOChain
+      
   }
 
 

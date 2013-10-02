@@ -84,13 +84,13 @@ trait BaseBufferTrait extends Buffer {
   def insertNextBuffer(buffer: Buffer): Buffer = {
 
 
-    if(this.nextBuffer == buffer)
+    if(this.nextBuffer == buffer || this == buffer)
       return buffer
 
 
     // remove provided buffer from where it is now
     //-----------------
-    /*  if (buffer!=null)
+     /* if (buffer!=null)
         buffer.remove*/
 
     // save next
@@ -103,8 +103,9 @@ trait BaseBufferTrait extends Buffer {
 
     // Next gets this as previous
     //-----------
-    if (this.nextBuffer!=null)
+    if (this.nextBuffer!=null) {
     	this.nextBuffer setPreviousBuffer(this)
+    }
 
     // New next gets old next as next
     //------------
@@ -187,13 +188,13 @@ trait BaseBufferTrait extends Buffer {
   /**
    * This implementation simply passes to neighbor
    */
-  def streamOut(du: DataUnit) : Unit = {
+  /*override def streamOut(du: DataUnit) : Unit = {
 
     // Pass
     if (this.nextBuffer != null)
       this.nextBuffer.streamOut(du)
 
-  }
+  }*/
   /*def streamOut() = streamOut(createDataUnit)
   def streamOut( cl : DataUnit => DataUnit) = streamOut(cl(createDataUnit))
 */

@@ -21,13 +21,13 @@ object ScalaReflectUtils {
 
   def getFields(source: AnyRef) : Iterable[Field] = {
 
-    var allFields = Set[Field]()
+    var allFields = List[Field]()
     var currentClass : Class[_]  = source.getClass
     while (currentClass != null) {
       for (field <- (currentClass.getFields()))
-       allFields += field
+       allFields = field :: allFields
       for (field <- (currentClass.getDeclaredFields()))
-        allFields += field
+        allFields = field :: allFields
       currentClass = currentClass.getSuperclass()
     }
 
