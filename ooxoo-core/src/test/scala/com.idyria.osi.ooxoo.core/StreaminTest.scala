@@ -15,11 +15,6 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import org.scalatest.matchers.ShouldMatchers
 
-
-
-
-
-
 /**
  * @author rleys
  *

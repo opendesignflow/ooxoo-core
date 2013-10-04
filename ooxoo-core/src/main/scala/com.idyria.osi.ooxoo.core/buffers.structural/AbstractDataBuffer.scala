@@ -108,25 +108,32 @@ abstract class AbstractDataBuffer[DT <: AnyRef](
    */
   override def streamIn(du: DataUnit) = {
 
+    // Import Data
+    //----------------------
+    if (du.value != null) {
+      
+     //println("Importing data: "+du.value)
+      
+      this.set(this.dataFromString(du.value))
+    }
+    
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
     //----------------------------
-    if (du.attribute == null && du.element == null && du.hierarchical == false && du.value == null) {
+    if (du.isHierarchyClose) {
+      this.cleanIOChain
+    }
+    /*if (du.attribute == null && du.element == null && du.hierarchical == false && du.value == null) {
       logFine("---- End of hierarchy for data buffer (" + this.getClass() + ") -> remove IO chain");
       logFine("---- BCBefore: " + this.printForwardChain)
       if (this.lastBuffer.isInstanceOf[IOBuffer])
         this.lastBuffer.remove
       logFine("---- BCAfter: " + this.printForwardChain)
 
-    }
+    }*/
 
-    // Otheerwise, if we have a value, -> import data from string
-    //------------
-    if (du.value != null) {
-      var res = this.dataFromString(du.value)
-      this.set(res)
-    }
-
-    // Let parent do the job
+   
+    // Let parent do the remaining job
+    //-----------------------
     super.streamIn(du)
 
   }

@@ -48,19 +48,47 @@ class  XList[T <: Buffer] (
           if (du.element==null && du.attribute==null) {
 
             xelement_base(content) match {
+              
+              //-- Any Element
+              case null if(content.isInstanceOf[AnyElementBuffer]) => 
+              	
+                du.element = new xelement_base
+                du.element.name = content.asInstanceOf[AnyElementBuffer].name
+                du.element.ns = content.asInstanceOf[AnyElementBuffer].ns
+                du.hierarchical = true
+                
+                content.streamOut(du)
+              
+                // Reset
+                du.element = null
+                du.hierarchical = false
+              
+              //-- Any Attribute
+              case null if(content.isInstanceOf[AnyAttributeBuffer]) => 
+                
+                du.attribute = new xattribute_base
+                du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
+                du.attribute.ns = content.asInstanceOf[AnyAttributeBuffer].ns
+                du.hierarchical = false
+                
+                content.streamOut(du)
+              
+                // Reset
+                du.attribute = null
+                du.hierarchical = false
+                
+              //-- Error because only Any* Objects are allowed not to be annotated
               case null => throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
               case annot => 
  
                 // Set element annotation and hierarchical to open element
                 du.element = annot
-                
-                  
+                          
 			    //-- If this is not a vertical buffer, it must never be hirarchical
                 content match {
                   case e : VerticalBuffer =>  du.hierarchical = true
                   case _ => du.hierarchical = false
                 }
-			    
 
                 content.streamOut(du)
 
@@ -99,7 +127,19 @@ class  XList[T <: Buffer] (
 
   override def streamIn(du: DataUnit) =  {
 
-    logFine(s"IN LIST streamIn...............: ${du.element}");
+    
+    // Pass To New Buffer
+    //-------------------------
+    
+    //-- Create
+    var buffer = this.createBuffer(du)
+    this+=buffer
+    
+    //-- Stream in
+    buffer.appendBuffer(this.lastBuffer)
+    buffer <= du
+    
+    /*logFine(s"IN LIST streamIn...............: ${du.element}");
     if (du.element!=null) {
 
       logFine(s"  xlist element: ${du.element.name} (current: $currentBuffer) ");
@@ -168,7 +208,7 @@ class  XList[T <: Buffer] (
         }
     }
 
-    }
+    }*/
 
 
   }

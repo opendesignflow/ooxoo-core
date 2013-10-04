@@ -6,6 +6,8 @@ package com.idyria.osi.ooxoo.core.buffers.structural.io
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
 import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 import scala.collection.mutable.Stack
+import com.idyria.osi.ooxoo.core.buffers.structural.XList
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 
 /**
  * @author rleys
@@ -15,6 +17,26 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
 
   
   var previousStack = new Stack[Buffer]
+  
+  /**
+   * 0 = in
+   * 1 = out
+   */
+  var mode = 1
+  
+  override def streamOut(du:DataUnit) = {
+    
+    this.mode = 1
+    super.streamOut(du)
+    
+  }
+  
+  override def streamIn(du:DataUnit) = {
+    
+    this.mode = 0
+    super.streamIn(du)
+    
+  }
   
   /**
    * 
@@ -37,9 +59,22 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
       
       finalBuffer = this.previousStack.pop() 
       
+      //-- If we would go back to a XList in Streamin Mode, skip it
+      finalBuffer match {
+        case b : XList[_] if(mode==0) => 
+          
+          finalBuffer = this.previousStack.pop() 
+          finalBuffer.setNextBuffer(this)
+          
+        case b => 
+          
+          finalBuffer.setNextBuffer(this)
+      }
+      
+      
      // println(s"Buffer removed, so trying to readd to previous hierarchy, remaining on stack: ${this.previousStack.size}")
       
-      finalBuffer.setNextBuffer(this)
+      
     }
     // If a previous exists -> save it
     //--------

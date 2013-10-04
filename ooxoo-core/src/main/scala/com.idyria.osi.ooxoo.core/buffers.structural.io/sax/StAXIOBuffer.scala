@@ -108,8 +108,10 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
       }
       
       //-- With text content
-      if (du.value != null)
-    	  this.eventWriter.writeCharacters(du.value)
+      if (du.value != null) {
+        this.eventWriter.writeCharacters(du.value)
+      }
+    	  
       
 
 
@@ -124,8 +126,13 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
       }
 
       //-- With text content
-      if (du.value != null)
-    	  this.eventWriter.writeCharacters(du.value)
+      if (du.value != null) {
+        //this.eventWriter.writeCharacters(du.value)
+        
+        this.eventWriter.writeCData(du.value)
+        
+      }
+    	  
 
       //-- Close already if non hierarchical
       if (!du.getHierarchical) {
@@ -244,12 +251,18 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
       //---------------
       else if (reader.isEndElement()) {
 
+       // println("Sending End element for: "+reader.getName())
+        
         // Just send an empty data unit with hiearchical = false
          this.streamIn(new DataUnit)
 
       }
+      // Text
+      //-------------------
       else if (reader.isCharacters()) {
 
+        //println("Sending characters: "+reader.getText())
+        
         // Send a value only event
         var du =  new DataUnit
         du.value = reader.getText()

@@ -6,6 +6,8 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 trait AnyBufferTrait extends Buffer {
 
     var name : String = null
+    
+    var ns : String = null
 }
 
 @any
@@ -110,7 +112,7 @@ object AnyXList {
                                 try {
                                    res =  modelClass.newInstance.asInstanceOf[Buffer]
                                     
-                                  // println(s"Created from model class: ${res}")
+                                   //println(s"Created from model class: ${res}")
                                    
                                 } catch {
                                     case e: Throwable => 
@@ -123,7 +125,7 @@ object AnyXList {
 
                                 var elementBuffer = new AnyElementBuffer
                                 elementBuffer.name = element.name
-
+                                elementBuffer.ns = element.ns
                                 res = elementBuffer
                         }
 
@@ -135,7 +137,7 @@ object AnyXList {
 
                         var attributeBuffer = new AnyAttributeBuffer
                         attributeBuffer.name = attribute.name
-
+                        attributeBuffer.ns = attribute.ns
                         res = attributeBuffer
 
                        //null 

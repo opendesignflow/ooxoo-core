@@ -190,16 +190,191 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
     logFine("Got DU "+du)
 
+    (this.inHierarchy,du.isHierarchyClose,du.element,du.attribute) match {
+      
+      // Hierarchy Close
+      case (_,true,_,_) => 
+        
+        // println("--- End of "+getClass.getSimpleName())
+       
+         this.inHierarchy = false
+        this.cleanIOChain
+      
+      // Element
+      //---------------
+      
+      //-- Top Element
+      //--------------------
+      
+      // Don't check top element on any class
+      case (false,false,element,null) if (this.getClass.isAnnotationPresent(classOf[any]))  => this.inHierarchy = true;
+      case (false,false,element,null) if (!this.getClass.isAnnotationPresent(classOf[any]))  => 
+        	
+	        // Verify the element matches the expected top one
+	        //---------------
+	        try {
+	
+	          var expected = xelement_base(this)
+	          if (!du.element.name.equals(expected.name)) {
+	            throw new RuntimeException(s"Vertical buffer on ${VerticalBuffer.this.getClass()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
+	          }
+	          
+	        //  println("--- Start of "+getClass.getSimpleName())
+	
+	        } catch {
+	          // No @xelement annotation defined
+	          case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
+	        }
+	
+	      // Set hierarchy
+	      if (du.hierarchical)
+	          this.inHierarchy = true;
+      
+	  //-- Some Value
+	  //---------------------
+      case (true,false,null,null) if(du.value!=null) => 
+        
+        // Try to import if possible
+        this match {
+          case db : AbstractDataBuffer[_] =>  db.importDataUnit(du)
+          case _ =>
+        }
+       // if (this.isInstanceOf[AbstractDataBuffer]) 
+        
+      //-- Some Element
+      //-------------------------
+      case (true,false,element,null) => 
+        	
+       // println(s"-- Element: $element // ${du.attribute} // ${du.value}")
+        
+          // Proceed to element
+	      //-----------------------
+	      this.getElementField(du.element.name) match {
+	
+	        // Found A Buffer Matching
+	        //-----------------------------
+	        case Some(buffer) =>
+	
+	          logFine(s"Found element Buffer to pass in value: ${du.value}")
+	
+	          // Increase Stack size if we are fetching a non hierarchical buffer as a hierarchy in this element
+	          // Typical: Elements that only contain a value, and thus are DataBuffers which are non hierarchical
+	          
+	          if (!buffer.isInstanceOf[HierarchicalBuffer]) {
+	              // Increase Stack Size
+	              //this.stackSize+=1
+	          }
+	          
+	       //   println(s"Got an XML element for subfield: ${du.element.name}, stack size is now: ${stackSize}");
+	          
+	
+	          // Clone this IO to the buffer
+	          //--------------
+	          buffer.appendBuffer(this.lastBuffer);
+	
+	          // Stream in DU to element
+	          //---------------------
+	          buffer <= du
+	
+	
+	
+	          logFine(s"-------> ${buffer}")
+	
+	        // Nothing -> Can we stream into any ?
+	        //---------------
+	        case None =>
+	
+	            this.getAnyField match {
+	
+	              // Any
+	              //------------
+	              case Some(any) => 
+	
+	                  // Clone this IO to the buffer
+	                  //--------------
+	                  any.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
+	
+	                  // Stream in DU to element
+	                  //---------------------
+	                  any <= du
+	
+	
+	
+	              case None => 
+	                //println(s"---> No field instance returned for element ${du.element.name} under ${getClass} <---")
+	            }
+	
+	            
+	      }
+        
+        
+      // Attribute
+      //-------------
+      case (true,false,null,attribute) => 
+      		
+      	//println(s"-- Attribute: ${attribute.name} ")
+        
+        
+        	this.getAttributeField(du.attribute.name) match {
+
+      			// Normal Streamin
+		        case Some(buffer) =>
+		
+		          logFine(s"Found attribute Buffer to pass in value: ${du.value}")
+		          
+		          // Stream in attribute
+		          buffer <= du
+		          
+		          
+		          
+		          logFine(s"-------> ${buffer}")
+		
+		         // Try Nay
+		        case None => 
+		
+		              this.getAnyField match {
+		
+		                // Any
+		                case Some(any) => 
+		
+		                    // Stream in DU to element
+		                    any <= du
+		
+		                case None => 
+		                    logFine("---> No field instance returned for attribute <---")
+		              }     
+		      }
+        
+        
+        
+      case m => throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
+    }
+    
+    
     // If stack size > 0, we are not concerned
     //----------------------
-    if (this.stackSize>0) {
+   /* if (this.stackSize>0) {
 
+       println(s"Not concerned  now: ${this.stackSize}")
+      
       // Hierarchical = false and not an attribute -> decrease stack size
-      if (du.attribute==null && du.hierarchical==false)
-        this.stackSize-=1
+      if (du.attribute==null && du.hierarchical==false) {
+        
+       
+        
+         this.stackSize-=1
+         
+          println(s"Hierarchy close on ${getClass.getSimpleName()}, now: ${this.stackSize}")
+        
+      }
+       
       // Hierarchical = true -> increase stack size
-      else if (du.hierarchical==true)
+      else if (du.hierarchical==true) {
+        
         this.stackSize+=1
+        
+      }
+        
 
 
         // If stackSize < 0 => we are finished so we can separate from our io buffer
@@ -214,11 +389,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     //----------------
     else if (du.attribute==null && du.element==null && du.hierarchical==false && du.value==null) {
 
-      if (this.lastBuffer.isInstanceOf[IOBuffer]) {
-
-        logFine("VerticalBuffer: removing last IO buffer from chain because end of hierarchy")
-        this.lastBuffer.remove
-      }
+     
 
     }
     // Attribute
@@ -226,31 +397,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     else if (du.attribute != null) {
 
 
-      this.getAttributeField(du.attribute.name) match {
-
-        case Some(buffer) =>
-
-          logFine(s"Found attribute Buffer to pass in value: ${du.value}")
-          
-          //buffer.dataFromString(du.value)
-          buffer <= du
-          
-          logFine(s"-------> ${buffer}")
-
-        case None => 
-
-              this.getAnyField match {
-
-                // Any
-                case Some(any) => 
-
-                    // Stream in DU to element
-                    any <= du
-
-                case None => 
-                    logFine("---> No field instance returned for attribute <---")
-              }     
-      }
+      
 
 
     }
@@ -258,96 +405,18 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     //--------------------
     else if (du.element != null && !this.inHierarchy) {
 
-      // If we are on an any Class, then don't do this
-      //----------------
-      if (!this.getClass.isAnnotationPresent(classOf[any])) 
-        // Verify the element matches the expected one
-        //---------------
-        try {
-
-          var expected = xelement_base(this)
-          if (!du.element.name.equals(expected.name)) {
-            throw new RuntimeException(s"Vertical buffer on ${VerticalBuffer.this.getClass()} expected an XML element named ${expected.name}, but got: ${du.element.name} instead")
-          }
-
-        } catch {
-          // No @xelement annotation defined
-          case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
-        }
-
-      // Set hierarchy
-      if (du.hierarchical)
-          this.inHierarchy = true;
+      
 
     }
     // Element In Hierarchy
     //--------------------
     else if (du.element != null) {
 
-      logFine(s"Got an XML element for subfield: ${du.element.name}");
-
+      
       
 
-      // Proceed to element
-      //-----------------------
-      this.getElementField(du.element.name) match {
 
-        // Found A Buffer Matching
-        //-----------------------------
-        case Some(buffer) =>
-
-          logFine(s"Found element Buffer to pass in value: ${du.value}")
-
-          // Increase Stack size if we are fetching a non hierarchical buffer as a hierarchy in this element
-          // Typical: Elements that only contain a value, and thus are DataBuffers which are non hierarchical
-          
-          if (!buffer.isInstanceOf[HierarchicalBuffer]) {
-              // Increase Stack Size
-              this.stackSize+=1
-          }
-          
-
-          // Clone this IO to the buffer
-          //--------------
-          buffer.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
-
-          // Stream in DU to element
-          //---------------------
-          buffer <= du
-
-
-
-          logFine(s"-------> ${buffer}")
-
-        // Nothing -> Can we stream into any ?
-        //---------------
-        case None =>
-
-            this.getAnyField match {
-
-              // Any
-              //------------
-              case Some(any) => 
-
-                  // Clone this IO to the buffer
-                  //--------------
-                  any.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
-
-                  // Stream in DU to element
-                  //---------------------
-                  any <= du
-
-
-
-              case None => 
-                //println(s"---> No field instance returned for element ${du.element.name} under ${getClass} <---")
-            }
-
-            
-      }
-
-
-    }
+    }*/
 
   }
 
