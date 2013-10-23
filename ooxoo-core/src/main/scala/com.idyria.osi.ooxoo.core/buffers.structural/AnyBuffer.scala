@@ -1,7 +1,8 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-
+import scala.reflect.runtime.universe._
+import scala.reflect.ClassTag
 
 trait AnyBufferTrait extends Buffer {
 
@@ -57,7 +58,7 @@ object AnyXList {
 
         @warning The model class MUST have an empty constructor, otherwise a runtime error will be thrown
     */
-    var modelsMap = Map[ Tuple2[String,String], Class[_ <: Buffer]]()
+    var modelsMap = Map[ Tuple2[String,String], ( DataUnit => Buffer )]()
 
     /**
         Register a new model in the models map
@@ -77,9 +78,28 @@ object AnyXList {
 
         // Register
         //------------------
-        this.modelsMap = this.modelsMap +((xelement.ns -> xelement.name) -> cl) 
+        this.modelsMap = this.modelsMap +((xelement.ns -> xelement.name) -> {du => cl.newInstance()}) 
+    }
+    
+    def register[T  <: Buffer](implicit tag: ClassTag[T]) = {
+      AnyXList(tag.runtimeClass.asInstanceOf[Class[T]])
     }
 
+    def register[T  <: Buffer](cl: => T)(implicit tag: ClassTag[T]) = {
+      
+      // Get name and ns from annotation
+    //-------------
+    var xelement = xelement_base(tag.runtimeClass.asInstanceOf[Class[T]])
+    if (xelement==null) {
+        throw new IllegalArgumentException(s"Cannot register XML model class $cl that seems to be missing @xelement annotation")
+    }
+
+    // Register
+    //------------------
+    this.modelsMap = this.modelsMap + ((xelement.ns -> xelement.name) -> { du ⇒ cl })
+
+  }
+    
     def apply() = {
         
         /**
@@ -106,11 +126,11 @@ object AnyXList {
                         modelsMap.get((element.ns -> element.name)) match {
 
                             //-> Yes
-                            case Some(modelClass) => 
+                            case Some(builder) => 
 
                                 //-- Instanciate
                                 try {
-                                   res =  modelClass.newInstance.asInstanceOf[Buffer]
+                                   res = builder(du)
                                     
                                    //println(s"Created from model class: ${res}")
                                    
@@ -137,7 +157,11 @@ object AnyXList {
 
                         var attributeBuffer = new AnyAttributeBuffer
                         attributeBuffer.name = attribute.name
-                        attributeBuffer.ns = attribute.ns
+                        attributeBuffer.ns = attribute.ns match {
+                          case null => null
+                          case "" => null
+                          case ns => ns
+                        }
                         res = attributeBuffer
 
                        //null 

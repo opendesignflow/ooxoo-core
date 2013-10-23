@@ -9,10 +9,9 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import scala.reflect.ClassTag
 import java.lang.reflect.ParameterizedType
-
 import scala.language.implicitConversions
-
 import com.idyria.osi.tea.logging._
+import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
 
 /**
  *
@@ -20,125 +19,129 @@ import com.idyria.osi.tea.logging._
  * @author rleys
  *
  */
-class  XList[T <: Buffer] (
+class XList[T <: Buffer](
 
+    val createBuffer: DataUnit ⇒ T) extends MutableList[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
-				val createBuffer:  DataUnit  => T
+  var currentBuffer: Buffer = null
 
-			) extends MutableList[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource {
+  override def streamOut(du: DataUnit) = {
 
-  var currentBuffer : Buffer = null
+    //println(s"Streamout in XList for ${size} elements")
 
+    lockIO
+    this.foreach {
 
+      content ⇒
 
-  override def streamOut(du : DataUnit) = {
+        this.getIOChain match {
+          case Some(ioChain) ⇒
 
-      //println(s"Streamout in XList for ${size} elements")
+            //println("Calling streamout on element: " + value.hashCode())
+            content.appendBuffer(ioChain)
 
-      this.foreach {
+          case None ⇒
+        }
 
-        content =>
+        //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
 
-          content.appendBuffer(this.lastBuffer)
+        // If No xelement / attribute annotation, try to take from content
+        //--------------
+        if (du.element == null && du.attribute == null) {
 
-          //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
+          xelement_base(content) match {
 
-          // If No xelement / attribute annotation, try to take from content
-          //--------------
-          if (du.element==null && du.attribute==null) {
+            //-- Any Element
+            case null if (content.isInstanceOf[AnyElementBuffer]) ⇒
 
-            xelement_base(content) match {
+              du.element = new xelement_base
+              du.element.name = content.asInstanceOf[AnyElementBuffer].name
+              du.element.ns = content.asInstanceOf[AnyElementBuffer].ns
+              du.hierarchical = true
+
+              //println("Element will be: "+du.element.name )
               
-              //-- Any Element
-              case null if(content.isInstanceOf[AnyElementBuffer]) => 
-              	
-                du.element = new xelement_base
-                du.element.name = content.asInstanceOf[AnyElementBuffer].name
-                du.element.ns = content.asInstanceOf[AnyElementBuffer].ns
-                du.hierarchical = true
-                
-                content.streamOut(du)
-              
-                // Reset
-                du.element = null
-                du.hierarchical = false
-              
-              //-- Any Attribute
-              case null if(content.isInstanceOf[AnyAttributeBuffer]) => 
-                
-                du.attribute = new xattribute_base
-                du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
-                du.attribute.ns = content.asInstanceOf[AnyAttributeBuffer].ns
-                du.hierarchical = false
-                
-                content.streamOut(du)
-              
-                // Reset
-                du.attribute = null
-                du.hierarchical = false
-                
-              //-- Error because only Any* Objects are allowed not to be annotated
-              case null => throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
-              case annot => 
- 
-                // Set element annotation and hierarchical to open element
-                du.element = annot
-                          
-			    //-- If this is not a vertical buffer, it must never be hirarchical
-                content match {
-                  case e : VerticalBuffer =>  du.hierarchical = true
-                  case _ => du.hierarchical = false
-                }
+              content.streamOut(du)
 
-                content.streamOut(du)
+              // Reset
+              du.element = null
+              du.hierarchical = false
 
-                // Reset
-                du.element = null
-                du.hierarchical = false
-            }
+            //-- Any Attribute
+            case null if (content.isInstanceOf[AnyAttributeBuffer]) ⇒
 
+              du.attribute = new xattribute_base
+              du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
+              du.attribute.ns = content.asInstanceOf[AnyAttributeBuffer].ns
+              du.hierarchical = false
 
-          } else {
-            content.streamOut(du)
+              content.streamOut(du)
+
+              // Reset
+              du.attribute = null
+              du.hierarchical = false
+
+            //-- Error because only Any* Objects are allowed not to be annotated
+            case null ⇒ throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
+            case annot ⇒
+
+              // Set element annotation and hierarchical to open element
+              du.element = annot
+
+              //-- If this is not a vertical buffer, it must never be hirarchical
+              content match {
+                case e: VerticalBuffer ⇒ du.hierarchical = true
+                case _                 ⇒ du.hierarchical = false
+              }
+
+              content.streamOut(du)
+
+              // Reset
+              du.element = null
+              du.hierarchical = false
           }
-          
-         
-          
-          //content.lastBuffer.remove
 
-          /*else if (du.element!=null || du.attribute!=null) {
+        } else {
+          content.streamOut(du)
+        }
+
+      //content.lastBuffer.remove
+
+      /*else if (du.element!=null || du.attribute!=null) {
 
             content -> du
           }*/
-          
-
 
     }
-   // EOF Each element
+    // EOF Each element
 
-      
-   // Clean IO Chain
-   cleanIOChain
-      
+    // Clean IO Chain
+    unlockIO
+    cleanIOChain
+
   }
 
+  override def streamIn(du: DataUnit) = {
 
-  
-
-  override def streamIn(du: DataUnit) =  {
-
-    
     // Pass To New Buffer
     //-------------------------
-    
+
     //-- Create
     var buffer = this.createBuffer(du)
-    this+=buffer
-    
+    this += buffer
+
     //-- Stream in
-    buffer.appendBuffer(this.lastBuffer)
-    buffer <= du
+    this.getIOChain match {
+      case Some(ioChain) ⇒
+
+        //println("Calling streamout on element: " + value.hashCode())
+        buffer.appendBuffer(ioChain)
+        
+      case None ⇒
+    }
     
+    buffer <= du
+
     /*logFine(s"IN LIST streamIn...............: ${du.element}");
     if (du.element!=null) {
 
@@ -210,43 +213,40 @@ class  XList[T <: Buffer] (
 
     }*/
 
-
   }
 
-  override def toString : String = "XList"
-
-
+  override def toString: String = "XList"
 
 }
 object XList {
 
   /**
-    Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
-  */
-  def apply[T <: Buffer] (cl:   => T ) : XList[T] = {
+   * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
+   */
+  def apply[T <: Buffer](cl: ⇒ T): XList[T] = {
 
-      var realClosure : (DataUnit => T) = {
-        du => cl
-      }
+    var realClosure: (DataUnit ⇒ T) = {
+      du ⇒ cl
+    }
 
     return new XList[T](realClosure)
 
   }
 
   /**
-    Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
-  */
-	def apply[T <: Buffer] (cl: DataUnit  => T ) : XList[T] = {
+   * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
+   */
+  def apply[T <: Buffer](cl: DataUnit ⇒ T): XList[T] = {
 
-	   var realClosure : (DataUnit => T) = {
-        du => cl(du)
-      }
-	  
-		return new XList[T](realClosure)
+    var realClosure: (DataUnit ⇒ T) = {
+      du ⇒ cl(du)
+    }
 
-	}
+    return new XList[T](realClosure)
 
-	implicit def convertClosuretoXList[T <: Buffer] (cl:   => T) : XList[T] = XList[T](cl)
-  implicit def convertDataUnitClosuretoXList[T <: Buffer] (cl: DataUnit  => T) : XList[T] = XList[T](cl)
+  }
+
+  //implicit def convertClosuretoXList[T <: Buffer](cl: ⇒ T): XList[T] = XList[T](cl)
+  //implicit def convertDataUnitClosuretoXList[T <: Buffer](cl: DataUnit ⇒ T): XList[T] = XList[T](cl)
 
 }

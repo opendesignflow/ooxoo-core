@@ -20,12 +20,14 @@ import com.idyria.osi.tea.logging._
  * @author rleys
  *
  */
-abstract class AbstractDataBuffer[DT <: AnyRef](
+abstract class AbstractDataBuffer[DT](
     // Variable for local Data
-    @BeanProperty() var data: DT = null) extends BaseBuffer with TLogSource {
+    @BeanProperty() var data: DT = null) extends BaseBufferTrait with TLogSource {
 
   def dataToString: String
   def dataFromString(str: String): DT
+
+  type dataType = DT
 
   // Data Set
   //------------------
@@ -62,12 +64,12 @@ abstract class AbstractDataBuffer[DT <: AnyRef](
     // Try to add element/attribute content if implementation class has some
     //--------------
     xelement_base(this) match {
-      case null =>
-      case base => du.element = base
+      case null ⇒
+      case base ⇒ du.element = base
     }
     xattribute_base(this) match {
-      case null =>
-      case base => du.attribute = base
+      case null ⇒
+      case base ⇒ du.attribute = base
     }
 
     du
@@ -90,15 +92,27 @@ abstract class AbstractDataBuffer[DT <: AnyRef](
    * Ensure value is present when streaming out
    */
   override def streamOut(du: DataUnit) = {
-    	
+    //lockIO
+    //println("Entered Streamout of Databuffer: " + this.hashCode() + " io: " + this.getIOChain)
+
+   /* this.foreachNextBuffer {
+      b => 
+        
+        println("--> Next: "+b)
+    }*/
+    
     //-- Add Value
     du.setValue(this.dataToString)
-  
+
     //-- Pass
+    //println("Passing to super")
     super.streamOut(du)
-    
+
     //-- Clean
-    cleanIOChain
+    
+
+    //unlockIO
+    //cleanIOChain
   }
 
   /**
@@ -111,12 +125,12 @@ abstract class AbstractDataBuffer[DT <: AnyRef](
     // Import Data
     //----------------------
     if (du.value != null) {
-      
-     //println("Importing data: "+du.value)
-      
+
+      //println("Importing data: "+du.value)
+
       this.set(this.dataFromString(du.value))
     }
-    
+
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
     //----------------------------
     if (du.isHierarchyClose) {
@@ -131,11 +145,16 @@ abstract class AbstractDataBuffer[DT <: AnyRef](
 
     }*/
 
-   
     // Let parent do the remaining job
     //-----------------------
     super.streamIn(du)
 
   }
+
+}
+
+object AbstractDataBuffer {
+
+  // def convertFromStringToAnyDataBuffer[T <: AbstractDataBuffer[_]](str: String) : T
 
 }

@@ -27,7 +27,7 @@ trait HierarchicalBuffer {
  * @author rleys
  *
  */
-trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource {
+trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSource {
 
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
@@ -57,57 +57,96 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
    */
   override def streamOut(du: DataUnit): Unit = {
 
+    lockIO
+
     // Normal streamOut (will output this element name and such)
     //----------
-
+    //println("Entered Streamout of Vertical Buffer: " + this.hashCode() + " io: "+this.getIOChain)
     super.streamOut(du)
 
     // Attributes
     //------------------
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
-      f =>
+    /*var validAttributes = ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).map(ScalaReflectUtils.getFieldValue(this, _).asInstanceOf[Buffer]).filter(_ != null)
+    
+    validAttributes.foreach {
+      attr => 
+        
+        println("-- Valid attribute: "+attr+ " -> "+" last buffer: "+this.lastBuffer)
+        
+        
+        
+    
+    }*/
 
-        // println(s"Streamout for attribute "+f.getName)
-        try {
+    try {
+      ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+        f ⇒
 
-          //-- Get value
-          var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
+          // println(s"Streamout for attribute "+f.getName)
+          try {
 
-          //-- streamOut
-          value.appendBuffer(this.lastBuffer)
-          value streamOut {
+            //-- Get value
+            var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
 
-            du =>
-              var attribute = xattribute_base(f)
-              du.attribute = attribute
-              du
+            //-- streamOut
+            this.getIOChain match {
+              case Some(ioChain) ⇒
 
+                //println("Calling streamout on attribute: " + value.hashCode())
+
+                value.appendBuffer(ioChain)
+                value.streamOut {
+
+                  du ⇒
+                    var attribute = xattribute_base(f)
+                    du.attribute = attribute
+                    du
+
+                }
+              case None ⇒
+            }
+
+            //value.lastBuffer.remove
+
+          } catch {
+            case e: Throwable ⇒ throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}", e)
           }
-          //value.lastBuffer.remove
+      }
+    } catch {
+      case e: Throwable ⇒
 
-        } catch {
-          case e: Throwable => throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}", e)
-        }
+        e.printStackTrace()
+
     }
 
     // Sub Elements
     //-------------------
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
-      f =>
+      f ⇒
 
         //-- Get value
         var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
 
         //-- streamOut
-        value.appendBuffer(this.lastBuffer)
-        value streamOut {
-          du =>
+        this.getIOChain match {
+          case Some(ioChain) ⇒
 
-            var element = xelement_base(f)
-            du.element = element
-            du
+            //println("Calling streamout on element: " + value.hashCode())
 
+            value.appendBuffer(ioChain)
+            value streamOut {
+              du ⇒
+
+                var element = xelement_base(f)
+                du.element = element
+                du
+
+            }
+          case None ⇒
         }
+
+      //-- streamOut
+
       /*value.lastBuffer match {
           case e : IOBuffer => e.remove
           case _ => 
@@ -119,16 +158,49 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     //-----------------
     ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
 
-      f =>
+      f ⇒
 
-        //println(s"Streamout for any field in ${getClass}")
+       // println(s"Streamout for any field in ${getClass}")
 
         //-- Get value
         var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
 
         //-- streamOut
-        value.appendBuffer(this.lastBuffer)
-        value.streamOut
+        this.getIOChain match {
+          case Some(ioChain) ⇒
+
+            //println("Calling streamout on element: " + value.hashCode())
+
+            value.appendBuffer(ioChain)
+            value.streamOut
+          case None ⇒
+        }
+
+      //value.lastBuffer.remove
+
+    }
+
+    // Content
+    //---------------
+    ScalaReflectUtils.getAnnotatedFields(this, classOf[xcontent]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+
+      f ⇒
+
+        // println(s"Streamout for xcontent field in ${getClass}")
+
+        //-- Get value
+        var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
+
+        //-- streamOut
+        this.getIOChain match {
+          case Some(ioChain) ⇒
+
+            //println("Calling streamout on element: " + value.hashCode())
+
+            value.appendBuffer(ioChain)
+            value.streamOut
+          case None ⇒
+        }
 
       //value.lastBuffer.remove
 
@@ -136,23 +208,23 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
     // Close hierarchy
     //--------------
-    //println("Closing from VBuffer")
-    super.streamOut(new DataUnit)
+   // println("Closing from VBuffer: "+this.lastBuffer)
+    var closeDU = new DataUnit
+    closeDU.hierarchical = true
+    super.streamOut(closeDU)
 
     // Clean all IO Buffers
     //-----------------------
+
     //-- Clean
+    //println("------ Now closing ")
+    unlockIO
     cleanIOChain
 
-    this.foreachNextBuffer {
-      case io: IOBuffer =>
-
-      //println("Removing IO Buffer")
-      //io.remove
-      case _            =>
-    }
-
   }
+  
+  
+  
 
   /**
    * Call up the provided closure to all the subfields that can be fetched in or pushedout
@@ -177,7 +249,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     (this.inHierarchy, du.isHierarchyClose, du.element, du.attribute) match {
 
       // Hierarchy Close
-      case (_, true, _, _) =>
+      case (_, true, _, _) ⇒
 
         // println("--- End of "+getClass.getSimpleName())
 
@@ -191,12 +263,12 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
       //--------------------
 
       // Don't check top element on any class
-      case (false, false, element, null) if (this.getClass.isAnnotationPresent(classOf[any])) => this.inHierarchy = true;
-      case (false, false, element, null) if (!this.getClass.isAnnotationPresent(classOf[any])) =>
+      case (false, false, element, null) if (this.getClass.isAnnotationPresent(classOf[any])) ⇒ this.inHierarchy = true;
+      case (false, false, element, null) if (!this.getClass.isAnnotationPresent(classOf[any])) ⇒
 
         // Verify the element matches the expected top one
         //---------------
-        try {
+        /*try {
 
           var expected = xelement_base(this)
           if (!du.element.name.equals(expected.name)) {
@@ -208,7 +280,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
         } catch {
           // No @xelement annotation defined
           case e: java.lang.NullPointerException => throw new RuntimeException(s"Class ${VerticalBuffer.this.getClass()} MUST have an @xelement annotation!");
-        }
+        }*/
 
         // Set hierarchy
         if (du.hierarchical)
@@ -216,18 +288,33 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
       //-- Some Value
       //---------------------
-      case (true, false, null, null) if (du.value != null) =>
+      case (true, false, null, null) if (du.value != null) ⇒
 
         // Try to import if possible
+        //---------------
         this match {
-          case db: AbstractDataBuffer[_] => db.importDataUnit(du)
-          case _                         =>
+
+          //-- Call Import data unit if we are a databuffer
+          //---------------
+          case db: AbstractDataBuffer[_] ⇒ db.importDataUnit(du)
+
+          //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
+          //---------------
+          case _ ⇒
+
+            (this.getXContentField,this.getIOChain) match {
+              case (Some(content),Some(ios)) ⇒
+              	content.appendBuffer(ios)
+              	content <= du
+              case _          ⇒
+            }
+
         }
       // if (this.isInstanceOf[AbstractDataBuffer]) 
 
       //-- Some Element
       //-------------------------
-      case (true, false, element, null) =>
+      case (true, false, element, null) ⇒
 
         // println(s"-- Element: $element // ${du.attribute} // ${du.value}")
 
@@ -237,7 +324,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
           // Found A Buffer Matching
           //-----------------------------
-          case Some(buffer) =>
+          case Some(buffer) ⇒
 
             logFine(s"Found element Buffer to pass in value: ${du.value}")
 
@@ -263,13 +350,13 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
           // Nothing -> Can we stream into any ?
           //---------------
-          case None =>
+          case None ⇒
 
             this.getAnyField match {
 
               // Any
               //------------
-              case Some(any) =>
+              case Some(any) ⇒
 
                 // Clone this IO to the buffer
                 //--------------
@@ -280,7 +367,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
                 any <= du
 
               // Nothing, need to ignore element, use AnyElement for that
-              case None =>
+              case None ⇒
 
                 var any = new AnyElementBuffer
 
@@ -299,16 +386,16 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
       // Attribute
       //-------------
-      case (true, false, null, attribute) =>
+      case (true, false, null, attribute) ⇒
 
         //println(s"-- Attribute: ${attribute.name} ")
 
         this.getAttributeField(du.attribute.name) match {
 
           // Normal Streamin
-          case Some(buffer) =>
+          case Some(buffer) ⇒
 
-            logFine(s"Found attribute Buffer to pass in value: ${du.value}")
+            // println(s"Found attribute Buffer to pass in value: ${du.value}")
 
             // Stream in attribute
             buffer <= du
@@ -316,25 +403,23 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
             logFine(s"-------> ${buffer}")
 
           // Try Nay
-          case None =>
+          case None ⇒
 
             this.getAnyField match {
 
               // Any
-              case Some(any) =>
+              case Some(any) ⇒
 
                 // Stream in DU to element
                 any <= du
 
-              case None =>
+              case None ⇒
                 logFine("---> No field instance returned for attribute <---")
             }
         }
 
-      case m => throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
+      case m ⇒ throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
     }
-
-   
 
   }
 
@@ -349,14 +434,14 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter {
-      a =>
+      a ⇒
         var xelt = xelement_base(a)
         //logFine("xelement annotation name:/"+xelt.name+"/");
         xelt != null && (name.getLocalPart().equals(xelt.name) || name.getLocalPart().equals(a.getName()))
     } match {
 
       // If there is one, get existing value of instanciate
-      case x if (!x.isEmpty) =>
+      case x if (!x.isEmpty) ⇒
 
         // Get Value
         var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, x.head)
@@ -364,7 +449,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
           fieldValue = ScalaReflectUtils.instanciateFieldValue(this, x.head)
         return Option(fieldValue)
 
-      case _ =>
+      case _ ⇒
     }
 
     return None
@@ -381,7 +466,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
     ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter {
-      f =>
+      f ⇒
         var xattr = xattribute_base(f);
         //        	logFine("Found field with xattribute annotation, and name:"+xattr.name)
         xattr != null && name.getLocalPart().equals(xattr.name)
@@ -390,7 +475,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
       // If there is one, get existing value of instanciate
       //-------------
-      case x if (!x.isEmpty) =>
+      case x if (!x.isEmpty) ⇒
 
         var targetField = x.head
 
@@ -412,7 +497,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
         return Option(fieldValue)
 
       // NOthing -> Ignore
-      case _ => return None
+      case _ ⇒ return None
 
     }
     //return None
@@ -423,7 +508,7 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
    */
   protected def getAnyField: Option[Buffer] = ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).headOption match {
 
-    case Some(field) =>
+    case Some(field) ⇒
 
       // Get Value
       var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, field)
@@ -438,7 +523,31 @@ trait VerticalBuffer extends BaseBuffer with HierarchicalBuffer with TLogSource 
 
       // Return
       return Option(fieldValue)
-    case None => None
+    case None ⇒ None
+
+  }
+
+  /**
+   * Only returns the first found field marked as @content, with instanciated type
+   */
+  protected def getXContentField: Option[Buffer] = ScalaReflectUtils.getAnnotatedFields(this, classOf[xcontent]).headOption match {
+
+    case Some(field) ⇒
+
+      // Get Value
+      var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, field)
+
+      // Instanciate
+      //------------------
+      if (fieldValue == null) {
+
+        fieldValue = ScalaReflectUtils.instanciateFieldValue(this, field)
+
+      }
+
+      // Return
+      return Option(fieldValue)
+    case None ⇒ None
 
   }
 

@@ -4,6 +4,7 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  *
@@ -34,15 +35,43 @@ trait Buffer {
   // Streamout/in Interface
   //---------------------------------
 
+  var cleanLock = new ReentrantLock
+
+  def lockIO = cleanLock.lock()
+  def unlockIO = cleanLock.unlock()
+
+  /**
+   * ONly front Buffer can clean the IO chain, and if I/Os are not locked
+   */
   def cleanIOChain = {
 
-    this.foreachNextBuffer {
-      case io: IOBuffer =>
+    if (this.getPreviousBuffer == null && cleanLock.getHoldCount() == 0) {
+      
+      //println("Clean IO from "+getClass)
+      this.foreachNextBuffer {
+        case io: IOBuffer ⇒
 
-        //println("Removing IO Buffer")
-        io.remove
-      case _ =>
+          //println("Removing IO Buffer")
+          io.remove
+        case _ ⇒
+      }
     }
+
+  }
+
+  /**
+   * Return all the buffers that ar of IO type and connected to the end of this buffer
+   */
+  def getIOChain: Option[IOBuffer] = {
+
+    this.foreachNextBuffer {
+      case io: IOBuffer ⇒
+
+        return Some(io)
+      case _ ⇒
+    }
+
+    None
 
   }
 
@@ -59,7 +88,8 @@ trait Buffer {
     if (this.getNextBuffer != null)
       this.getNextBuffer.streamOut(du)
 
-    
+    //println("Clean from top")
+    cleanIOChain
 
   }
 
@@ -77,7 +107,7 @@ trait Buffer {
    * Pushs a data unit created locally out to the next buffer chain
    * The provided closure is called on the locally created dataunit for injection purpose
    */
-  def streamOut(cl: DataUnit => DataUnit): Unit = streamOut(cl(createDataUnit))
+  def streamOut(cl: DataUnit ⇒ DataUnit): Unit = streamOut(cl(createDataUnit))
 
   /**
    * Streamin without dataUnit is used if element is supposed to produce input DataUnits.
@@ -179,7 +209,7 @@ trait Buffer {
 
     var buffers = Set[Buffer](this)
     this.foreachNextBuffer {
-      b =>
+      b ⇒
         if (b != null)
           buffers += b
     }
@@ -191,7 +221,7 @@ trait Buffer {
 
     var buffers = Set[Buffer](this.firstBuffer)
     this.foreachNextBuffer {
-      b =>
+      b ⇒
         if (b != null)
           buffers += b
     }
@@ -257,7 +287,7 @@ trait Buffer {
   /**
    * Apply a function to all the next buffers, including this one
    */
-  def foreachNextBuffer(closure: Buffer => Unit) = {
+  def foreachNextBuffer(closure: Buffer ⇒ Unit) = {
 
     var currentBuffer = this
     while (currentBuffer != null) {
@@ -271,7 +301,7 @@ trait Buffer {
   /**
    * Apply a function to all the previous buffers, including this one
    */
-  def foreachPreviousBuffer(closure: Buffer => Unit) = {
+  def foreachPreviousBuffer(closure: Buffer ⇒ Unit) = {
 
     var currentBuffer = this
     while (currentBuffer != null) {
@@ -289,7 +319,7 @@ trait Buffer {
 
     var res = this
     this.foreachNextBuffer {
-      b => res = b
+      b ⇒ res = b
     }
     res
 
@@ -302,7 +332,7 @@ trait Buffer {
 
     var res = this
     this.foreachPreviousBuffer {
-      b => res = b
+      b ⇒ res = b
     }
     res
 

@@ -37,8 +37,28 @@ trait ElementBuffer extends VerticalBuffer  {
    */
   override def streamOut(du:DataUnit) = {
     
+    
+   // println("Entered Streamout of ElementBuffer")
+    
+    // Get Element annotation
+    //------------------
+    var element = xelement_base(this)
+    if (element==null) {
+      //throw new IllegalArgumentException(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
+    //	logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
+
+    } else {
+      du.element = element
+    }
+
+   // if (element.name==null || element.name=="") {
+     // throw new IllegalArgumentException(s"xelement annotation on ElementBuffer ${getClass().getCanonicalName()} did not reutnr any name")
+   // }
+    
+    
     du.hierarchical = true
     
+    //VerticalBuffer.streamOut(du)
     super.streamOut(du)
   }
 

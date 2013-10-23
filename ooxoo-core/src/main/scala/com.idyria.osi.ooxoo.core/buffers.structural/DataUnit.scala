@@ -50,7 +50,7 @@ class DataUnit {
   // DU Context
   //------------------------
 
-  var contextMap = Map[String,AnyRef]()
+  var contextMap = Map[String,Any]()
 
   /**
     Add a new value to the DataUnit context map
@@ -59,7 +59,7 @@ class DataUnit {
       var du = new DataUnit
       du("key" -> value)
   */
-  def apply( tuple : (String,AnyRef)) = contextMap = contextMap + tuple
+  def apply( tuple : (String,Any)) = contextMap = contextMap + tuple
 
   /**
     Get the context value matching provided key
@@ -70,8 +70,17 @@ class DataUnit {
   // Utilities
   //----------------------
 
-  def isHierarchyClose = (this.attribute==null && this.element==null && this.value==null)
+  def isHierarchyClose = (this.attribute==null && this.element==null && this.hierarchical==true)
 
+  /**
+   * Sets to condition of hierarchy closre : Hierarchical with no element/attribute datas
+   */
+  def setHierarchyClose = {
+    this.attribute = null
+    this.element = null
+    this.hierarchical = true
+  }
+  
   // Merge operation
   //--------
 
@@ -102,6 +111,16 @@ object DataUnit {
 
   def apply() : DataUnit = new DataUnit
 
+  /**
+   * Returns a DataUnit configured for hierarchy close
+   */
+  def closeHierarchy : DataUnit = {
+    
+    var du = new DataUnit
+    du.setHierarchyClose
+    du
+    
+  }
   
 
 }
