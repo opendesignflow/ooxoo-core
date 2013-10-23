@@ -28,6 +28,8 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
     @Parameter(defaultValue="${project}")
     var project : MavenProject = null
 
+    var sourceFolder = new File("src/main/scala")
+
     var modelsFolder = new File("src/main/xmodels")
 
     var outputBaseFolder = new File("target/generated-sources/")
@@ -39,6 +41,18 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
         getLog().info( "Looking for xmodels to generate" );
 
 
+        /*Thread.currentThread.getContextClassLoader match {
+            case urlCl : java.net.URLClassLoader => 
+
+                urlCl.getURLs.foreach {
+
+                    u => println("Available in classLoader: "+u)
+                }
+
+            case _ => 
+        }*/
+
+     
         // Checks
         //---------------
         if (modelsFolder.exists) {
@@ -59,6 +73,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
      
             //-- Search the xmodels
             //---------------------------------
+            var xModelFiles = List[File]()
             var xmodelsFiles = modelsFolder.listFiles(new FilenameFilter() {
 
                 def accept(dir:File,name:String) : Boolean = {
@@ -66,17 +81,38 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
                 } 
 
             })
+            xModelFiles = xModelFiles ::: xmodelsFiles.toList
+
+            //-- Search in source package
+            //--------------
+            java.nio.file.Files.walkFileTree(sourceFolder.toPath,new java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
+
+                override def visitFile( file: java.nio.file.Path, attributes: java.nio.file.attribute.BasicFileAttributes) = {
+
+                        // Only Retain files ending with .xmodel.scala
+                        file.toString.endsWith(".xmodel.scala") match {
+                            case true => 
+
+                                xModelFiles = xModelFiles :+ file.toFile
+
+                            case false =>
+                        }
+
+                        java.nio.file.FileVisitResult.CONTINUE
+
+                }
+            })
 
             //-- Process all models
             //--  - First Filter the on that don't have to be regenerated
             //--  - Then Produce
             //------------------
-            xmodelsFiles.filter {
+            xModelFiles.filter {
                 f =>
                     // Get or set a timestamp file to detect if model file changed since last run
                     //-------------------
 
-                    //-- Set timestamps. If modified is bigger than last timestamp -> regenerate
+                    //-- Set timestamps. If modified is greater than the last timestamp -> regenerate
                     var lastTimeStamp : Long = 0
                     var lastModified = f.lastModified
 
@@ -105,7 +141,7 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
                     var content = source.mkString
 
                     
-                    
+                     
 
                     // Compile to get annotated producers
                     //---------------------
