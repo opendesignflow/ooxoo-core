@@ -6,7 +6,6 @@ package com.idyria.osi.ooxoo.core.buffers.structural.io.sax
 import java.io.ByteArrayOutputStream
 import java.io.Reader
 import java.io.StringReader
-import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
@@ -21,19 +20,21 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.io.InputStream
 import java.io.OutputStream
+import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
+import javanet.staxutils.IndentingXMLStreamWriter
 
 /**
  * @author rleys
  *
  */
 @transient
-class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogSource {
+class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSource {
 
   // Constructors
   //----------------
   def this(url: URL) = this(new InputStreamReader(url.openStream()))
   def this(stream: InputStream) = this(new InputStreamReader(stream))
-  
+
   // Stream in parameters 
   //-----------------------
 
@@ -41,17 +42,19 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
 
   var eventWriter: XMLStreamWriter = null
 
-
   // Stream out parameters
   //-----------------------
-  var namespacePrefixesMap = Map[String,String]()
+
+  var indenting = false
+  
+  var namespacePrefixesMap = Map[String, String]()
 
   /**
-    Returns the last set prefix for the namespace, or generate one if non existent
-  */
-  def getPrefixForNamespace( ns : String) : String = this.namespacePrefixesMap.getOrElse(ns, {s"ns${this.namespacePrefixesMap.size}"})
- 
- /*   this.namespacePrefixesMap.get(ns) match {
+   * Returns the last set prefix for the namespace, or generate one if non existent
+   */
+  def getPrefixForNamespace(ns: String): String = this.namespacePrefixesMap.getOrElse(ns, { s"ns${this.namespacePrefixesMap.size}" })
+
+  /*   this.namespacePrefixesMap.get(ns) match {
       case None => 
 
       case Some()
@@ -62,16 +65,16 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
   /**
    * Writes the data unit to the output stream, then pass it on
    */
-  override def streamOut(du: DataUnit) : Unit = {
+  override def streamOut(du: DataUnit): Unit = {
 
     // Fetch Prefixes from data unit context
     //-----------------
     du("prefixes") match {
-      case Some(mapObject) if (mapObject.isInstanceOf[Map[String,String]]) =>
+      case Some(mapObject) if (mapObject.isInstanceOf[Map[_, _]]) ⇒
 
-            this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String,String]]
-      case Some(mapObject) => 
-      case None =>  
+        this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String, String]]
+      case Some(mapObject) ⇒
+      case None            ⇒
     }
 
     // Write
@@ -79,17 +82,23 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
     var documentElement = false
 
     //-- Create output if none
-    if (this.output==null) {
-      
+    if (this.output == null) {
+
       this.output = new ByteArrayOutputStream()
-      
+
     }
+    
+    //-- Create Event Writer
     if (this.eventWriter == null) {
 
       var of = XMLOutputFactory.newInstance()
-      of.setProperty("javax.xml.stream.isRepairingNamespaces",true);
+      of.setProperty("javax.xml.stream.isRepairingNamespaces", true);
 
-      this.eventWriter = of.createXMLStreamWriter(this.output)
+      this.eventWriter = this.indenting match {
+        case true => new IndentingXMLStreamWriter(of.createXMLStreamWriter(this.output));
+        case false =>   of.createXMLStreamWriter(this.output)
+      }
+     
 
       // Begin document
       this.eventWriter.writeStartDocument()
@@ -99,78 +108,81 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
 
     //-- Output Element
     //-------------------------
-    if (du.element != null && documentElement) {
+    if (du.element != null) {
 
-      //println("Stax: Start Element ${du.element.name}")
+     // println(s"Stax: Start Element ${du.element.name}")
       du.element.ns match {
-        case "" =>  this.eventWriter.writeStartElement(du.element.name)
-        case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
-      }
-      
-      //-- With text content
-      if (du.value != null) {
-        this.eventWriter.writeCharacters(du.value)
-      }
-    	  
-      
-
-
-    } else if (du.element != null) {
-
-      //println(s"Stax: Element ${du.element.name} / ${du.value} on ${this.eventWriter}")
-
-      //-- Normal Element
-      du.element.ns match {
-        case "" =>  this.eventWriter.writeStartElement(du.element.name)
-        case _  =>  this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns),du.element.name,du.element.ns)
+        case ""   ⇒ this.eventWriter.writeStartElement(du.element.name)
+        case null ⇒ this.eventWriter.writeStartElement(du.element.name)
+        case _    ⇒ this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
       }
 
-      //-- With text content
-      if (du.value != null) {
-        //this.eventWriter.writeCharacters(du.value)
-        
-        this.eventWriter.writeCData(du.value)
-        
-      }
-    	  
-
-      //-- Close already if non hierarchical
+      //-- Close already if non hierarchical and set the value if some
       if (!du.getHierarchical) {
-          //println(s"-> Closing already!")
+        // println(s"Stax: Closing already!")
+
+        //-- With text content
+        (du.value, du("cdata")) match {
+          case (null, _)           ⇒
+          case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
+          case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
+        }
+
         this.eventWriter.writeEndElement()
 
       }
 
-    }
-    //-- Output Attribute
+    } //-- Output Attribute
     //----------------------------
     else if (du.attribute != null) {
 
-      
+      //println("Stax: attribute " + du.attribute)
+
       // try {
       du.attribute.ns match {
-        case "" =>  
+        case "" ⇒
           //println(s"--> Attribute ${du.attribute.name} / ${du.value}")
           this.eventWriter.writeAttribute(du.attribute.name, du.value)
-        case _  =>  
+        case null ⇒
+
+          this.eventWriter.writeAttribute(du.attribute.name, du.value)
+
+        case _ ⇒
           //println(s"--> NS Attribute ${du.attribute.name} / ${du.value}")
-          this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns),du.attribute.ns,du.attribute.name, du.value)
+          this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns), du.attribute.ns, du.attribute.name, du.value)
       }
       // } catch {
       //  case e : Throwable => println(s"--> Failed Attribute ${du.attribute.name} on ${this.eventWriter}")
       //} 
 
-    }
-    //-- Close Element
+    } //-- Close Element
     //--------------
-    else if (du.attribute==null && du.element==null && du.value==null) {
+    else if (du.isHierarchyClose) {
+
+      // If some data are provided with the close, then write them
+      //-------------------
+      (du.value, du("cdata")) match {
+        case (null, _)           ⇒
+        case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
+        case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
+      }
 
       //println("StaxIO Closing")
       //try {
-        this.eventWriter.writeEndElement()
+      this.eventWriter.writeEndElement()
       //} catch {
-        //case e : Throwable => 
-     // } 
+      //case e : Throwable => 
+      // } 
+    } // Output Simple value
+    //----------
+    else if (du.value != null) {
+
+      (du.value, du("cdata")) match {
+        case (null, _)           ⇒
+        case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
+        case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
+      }
+
     }
 
     // Pass it on
@@ -212,18 +224,17 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
         du.hierarchical = true
         du.element = new xelement_base()
         du.element.name = reader.getLocalName()
-        
+
         //-- NS
         reader.getNamespaceURI() match {
-          case ns if(ns!=null && ns!="") => du.element.ns = ns
-          case _ =>
+          case ns if (ns != null && ns != "") ⇒ du.element.ns = ns
+          case _                              ⇒
         }
-        
+
         //-- Text value
         if (reader.hasText()) {
           du.value = reader.getText()
         }
-          
 
         //-- send
         logFine(s"Produced element DataUnit: " + du.element.name);
@@ -232,39 +243,39 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
         //-- Send attributes if any
         //--------------
         if (reader.getAttributeCount() > 0) {
-          for (i <- 0 to reader.getAttributeCount() - 1) {
+          for (i ← 0 to reader.getAttributeCount() - 1) {
 
             //-- Prepare data unit
-        	du = new DataUnit
-        	du.attribute = new xattribute_base
-        	du.attribute.name = reader.getAttributeName(i).getLocalPart();
-        	du.value = reader.getAttributeValue(i)
+            du = new DataUnit
+            du.attribute = new xattribute_base
+            du.attribute.name = reader.getAttributeName(i).getLocalPart();
+            du.value = reader.getAttributeValue(i)
 
             //-- send
-        	logFine(s"Produced attribute DataUnit: " + du.attribute.name);
-        	this.streamIn(du)
+            logFine(s"Produced attribute DataUnit: " + du.attribute.name);
+            this.streamIn(du)
           }
         }
 
-      }
-      // End Element
+      } // End Element
       //---------------
       else if (reader.isEndElement()) {
 
-       // println("Sending End element for: "+reader.getName())
-        
-        // Just send an empty data unit with hiearchical = false
-         this.streamIn(new DataUnit)
+        // println("Sending End element for: "+reader.getName())
 
-      }
-      // Text
+        // Just send an empty data unit with hiearchical = false
+        var closeDU = new DataUnit
+        closeDU.setHierarchyClose
+        this.streamIn(closeDU)
+
+      } // Text
       //-------------------
       else if (reader.isCharacters()) {
 
         //println("Sending characters: "+reader.getText())
-        
+
         // Send a value only event
-        var du =  new DataUnit
+        var du = new DataUnit
         du.value = reader.getText()
         this.streamIn(du)
       }
@@ -290,16 +301,15 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer  with TLogS
 
 object StAXIOBuffer {
 
-
   /**
-    Creates a StAXIOBuffer with initial content to the provided string, ready to be streamed in
-  */
-  def apply(str : String) = {
+   * Creates a StAXIOBuffer with initial content to the provided string, ready to be streamed in
+   */
+  def apply(str: String) = {
 
     new StAXIOBuffer(new StringReader(str))
 
   }
-  
+
   /**
    * Creates a StaxIOBuffer with a specific data output stream
    */
@@ -308,4 +318,19 @@ object StAXIOBuffer {
     b.output = out
     b
   }
+  
+  /**
+   * Streams out an ElementBuffer to a string
+   */
+  def apply(in: ElementBuffer,indenting : Boolean = false) : String = {
+    
+    var io = new StAXIOBuffer
+    io.indenting = indenting
+    in.appendBuffer(io)
+    in.streamOut()
+    
+    return new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray())
+    
+  }
+  
 }

@@ -32,3 +32,7 @@ trait IOBuffer extends Buffer {
   
   
 }
+
+trait IOTransparentBuffer {
+  
+}

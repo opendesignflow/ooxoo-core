@@ -51,6 +51,11 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
     
     var finalBuffer = buffer
     
+    
+    
+      
+      
+    
     // If setting null, try to restore a previous buffer
     //----------------------
     if (buffer == null && this.previousStack.size>0) {
@@ -61,12 +66,16 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
       
       //-- If we would go back to a XList in Streamin Mode, skip it
       finalBuffer match {
-        case b : XList[_] if(mode==0) => 
+        case b : IOTransparentBuffer if(mode==0 && this.previousStack.size>0) => 
           
           finalBuffer = this.previousStack.pop() 
           finalBuffer.setNextBuffer(this)
           
+        //  println("IO Jump Buffer now on: "+finalBuffer)
+          
         case b => 
+          
+       //   println("IO Buffer now on: "+finalBuffer)
           
           finalBuffer.setNextBuffer(this)
       }
@@ -76,10 +85,17 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
       
       
     }
-    // If a previous exists -> save it
+    // If a previous exists -> save it, and ensure it has no reference to this anymore
     //--------
-    else if (this.previousBuffer!=null)
-    	this.previousStack.push(this.previousBuffer)
+    else if (this.previousBuffer!=null) {
+      
+      this.previousBuffer.setNextBuffer(null)
+      
+      //println(s"IO Buffer (${hashCode}) leaves $previousBuffer for: "+finalBuffer)
+      this.previousStack.push(this.previousBuffer)
+      
+    }
+    	
    
       
 
