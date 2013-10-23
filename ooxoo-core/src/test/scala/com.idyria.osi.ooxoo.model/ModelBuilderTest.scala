@@ -47,6 +47,12 @@ class ModelBuilderTest extends FunSuite with GivenWhenThen {
 
                 "env:Body" is {
 
+                  "TestElement" is {
+                    
+                    "TestEnum" enum("A","B","C","D")
+                    
+                  }
+                  
                 }
 
                /* "env:Header" {

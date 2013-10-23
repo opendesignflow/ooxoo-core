@@ -43,7 +43,7 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
         //---------------------------------
         var xml = """
             <RootTest>
-                <SomeElement name="test"></SomeElement>
+                <SomeElement name="test"><SomeSubElement/></SomeElement>
                 <SomeElement2 name="test2"></SomeElement2>
             </RootTest>"""
         
@@ -59,7 +59,7 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
 
         And("Both have an attribute called name")
         //-------------------
-        expectResult(1)(parsed.content.head.asInstanceOf[AnyElementBuffer].content.size)
+        expectResult(2)(parsed.content.head.asInstanceOf[AnyElementBuffer].content.size)
         expectResult(1)(parsed.content.last.asInstanceOf[AnyElementBuffer].content.size)
 
         expectResult("name")(parsed.content.head.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].name)
@@ -71,6 +71,38 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
         expectResult("test2")(parsed.content.last.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].data)
 
     }
+    
+     test("Streamin Any Content that does not match an existing model and streamout again") {
+
+        Given("A Simple XML Document")
+        //---------------------------------
+        var xml = """
+            <RootTest>
+                <SomeElement name="test"><SomeSubElement/></SomeElement>
+                <SomeElement2 name="test2"></SomeElement2>
+            </RootTest>"""
+        
+          xml ="""<RootTest><SomeElement name="test"><SomeSubElement/></SomeElement></RootTest>"""
+          
+        var parsed = new RootTest()
+        parsed - StAXIOBuffer(xml)
+        parsed.lastBuffer.streamIn
+        
+        println("Last buffer: "+parsed.lastBuffer)
+        
+        println("List last buffer: "+parsed.content.lastBuffer)
+        
+        var io = new StAXIOBuffer()
+        parsed - io
+        parsed.streamOut()
+
+        io.output.flush()
+        var res = new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray)
+        
+        println("Result: "+res)
+       
+       
+     }
 
     test("Streamin Any Content that matches an existing model") {
 

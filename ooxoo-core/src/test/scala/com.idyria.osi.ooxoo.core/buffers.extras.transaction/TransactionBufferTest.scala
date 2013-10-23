@@ -31,7 +31,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
     /**
         Buffer designed to catch transaction propagations and report what it saw
     */
-    class ReceiveTransactionBuffer extends BaseBuffer  with ListeningSupport {
+    class ReceiveTransactionBuffer extends BaseBufferTrait  with ListeningSupport {
 
 
 
@@ -88,20 +88,24 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             var baseBuffer = new LongBuffer()
             baseBuffer - new TransactionBuffer()
 
-            When("Setting Value on base long buffer")
-            //------------
-            baseBuffer.set(42)
-
-            Then(" there is transaction in TransactionBuffer, with one registered partitial function")
-            //---------------
-            var transaction = Transaction()
-            assert(transaction!=null,"Transaction for current Thread must not be null")
-
-            transaction.actions.size should equal (1)
-
-            And("If resetting value on same buffer, only one action is still present")
-            baseBuffer.set(42)
-            transaction.actions.size should equal (1)
+            Transaction.join {
+                       
+	            When("Setting Value on base long buffer")
+	            //------------
+	            baseBuffer.set(42)
+	
+	            Then(" there is transaction in TransactionBuffer, with one registered partitial function")
+	            //---------------
+	            var transaction = Transaction()
+	            assert(transaction!=null,"Transaction for current Thread must not be null")
+	
+	            transaction.actions.size should equal (1)
+	
+	            And("If resetting value on same buffer, only one action is still present")
+	            baseBuffer.set(42)
+	            transaction.actions.size should equal (1)
+            
+            }
         }
 
     }
@@ -116,7 +120,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             var resultDataUnit : DataUnit = null
             var baseBuffer = new LongBuffer()
             baseBuffer - new TransactionBuffer()
-            baseBuffer - new BaseBuffer() {
+            baseBuffer - new BaseBufferTrait() {
 
                 override def pushRight(du:DataUnit) = {
                     resultDataUnit = du
@@ -124,22 +128,26 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
 
             }
 
-            When("Setting Value on base start buffer, ")
-            //------------------------------
-            baseBuffer.set(42)
+            Transaction.join {
+            
+	            When("Setting Value on base start buffer, ")
+	            //------------------------------
+	            baseBuffer.set(42)
+	
+	            Then("the receiving buffer should't get any results")
+	            //-----------------------------
+	            expectResult(null)(resultDataUnit)
+	
+	            
+	            When("commiting the transaction")
+	            //---------------------------------
+	            Transaction().commit
+	
+	            Then("The holded data unit gets received by the buffer after transaction buffer")
+	            //---------------------
+	            assert(resultDataUnit!=null)
 
-            Then("the receiving buffer should't get any results")
-            //-----------------------------
-            expectResult(null)(resultDataUnit)
-
-            When("commiting the transaction")
-            //---------------------------------
-            Transaction().commit
-
-            Then("The holded data unit gets received by the buffer after transaction buffer")
-            //---------------------
-            assert(resultDataUnit!=null)
-
+            }
 
         }
 
@@ -157,13 +165,15 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             var resultDataUnit : DataUnit = null
             var baseBuffer = new LongBuffer()
             baseBuffer - new TransactionBuffer()
-            baseBuffer - new BaseBuffer() {
+            baseBuffer - new BaseBufferTrait() {
 
                 override def pushRight(du:DataUnit) = {
                     resultDataUnit = du
                 }
 
             }
+            
+            Transaction().begin
 
             When("Setting Value on base start buffer, ")
             //------------------------------
@@ -183,7 +193,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
             //----------------
             var transactionAfterCancel = Transaction()
             assert(transaction.hashCode != transactionAfterCancel.hashCode)
-            expectResult(Transaction.State.Pending)(transactionAfterCancel.state)
+            expectResult(Transaction.State.Stopped)(transactionAfterCancel.state)
 
 
         }
@@ -237,7 +247,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldM
         var pullCount = 0
         var baseBuffer = new LongBuffer()
         baseBuffer - new TransactionBuffer()
-        baseBuffer - new BaseBuffer() {
+        baseBuffer - new BaseBufferTrait() {
 
             pullCount = 0
 
