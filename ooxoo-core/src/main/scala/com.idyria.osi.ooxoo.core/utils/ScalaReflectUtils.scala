@@ -5,7 +5,6 @@ package com.idyria.osi.ooxoo.core.utils
 
 import scala.annotation.Annotation
 import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo.core.buffers.structural.BaseBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 
 import java.lang.reflect._
@@ -25,9 +24,9 @@ object ScalaReflectUtils {
     var currentClass : Class[_]  = source.getClass
     while (currentClass != null) {
       for (field <- (currentClass.getFields()))
-       allFields = field :: allFields
+       allFields =  allFields :+ field
       for (field <- (currentClass.getDeclaredFields()))
-        allFields = field :: allFields
+        allFields = allFields  :+ field 
       currentClass = currentClass.getSuperclass()
     }
 

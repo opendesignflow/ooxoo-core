@@ -8,7 +8,7 @@ import javax.swing.text._
   This is a special Buffer to connect a Swing Document to the buffer chain, and an XSDStringBuffer
 
 */
-class DocumentBuffer extends BaseBuffer {
+class DocumentBuffer extends BaseBufferTrait {
 
   // Plain Document used to connect to Swin UI
   var document = new PlainDocument
