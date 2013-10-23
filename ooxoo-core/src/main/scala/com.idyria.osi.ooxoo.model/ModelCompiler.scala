@@ -117,24 +117,38 @@ object ModelCompiler {
         var inputModel = Source.fromFile(file).mkString
 
 
-        // Wrap Around valid object
+        // Code analyses
         //---------------------
-        var wrappedModel = s"""
-
+        
+        // use package anylis to determine base model name
+        var (modelName,wrappedModel) = """\s*package\s+(.+)\s*""".r.findFirstMatchIn(inputModel) match {
+          
+           //-- If there is a package info, the code must be compilable, and we have to use the package as name basis for the object
+          case Some(p) => (p.group(1),inputModel)
+            
+          // No package definition, we can wrap the code and add some imports, and the package name stays empty
+          case None => 
+            
+            ("",s"""
 import com.idyria.osi.ooxoo.model._
 
 $inputModel
-
-        """
+            """)
+          
+          
+        }
+        
+        
 
         // Determine object name
         //------------
-        var modelName = ""
-        """object\s+([A-Za-z]+)\s+extends\s+ModelBuilder\s+.+""".r.findFirstMatchIn(inputModel) match {
-            case Some(matchRes) => modelName = matchRes.group(1) 
+        """object\s+([A-Za-z]+)\s+.+""".r.findFirstMatchIn(inputModel) match {
+            case Some(matchRes) => modelName = List(modelName ,matchRes.group(1)).filterNot(_ =="").mkString(".")
             case None =>
                 throw new RuntimeException(s"Could not determine object name of model: $inputModel")
         }
+        
+        println("")
 
         // Compile
         //--------------
@@ -145,6 +159,8 @@ $inputModel
                 
                 var modelInfos = new ModelInfos(modelName)
 
+                println("Compiled Model: "+modelInfos.name)
+                
                 // Get Annotations
                 imain.bindValue("modelInfos",modelInfos)
                 imain.bindValue("file",file)
@@ -177,14 +193,22 @@ $inputModel
     */
     def produce( modelInfos: ModelInfos , producer: ModelProducer, out: Writer)  : Unit = {
 
-
+    	//println("Produce compiled model: "+modelInfos.name)
+    	
+    	//imain.bindValue(s"${modelInfos.name}",modelInfos)
         imain.bindValue("producer",producer)
         imain.bindValue("writer",out)
-        imain.interpret(s"""
-            if (${modelInfos.name}.name==null) {
-                ${modelInfos.name}.name = "${modelInfos.name}"
-            }
-        """)
+        imain.interpret(s"""${modelInfos.name}.name match { case null => ${modelInfos.name}.name = "${modelInfos.name}"; case _ => ;}""") 
+       /* imain.interpret(s"""
+println("Model infos "+${modelInfos.name})
+//try {
+        if (${modelInfos.name}.name==null) {
+    ${modelInfos.name}.name = "${modelInfos.name}"
+        }
+//} catch {
+//    case e : Throwable => 
+//}
+        """)*/
         imain.interpret(s"${modelInfos.name}.produce(producer,writer)")
     }
 

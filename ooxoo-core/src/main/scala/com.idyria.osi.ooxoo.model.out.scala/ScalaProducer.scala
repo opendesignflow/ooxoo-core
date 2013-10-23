@@ -2,220 +2,328 @@ package com.idyria.osi.ooxoo.model.out.scala
 
 import com.idyria.osi.ooxoo.model._
 import com.idyria.osi.ooxoo.core.buffers.structural._
+import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.BooleanBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.IntegerBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.DoubleBuffer
 
 /**
-    This Producer creates scala class implementations for the models
-
-*/
+ * This Producer creates scala class implementations for the models
+ *
+ */
 class ScalaProducer extends ModelProducer {
 
-    this.outputType = "scala"
+  this.outputType = "scala"
 
-    // Name Cleaning
-      //-------------------
-      
-    val forbiddenKeyWords= List("for","trait","class","package","var","val","def")
-    
-    /**
-     * Returns a scala friendly name from base name, without reserved keywords etc...
-     */
-    def cleanName(name: String) : String = {
-      
-      // Trim Lower case
-      var res = name.trim().toLowerCase()
-      
-      // Prefix with _ is the name is a keyword
-      forbiddenKeyWords.contains(res) match {
-        case true => res = "_"+res
-        case false => 
-      }
-      
-      res
+  // Name Cleaning
+  //-------------------
+
+  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def")
+
+  /**
+   * Returns a scala friendly name from base name, without reserved keywords etc...
+   */
+  def cleanName(name: String): String = {
+
+    // Trim Lower case
+    var res = name.trim().toLowerCase()
+
+    // Prefix with _ is the name is a keyword
+    forbiddenKeyWords.contains(res) match {
+      case true  ⇒ res = "_" + res
+      case false ⇒
     }
-      
 
-    /**
-        The output package
+    res
+  }
 
-        Model parameter: scalaProducer.targetPackage
-    */
-    var targetPackage : String = ""
+  /**
+   * The output package
+   *
+   * Model parameter: scalaProducer.targetPackage
+   */
+  var targetPackage: String = ""
 
-    def produce(model: Model, out : Writer) = {
+  def produce(model: Model, out: Writer) = {
 
+    // Try to find Target Package from model
+    //------------------
+    model.parameter("scalaProducer.targetPackage") match {
+      case Some(p) ⇒ this.targetPackage = p
+      case None    ⇒
+    }
 
-        // Try to find Target Package from model
-        //------------------
-        model.parameter("scalaProducer.targetPackage") match {
-            case Some(p) => this.targetPackage = p
-            case None =>
-        }
+    def writeElement(element: Element): Unit = {
 
-        def writeElement( element : Element ) : Unit = {
+      // If Element is an instance of another element, oder is imported don't write out
+      //------------
+      if (element.instanceOfElement != null || element.imported.data == true) {
+        return
+      }
 
-            // If Element is an instance of another element, don't write out
-            //------------
-            if (element.instanceOfElement!=null) {
-                return
-            }
-
-            // Check Name
-            //-------------------
-            var namespace = ""
-            var name = element.name
-            model.splitName(element.name) match {
-                case (sNs,sName) => namespace = sNs ; name = sName
-            }
-            /*model.namespace(element.name) match {
+      // Check Name
+      //-------------------
+      var namespace = ""
+      var name = element.name
+      model.splitName(element.name) match {
+        case (sNs, sName) ⇒ namespace = sNs; name = sName
+      }
+      /*model.namespace(element.name) match {
                 case Some(foundNamespace) => 
                     namespace = foundNamespace
                     name = element.name.split(":")(1)
                 case None =>
             }*/
 
-            // If Type has already been written, don't overwrite it
-            //-----------------------
-            var fileName = "./"+targetPackage+"/"+name+".scala"
-            if (out.fileWritten(fileName)) {
-                return
-            }
-            
-            // Write File
-            //-----------------------
+      // If Type has already been written, don't overwrite it
+      //-----------------------
+      var fileName = "./" + targetPackage + "/" + name + ".scala"
+      if (out.fileWritten(fileName)) {
+        return
+      }
 
-            out.file(fileName)
+      // Write File
+      //-----------------------
 
-            //-- Package
-            out << s"""package $targetPackage
+      out.file(fileName)
+
+      //-- Package
+      out << s"""package $targetPackage
             """
 
-            //-- Import
-            out << s"""
+      //-- Import
+      out << s"""
 import ${classOf[ElementBuffer].getCanonicalName}
 import ${classOf[XList[_]].getCanonicalName}
 import ${classOf[xattribute].getCanonicalName}
 import ${classOf[xelement].getCanonicalName}
+import scala.language.implicitConversions
             """
-            
-            //-- Class Definition
-            (namespace,name) match {
-                case ("",name) =>  out << s"""@xelement(name="$name")"""
-                case (namespace,name) =>  out << s"""@xelement(name="$name",ns="$namespace")"""
+
+      //-- Class Definition
+      (namespace, name) match {
+        case ("", name)        ⇒ out << s"""@xelement(name="$name")"""
+        case (namespace, name) ⇒ out << s"""@xelement(name="$name",ns="$namespace")"""
+      }
+
+      //-- Imported Traits
+      var traits = element.traits.filterNot( t => t.toString == element.classType.toString) match {
+        case traitsList if (traitsList.size>0) => traitsList.mkString("with ","with ","")
+        case _ => ""
+      }
+      
+      //-- Class Name
+      
+      // enumeration and name "Value" are incompatible
+      val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
+      var className = (element.classType,name.toString) match {
+        case (enumerationBufferClass,"Value") => "_Value"
+        case _ => name
+      }
+      
+      //-- End of class start
+      var classOrTrait = "class"
+      if (element.isTrait) {
+        classOrTrait = "trait"
+      }
+
+      out << s"""$classOrTrait ${className} extends ${element.classType} $traits {
+            """
+      
+      //-- Enumeration
+      //-------------------------
+      out.indent
+      element.enumerationValues.size match {
+        case 0 => 
+        case _ => 
+          
+          // Declare Values
+          //--------------------
+          out << ""
+          out << s"type ${className} = Value"
+          out << s"val ${element.enumerationValues.map(_.toString).mkString(",")} = Value"
+          
+          // Create Selection methods
+          //-------------------------
+          out << element.enumerationValues.map {
+            value => 
+              
+              s"""def select$value : Unit = this select this.$value"""
+              
+          }.mkString("\n")
+          
+          
+      }
+      out.outdent
+      
+      //-- Attributes
+      //---------------------------
+      out.indent
+      element.attributes.foreach { attribute ⇒
+
+        //--- Annotation
+        var resolvedName = model.splitName(attribute.name)
+        resolvedName match {
+          case ("", name) ⇒
+
+            out << s"""@xattribute(name="$name")"""
+          case (namespace, name) ⇒
+
+            out << s"""@xattribute(name="$name",ns="$namespace")"""
+        }
+
+        //-- Field
+        attribute.maxOccurs match {
+
+          case count if (count > 1) ⇒
+
+            out << s"""var ${cleanName(resolvedName._2)}s = XList { new ${attribute.classType}}
+                        """
+
+          case _ ⇒
+
+            out << s"""var ${cleanName(resolvedName._2)} : ${attribute.classType} = null
+                        """
+        }
+
+      }
+      out.outdent
+
+      //-- Sub Element
+      //---------------------------
+      out.indent
+      element.elements.foreach { element ⇒
+
+        // Annotation
+        var resolvedName = model.splitName(element.name)
+        resolvedName match {
+          case ("", name) ⇒
+            out << s"""@xelement(name="$name")"""
+
+          case (namespace, name) ⇒
+
+            out << s"""@xelement(name="$name",ns="$namespace")"""
+        }
+      
+      	// ResolvedType if imported of not
+      	//-----------------
+      	var resolvedType = element.imported.data.booleanValue() match {
+      	  case true => element.classType.toString
+      	  case false => s"$targetPackage.${resolvedName._2}"
+      	} 
+        // Element definition
+      	//---------------
+        element.maxOccurs match {
+
+          case count if (count > 1) ⇒
+
+            out << s"""var ${cleanName(resolvedName._2)}s = XList { new $resolvedType}
+                        """
+
+          case _ ⇒
+
+            out << s"""var ${cleanName(resolvedName._2)} : $resolvedType = null
+                        """
+        }
+      }
+
+      //-- End of class
+      out.outdent
+      out << s"""}"""
+
+      // Object Singleton Definition
+      //-----------------------------
+      out << s"object ${className} {"
+      out << ""
+      out.indent
+
+      //-- Add Simple constructor factory if type is not abstract
+      //----------------
+      if (!element.isTrait) {
+        out << s"def apply() = new $className"
+        out << ""
+      }
+      
+
+      //-- Add An Automatic conversion from base type if it is a base type
+      //---------------
+      try {
+
+        val typesMap = Map(
+
+          classOf[XSDStringBuffer] -> "String",
+          classOf[IntegerBuffer] -> "Int",
+          classOf[DoubleBuffer] -> "Double",
+          classOf[BooleanBuffer] -> "Boolean"
+          
+        )
+
+        var classType = Thread.currentThread.getContextClassLoader().loadClass(element.classType.toString)
+        classOf[AbstractDataBuffer[_]].isAssignableFrom(classType) match {
+
+          //-- Add Conversion from base data type
+          case true ⇒
+
+            var baseDataType = typesMap.collectFirst {
+              case (implClass, baseType) if (implClass.isAssignableFrom(classType)) ⇒ baseType
+            } match {
+
+              // Found base type for this Base data type
+              case Some(baseType) ⇒
+
+              	 out << s"implicit def convertFromBaseDataType(data: $baseType) : $name =  { var res = new $name ; res.data = data; res; } "
+              
+              // Not found, just ouput a warning comment
+              case None           ⇒
+              
+               	out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
+              
             }
+
            
-            //-- Imported Traits
-            var traits =""
-            element.traits.foreach { t => traits+=s"with $t "  }
 
-            //-- End of class start
-            var classOrTrait = "class"
-            if (element.isTrait) {
-                classOrTrait = "trait"
-            }
-
-            out << s"""$classOrTrait ${name} extends ${element.classType} $traits {
-            """
-
-            //-- Attributes
-            //---------------------------
-            out.indent
-            element.attributes.foreach { attribute => 
-
-                //--- Annotation
-                var resolvedName = model.splitName(attribute.name)
-                resolvedName match {
-                    case ("",name) =>  
-
-                        out << s"""@xattribute(name="$name")"""
-                    case (namespace,name) =>  
-
-                        out << s"""@xattribute(name="$name",ns="$namespace")"""
-                }
-                
-                //-- Field
-                attribute.maxOccurs match {
-
-                    case count  if (count>1) =>
-
-                        out << s"""var ${cleanName(resolvedName._2)}s = XList { new ${attribute.classType}}
-                        """
-
-                    case _ => 
-
-                        out << s"""var ${cleanName(resolvedName._2)} : ${attribute.classType} = null
-                        """
-                }
-                
-            
-            }
-            out.outdent
-
-            //-- Sub Element
-            //---------------------------
-            out.indent
-            element.elements.foreach { element =>
-
-                // Annotation
-                var resolvedName = model.splitName(element.name)
-                resolvedName match {
-                    case ("",name) =>  
-                        out << s"""@xelement(name="$name")"""
-
-                    case (namespace,name) =>  
-                    
-                        out << s"""@xelement(name="$name",ns="$namespace")"""
-                }
-
-                // Element definition
-                element.maxOccurs match {
-
-
-                    case count if (count>1) =>
-         
-                        out << s"""var ${cleanName(resolvedName._2)}s = XList { new $targetPackage.${resolvedName._2}}
-                        """
- 
-                    case _ =>
-
-                        out << s"""var ${cleanName(resolvedName._2)} : $targetPackage.${resolvedName._2} = null
-                        """
-                }
-            }
-            out.outdent
-
-            //-- End of class
-            out << s"""}"""
-            out.finish
-
-            // Output Sub Elements
-            //---------------------
-            element.elements.foreach(writeElement(_))
+          case false ⇒
         }
 
-        // Start on top elements
-        //----------------------------
-        model.topElements.foreach {writeElement(_)}
+      } catch {
+        case e: Throwable ⇒
+      }
 
-        // Try to copy source File to output if available
-        //-----------------
-        if (model.sourceFile!=null && model.sourceFile.exists) {
+      //-- EOF Object
+      out.outdent
+      out << "}"
 
-            var fileName = model.name 
-            if (fileName==null)
-                fileName = model.sourceFile.getName
-
-            // Write out package definition
-            out.file("./"+targetPackage+"/"+fileName+".scala")
-            out << s"package ${targetPackage}"
-
-            // Add Model Builder import
-            out << s"import ${classOf[Model].getPackage.getName}._"
-
-            // Write out File 
-            out << model.sourceFile
-
-            out.finish
-        }
-
+      // Output Sub Elements
+      //---------------------
+      out.finish
+      element.elements.foreach(writeElement(_))
     }
+
+    // Start on top elements
+    //----------------------------
+    model.topElements.foreach { writeElement(_) }
+
+    // Try to copy source File to output if available
+    //-----------------
+    if (model.sourceFile != null && model.sourceFile.exists && model.parameter("scalaProducer.copyModelToOutput") != None) {
+
+      var fileName = model.name
+      if (fileName == null)
+        fileName = model.sourceFile.getName
+
+      // Write out package definition
+      out.file("./" + targetPackage + "/" + fileName + ".scala")
+      out << s"package ${targetPackage}"
+
+      // Add Model Builder import
+      out << s"import ${classOf[Model].getPackage.getName}._"
+
+      // Write out File 
+      out << model.sourceFile
+
+      out.finish
+    }
+
+  }
 }

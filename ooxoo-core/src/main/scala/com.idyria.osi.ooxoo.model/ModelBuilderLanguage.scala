@@ -1,10 +1,9 @@
 package com.idyria.osi.ooxoo.model
 
+import scala.language.implicitConversions
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import scala.language.implicitConversions
-
 import com.idyria.osi.tea.listeners.ListeningSupport
 
 
@@ -22,14 +21,18 @@ trait ModelBuilderLanguage extends ListeningSupport {
     */
     var typesMap = Map[String,Class[_ <: Buffer]](
         ("string" ->  classOf[XSDStringBuffer]),
+        ("cdata" ->  classOf[CDataBuffer]),
         ("int" ->  classOf[IntegerBuffer]),
         ("integer" ->  classOf[IntegerBuffer]),
         ("long" ->  classOf[LongBuffer]),
         ("float" ->  classOf[FloatBuffer]),
-        ("dateTime" ->  classOf[DateTimeBuffer]),
+        ("datetime" ->  classOf[DateTimeBuffer]),
         ("boolean" ->  classOf[BooleanBuffer]),
         ("bool" ->  classOf[BooleanBuffer]),
-        ("regexp" ->  classOf[RegexpBuffer])
+        ("regexp" ->  classOf[RegexpBuffer]),
+        ("uri" -> classOf[URIBuffer]),
+        
+        ("map" -> classOf[StringMapBuffer])
     )
 
     def getType(str: String) : Class[_ <: Buffer] = {
@@ -49,11 +52,12 @@ trait ModelBuilderLanguage extends ListeningSupport {
     class IsWordElementWrapper( var left: Element) {
 
 
+      
         def multiple(typeStr: String) = {
 
             @->("element.start",left)
 
-            left.classType = getType(typeStr)
+            left.classType = getType(typeStr.toLowerCase()).getCanonicalName()
             left.maxOccurs = 10
 
             @->("element.end",left)
@@ -98,7 +102,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.start",left)
 
-            left.classType = getType(right).getCanonicalName
+            left.classType = getType(right.toLowerCase()).getCanonicalName
 
             @->("element.end",left)
 
@@ -113,14 +117,32 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.start",left)
 
-            left.classType = getType(right).getCanonicalName
+            left.classType = getType(right.toLowerCase()).getCanonicalName
 
             @->("element.end",left)
 
             this
 
         }
+        
+        /**
+         * Set Enumeration type
+         */
+        def enum(values: String*) : IsWordElementWrapper = {
+          
+          @->("element.start",left)
 
+            left.classType = classOf[EnumerationBuffer].getCanonicalName
+            values.foreach(left.enumerationValues+=_)
+            @->("element.end",left)
+          
+          this
+          
+        }
+        
+
+        def and : IsWordElementWrapper = this
+        
         def and(str: String) : IsWordElementWrapper = {
 
             left.description = str
@@ -158,13 +180,31 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             @->("element.start",left)
 
-            left.classType = getType(right).getCanonicalName
+            left.classType = getType(right.toLowerCase()).getCanonicalName
 
             @->("element.end",left)
 
             left
 
         }
+        
+        // Documentation
+        //------------------
+        
+        /**
+         * Alias to withDocumentation
+         */
+        def means(str:String) = withDocumentation(str)
+        
+        /**
+         * Set documentation on element
+         */
+        def withDocumentation(str:String) : IsWordElementWrapper = {
+          
+          left.description = str
+          this
+        }
+        
     }
     implicit def elementToIsWordWrapping(str: String) :  IsWordElementWrapper = new IsWordElementWrapper(str)
 
@@ -185,20 +225,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
         }
 
-        /**
-            Set type of attribute based on string
-        */
-        def is( right : String) : IsWordAttributeWrapper = {
-
-            @->("attribute.add",left)
-
-            // Search for type in internal map
-            //--------------------------
-            left.classType = getType(right).getCanonicalName
-
-            this
-
-        }
+       
 
         /**
             Set type of attribute based on string
@@ -209,7 +236,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             // Search for type in internal map
             //--------------------------
-            left.classType = getType(right).getCanonicalName
+            left.classType = getType(right.toLowerCase()).getCanonicalName
 
             this
 
@@ -228,6 +255,25 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             left.description = str
             this 
+        }
+        
+        /**
+            Description
+        */
+        def means(str: String) : IsWordAttributeWrapper = {
+
+            left.description = str
+            this 
+        }
+        
+         /**
+            Description
+        */
+        def is( right : String) : IsWordAttributeWrapper = {
+
+            left.description = right
+            this 
+
         }
     }
 
@@ -251,7 +297,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
             // Search for type in internal map
             //--------------------------
-            left.classType = getType(right).getCanonicalName
+            left.classType = getType(right.toLowerCase()).getCanonicalName
 
         }
 

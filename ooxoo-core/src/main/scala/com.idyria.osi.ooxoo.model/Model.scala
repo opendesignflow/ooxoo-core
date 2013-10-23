@@ -64,7 +64,7 @@ trait Model {
         if (splitted.size > 1 ) {
             this.namespaces.get(splitted(0))
         } else {
-            None
+            this.namespaces.get("")
         }
 
     }
@@ -74,7 +74,12 @@ trait Model {
         var namespace = ""
         var name = fullName
         this.namespace(fullName) match {
-            case Some(foundNs) => namespace = foundNs; name = fullName.split(":")(1)
+            case Some(foundNs) => 
+              namespace = foundNs; 
+              name = fullName.split(":") match {
+                case arr if (arr.length==1) => fullName
+                case arr => arr(1)
+              }
             case None =>
         }
         (namespace,name)

@@ -72,6 +72,9 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         }
     }
     
+    /**
+     * Set class Type of current element to full string class name
+     */
     def classType(classType: String) : Unit  = {
       
       elementsStack.headOption match {
@@ -81,8 +84,42 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
       
     }
     
+    /**
+     * Set class type of current element to another element definitions one
+     */
     def classType(element: Element) : Unit = classType(element.classType.toString)
 
+    /**
+     * Create a new Element in current, which has the direct class type names and such of the provided className
+     * Per default, the last part of the qualified class name is used as element name
+     */
+    def importElement(className: String) : Element = {
+      
+      elementsStack.headOption match {
+            case Some(element) =>
+              	
+              // Create new 
+              var newElement = new Element(className.split("""\.""").last)
+              newElement.classType = className
+              newElement.imported = true
+              
+              this.@->("element.start",newElement)
+              this.@->("element.end",newElement)
+              
+              newElement
+              
+            case None => throw new RuntimeException("Cannot call importElement() outside of an element")
+        }
+      
+      
+    }
+    
+    
+    /**
+     * Set class type of current element to the one matching a standard type
+     */
+    def ofType(str:String) : Unit = classType(getType(str.toLowerCase()).getCanonicalName())
+    
     def withTrait(traitType: String) = {
 
         elementsStack.headOption match {
@@ -260,6 +297,14 @@ trait Common {
     @xattribute(name="ClassType")
     var classType : XSDStringBuffer = null
 
+    /**
+     * An Imported element is not written to output, its classType is just used as is
+     */
+    var imported : BooleanBuffer = false
+    
+    @xelement(name="EnumerationValues")
+    var enumerationValues = XList{ new XSDStringBuffer}
+    
 
 }
 
@@ -270,6 +315,25 @@ class Element(
     inputName : String
        ) extends ElementBuffer with Common {
 
+	// Structure
+	//---------------
+  
+	@xelement(name="Element")
+    var elements = XList { du => 
+            var elt = new Element(du.element.name)
+            elt.parent = this
+            elt
+    }
+
+    @xelement(name="Attribute")
+    var attributes = XList { du => new Attribute(du.element.name)}
+
+    @xelement(name="Trait")
+    var traits = XList{ new XSDStringBuffer }
+  
+    @xattribute(name="isTrait")
+    var isTrait : BooleanBuffer = false
+    
     // Related Type
     //------------------
 
@@ -294,13 +358,13 @@ class Element(
     // Defaults
     //-------------
     this.classType = classOf[ElementBuffer].getCanonicalName
+    this.traits+=classOf[ElementBuffer].getCanonicalName
     this.name = inputName
 
     // Description
     //-----------------------
 
-    @xattribute(name="isTrait")
-    var isTrait : BooleanBuffer = false
+    
 
     def apply(desc: String) = {
         this.description = desc
@@ -315,18 +379,7 @@ class Element(
     // Sub Elements
     //-------------------
 
-    @xelement(name="Element")
-    var elements = XList { du => 
-            var elt = new Element(du.element.name)
-            elt.parent = this
-            elt
-    }
-
-    @xelement(name="Attribute")
-    var attributes = XList { du => new Attribute(du.element.name)}
-
-    @xelement(name="Trait")
-    var traits = XList{ new XSDStringBuffer }
+    
 
 }
 object Element {
