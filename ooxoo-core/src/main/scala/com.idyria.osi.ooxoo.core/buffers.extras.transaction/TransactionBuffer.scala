@@ -1,10 +1,9 @@
 package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
-
 import com.idyria.osi.tea.logging._
-
 import scala.language.implicitConversions
+import scala.collection.mutable.Stack
 
 /**
  * This Buffer can be used to block propagations base on a transaction context,
@@ -59,19 +58,39 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
    */
   override def pull(du: DataUnit): DataUnit = {
 
-    // Return cached value if available, otherwise delegate
-    if (pullDataUnit != null) {
-      logFine("Returning cached value")
-      this.pullDataUnit
-    } else {
-
-      // Register to Transaction if not already
-      Transaction()(transactionAction)
-
-      // Pull, cache and return
-      this.pullDataUnit = super.pull(du)
-      this.pullDataUnit
-    }
+    // Only Cache value if Transaction is enabled
+	  //--------------------------
+	  Transaction() match {
+	
+	    // Let through
+	    case Transaction.Stopped(transaction) ⇒
+	
+	      this.pullDataUnit = null
+	      super.pull(du)
+	
+	    // Retain
+	    case _ ⇒
+	    	
+	    // Return cached value if available, otherwise delegate
+	    if (pullDataUnit != null) {
+	      logFine("Returning cached value")
+	      this.pullDataUnit
+	    } else {
+	
+	      // Register to Transaction if not already
+	      Transaction()(transactionAction)
+	
+	      
+	
+	    }
+	    
+       // Pull, cache and return
+       this.pullDataUnit = super.pull(du)
+       this.pullDataUnit
+	
+	  }
+    
+    
   }
 
   // Put
@@ -90,7 +109,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
 
       // Let through
       case Transaction.Stopped(transaction) ⇒
-      
+
         this.pushDataUnit = null
         this.pullDataUnit = null
         super.pushRight(du)
@@ -152,8 +171,6 @@ class Transaction {
       actions = action :: actions
   }
 
-  
-
   // Lifecycle
   //----------------
 
@@ -161,22 +178,28 @@ class Transaction {
    * Change state to pending
    */
   def begin() = {
-     this.state = Transaction.State.Pending
+    this.state = Transaction.State.Pending
   }
-  
+
   /**
    * Commits all the registered action closures
+   * Come back to previous state after because multiple commits per transaction can be issued
    */
   def commit() = {
 
     // Change State
     //-------------
+    var oldState =  this.state
     this.state = Transaction.State.Commit
 
     // Execute The actions
     //  - Catch Errors and call roll back if needed
     //----------------------
     actions.foreach(_(this))
+    
+    // Come back to previous state
+    //-------------
+    this.state = oldState
 
   }
 
@@ -278,7 +301,10 @@ object Transaction extends TLogSource {
     }
   }
 
-  var currentTransactions = Map[Thread, Transaction]()
+  /**
+   * Current Transactions Map, with stacked transactions for incremental transactions
+   */
+  var currentTransactions = Map[Thread, Stack[Transaction]]()
 
   implicit val defaultInitiator: AnyRef = null
 
@@ -296,14 +322,18 @@ object Transaction extends TLogSource {
     //---------------
     currentTransactions.get(thread) match {
 
-      case Some(transaction) ⇒ transaction
+      //-- Already a transaction
+      case Some(transactions) ⇒
+
+        transactions.head
+
       case None ⇒
 
         logFine("-- Creating transaction for Thread --")
 
         var transaction = new Transaction
         transaction.initiator = initiator
-        currentTransactions += (thread -> transaction)
+        currentTransactions += (thread -> Stack(transaction))
         return transaction
     }
 
@@ -319,13 +349,50 @@ object Transaction extends TLogSource {
   //------------------
 
   /**
+   * Create a transaction, and stack it for the current thread
+   */
+  def begin(implicit initiator: AnyRef = null): Transaction = {
+
+    // Take current Thread
+    //-------------
+    var thread = Thread.currentThread
+
+    // Create or return Transaction
+    //---------------
+    currentTransactions.get(thread) match {
+
+      //-- Already have some transactions
+      case Some(transactions) ⇒
+
+        // Create
+        var transaction = new Transaction
+        transaction.initiator = initiator
+
+        // Stack
+        transactions.push(transaction)
+
+        transaction
+
+      case None ⇒
+
+        logFine("-- Creating transaction for Thread --")
+
+        var transaction = new Transaction
+        transaction.initiator = initiator
+        currentTransactions += (thread -> Stack(transaction))
+        return transaction
+    }
+
+  }
+
+  /**
    * Executes the closure on the transaction, issuing a commit at the end of join group
    */
   def join(cl: ⇒ Any): Unit = {
 
     //-- Make the transaction pending
     Transaction().begin
-    
+
     //-- Execute
     cl
 
@@ -333,7 +400,7 @@ object Transaction extends TLogSource {
     Transaction().commit
 
   }
-  
+
   /**
    * Remove current Transaction from transaction mapping
    */
@@ -346,12 +413,17 @@ object Transaction extends TLogSource {
 
     //println("Searching for Transaction to discard for current Thread")
 
-    currentTransactions.find { case (th, tr) ⇒ tr == transaction } match {
+    currentTransactions.find { case (th, tr) ⇒ tr.head == transaction } match {
       case Some((th, tr)) ⇒
 
         // println("Found Transaction to discard for current Thread")
-        tr.discard
-        currentTransactions -= th
+        tr.head.discard
+        tr.pop
+
+        // If no more transactions for thread, clean
+        if (tr.size == 0)
+          currentTransactions -= th
+
       case None ⇒
       // FIXME : Return an error trying to discard a non registered transaction ?
     }
@@ -363,7 +435,7 @@ object Transaction extends TLogSource {
    */
   def discardAll = {
 
-    currentTransactions.foreach { case (th, tr) ⇒ discard(tr) }
+    currentTransactions.foreach { case (th, tr) ⇒ tr.foreach(discard(_)) }
 
   }
 
