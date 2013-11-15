@@ -109,7 +109,7 @@ import scala.language.implicitConversions
 
       //-- Imported Traits
       var traits = element.traits.filterNot( t => t.toString == element.classType.toString) match {
-        case traitsList if (traitsList.size>0) => traitsList.mkString("with ","with ","")
+        case traitsList if (traitsList.size>0) => traitsList.mkString(" with "," with "," ")
         case _ => ""
       }
       
