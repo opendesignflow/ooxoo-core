@@ -22,10 +22,6 @@ trait IOBuffer extends Buffer {
    */
   def cloneIO : IOBuffer
   
-  /**
-   * Called by vertical buffer to signal the end of the hiearchy processing
-   */
-  def eofLevel
   
   
   

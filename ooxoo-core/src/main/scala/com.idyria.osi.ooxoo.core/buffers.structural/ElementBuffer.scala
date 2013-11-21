@@ -1,7 +1,7 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
  
- 
+  
 trait ElementBuffer extends VerticalBuffer  {
 
  

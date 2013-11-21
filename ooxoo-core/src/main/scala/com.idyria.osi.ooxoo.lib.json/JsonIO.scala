@@ -14,7 +14,7 @@ class JsonIO(var stringInput: Reader = null) extends BaseIOBuffer with TLogSourc
   def top = "{" ~> jsonHierarchy <~ "}" ^^ {
     
     r => 
-      println(s"In Top Matcher: ")
+      //println(s"In Top Matcher: ")
       
       r.foreach {
         du => 
@@ -100,11 +100,12 @@ class JsonIO(var stringInput: Reader = null) extends BaseIOBuffer with TLogSourc
     }*/
 
     top(StreamReader(stringInput)) match {
-      case Success(result, _) => println(s"Done Parsing JSon")
+      case Success(result, _) => 
+        //println(s"Done Parsing JSon")
       case failure: NoSuccess =>
 
-        println(s"Error: " + failure)
-      //scala.sys.error(failure.msg)
+        //println(s"Error: " + failure)
+        scala.sys.error(failure.toString)
     }
 
   }
