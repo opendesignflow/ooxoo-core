@@ -19,7 +19,7 @@ class ScalaProducer extends ModelProducer {
   // Name Cleaning
   //-------------------
 
-  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def")
+  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object")
 
   /**
    * Returns a scala friendly name from base name, without reserved keywords etc...
@@ -39,19 +39,49 @@ class ScalaProducer extends ModelProducer {
   }
 
   /**
+   * Makes the name plural
+   */
+  def makePlural(name:String) : String = {
+    
+    name.last match {
+      case 's' => name+"es"
+      case _ => name+"s"
+    }
+  }
+  
+  /**
    * The output package
    *
    * Model parameter: scalaProducer.targetPackage
    */
   var targetPackage: String = ""
 
+  def writeEnumerationValues(localName:String,base: Common, out: Writer) = {
+
+    // Declare Values
+    //--------------------
+    out << ""
+    out << s"type ${localName} = Value"
+    out << s"val ${base.enumerationValues.map(_.toString).mkString(",")} = Value"
+
+    // Create Selection methods
+    //-------------------------
+    out << base.enumerationValues.map {
+      value =>
+
+        s"""def select$value : Unit = this select this.$value"""
+
+    }.mkString("\n")
+
+  }
+
   def produce(model: Model, out: Writer) = {
 
     // Try to find Target Package from model
     //------------------
-    model.parameter("scalaProducer.targetPackage") match {
-      case Some(p) ⇒ this.targetPackage = p
-      case None    ⇒
+    this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
+      case Some(p) ⇒ p
+      case None    ⇒ model.getClass().getPackage().getName()
     }
 
     def writeElement(element: Element): Unit = {
@@ -108,20 +138,20 @@ import scala.language.implicitConversions
       }
 
       //-- Imported Traits
-      var traits = element.traits.filterNot( t => t.toString == element.classType.toString) match {
-        case traitsList if (traitsList.size>0) => traitsList.mkString(" with "," with "," ")
-        case _ => ""
+      var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
+        case traitsList if (traitsList.size > 0) => traitsList.mkString(" with ", " with ", " ")
+        case _                                   => ""
       }
-      
+
       //-- Class Name
-      
+
       // enumeration and name "Value" are incompatible
       val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
-      var className = (element.classType,name.toString) match {
-        case (enumerationBufferClass,"Value") => "_Value"
-        case _ => name
+      var className = (element.classType, name.toString) match {
+        case (enumerationBufferClass, "Value") => "_Value"
+        case _                                 => name
       }
-      
+
       //-- End of class start
       var classOrTrait = "class"
       if (element.isTrait) {
@@ -130,33 +160,32 @@ import scala.language.implicitConversions
 
       out << s"""$classOrTrait ${className} extends ${element.classType} $traits {
             """
-      
+
       //-- Enumeration
       //-------------------------
       out.indent
       element.enumerationValues.size match {
-        case 0 => 
-        case _ => 
-          
+        case 0 =>
+        case _ =>
+
           // Declare Values
           //--------------------
           out << ""
           out << s"type ${className} = Value"
           out << s"val ${element.enumerationValues.map(_.toString).mkString(",")} = Value"
-          
+
           // Create Selection methods
           //-------------------------
           out << element.enumerationValues.map {
-            value => 
-              
+            value =>
+
               s"""def select$value : Unit = this select this.$value"""
-              
+
           }.mkString("\n")
-          
-          
+
       }
       out.outdent
-      
+
       //-- Attributes
       //---------------------------
       out.indent
@@ -164,13 +193,15 @@ import scala.language.implicitConversions
 
         //--- Annotation
         var resolvedName = model.splitName(attribute.name)
-        resolvedName match {
+        var localName = resolvedName match {
           case ("", name) ⇒
 
             out << s"""@xattribute(name="$name")"""
+            name
           case (namespace, name) ⇒
 
             out << s"""@xattribute(name="$name",ns="$namespace")"""
+            name
         }
 
         //-- Field
@@ -178,9 +209,23 @@ import scala.language.implicitConversions
 
           case count if (count > 1) ⇒
 
-            out << s"""var ${cleanName(resolvedName._2)}s = XList { new ${attribute.classType}}
+          	
+            out << s"""var ${makePlural(cleanName(resolvedName._2))} = XList { new ${attribute.classType}}
                         """
 
+          // Attribute Needs Subclassing: Enumeration
+          //---------------
+          case _ if (attribute.classType.toString == classOf[EnumerationBuffer].getCanonicalName()) =>
+
+            out << s"""var ${cleanName(resolvedName._2)} = new ${attribute.classType} {"""
+            
+            writeEnumerationValues(localName,attribute,out)
+            	
+            
+            out << s"""}"""
+
+          // Normal Attribute
+          //-------------------
           case _ ⇒
 
             out << s"""var ${cleanName(resolvedName._2)} : ${attribute.classType} = null
@@ -205,20 +250,20 @@ import scala.language.implicitConversions
 
             out << s"""@xelement(name="$name",ns="$namespace")"""
         }
-      
-      	// ResolvedType if imported of not
-      	//-----------------
-      	var resolvedType = element.imported.data.booleanValue() match {
-      	  case true => element.classType.toString
-      	  case false => s"$targetPackage.${resolvedName._2}"
-      	} 
+
+        // ResolvedType if imported of not
+        //-----------------
+        var resolvedType = element.imported.data.booleanValue() match {
+          case true  => element.classType.toString
+          case false => s"$targetPackage.${resolvedName._2}"
+        }
         // Element definition
-      	//---------------
+        //---------------
         element.maxOccurs match {
 
           case count if (count > 1) ⇒
 
-            out << s"""var ${cleanName(resolvedName._2)}s = XList { new $resolvedType}
+            out << s"""var ${makePlural(cleanName(resolvedName._2))} = XList { new $resolvedType}
                         """
 
           case _ ⇒
@@ -244,7 +289,6 @@ import scala.language.implicitConversions
         out << s"def apply() = new $className"
         out << ""
       }
-      
 
       //-- Add An Automatic conversion from base type if it is a base type
       //---------------
@@ -256,7 +300,7 @@ import scala.language.implicitConversions
           classOf[IntegerBuffer] -> "Int",
           classOf[DoubleBuffer] -> "Double",
           classOf[BooleanBuffer] -> "Boolean"
-          
+
         )
 
         var classType = Thread.currentThread.getContextClassLoader().loadClass(element.classType.toString)
@@ -272,16 +316,14 @@ import scala.language.implicitConversions
               // Found base type for this Base data type
               case Some(baseType) ⇒
 
-              	 out << s"implicit def convertFromBaseDataType(data: $baseType) : $name =  { var res = new $name ; res.data = data; res; } "
-              
-              // Not found, just ouput a warning comment
-              case None           ⇒
-              
-               	out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
-              
-            }
+                out << s"implicit def convertFromBaseDataType(data: $baseType) : $name =  { var res = new $name ; res.data = data; res; } "
 
-           
+              // Not found, just ouput a warning comment
+              case None ⇒
+
+                out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
+
+            }
 
           case false ⇒
         }
