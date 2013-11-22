@@ -12,8 +12,9 @@ import java.io.PrintStream
 import java.io.CharArrayWriter
 import java.io.PrintWriter
 import java.net.URLEncoder
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 
-class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
+class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
 
   def top = "{" ~> jsonHierarchy <~ "}" ^^ {
 
@@ -33,7 +34,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
       r
   }
 
-  def jsonHierarchy: Parser[List[DataUnit]] = ("\"" ~> ("""[\w ]+""".r) ^^ { r => println(s"Start: $r"); r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValue, ",").? <~ ("}" ^^ { v => println(s"--Close"); v })) ^^ {
+  def jsonHierarchy: Parser[List[DataUnit]] = ("\"" ~> ("""[\w ]+""".r) ^^ { r => logFine(s"Start: $r"); r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValue, ",").? <~ ("}" ^^ { v => logFine(s"--Close"); v })) ^^ {
     r =>
 
       //   println("Matched JSON Hierarchy: " + r)
@@ -56,19 +57,34 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
       du :: (fl :+ DataUnit.closeHierarchy)
   }
 
-  def simpleValue: Parser[List[DataUnit]] = "\"" ~> ("""[\w ]+""".r) ~ ("\"" ~ ":" ~> ("\"" ~> ("""[^" ]+""".r) <~ "\"")) ^^ {
+  def simpleValue: Parser[List[DataUnit]] = "\"" ~> ("""[\w @]+""".r) ~ ("\"" ~ ":" ~> ("\"" ~> ("""[^" ]+""".r) <~ "\"")) ^^ {
     r =>
 
-      println(s"Matched Simple Value: " + r._2)
+      logFine(s"Matched Simple Value: " + r)
 
-      // !! Always send an element opening hierarchy, and a close just after
       var du = new DataUnit
-      du.hierarchical = true
-      du.element = new xelement_base
-      du.element.name = r._1
-      du.value = r._2
+      r._1 match {
+        // Attribute
+        case name if (name.startsWith("_@")) =>
 
-      List(du, DataUnit.closeHierarchy)
+          du.attribute = new xattribute_base
+          du.attribute.name = name.drop(2)
+          du.value = r._2
+
+          List(du)
+
+        // Element
+        // !! Always send an element opening hierarchy, and a close just after
+        case name =>
+
+          du.element = new xelement_base
+          du.element.name = r._1
+          du.hierarchical = true
+          du.value = r._2
+
+          List(du, DataUnit.closeHierarchy)
+      }
+
   }
 
   def multipleValues: Parser[List[DataUnit]] = ("\"" ~> ("""[\w ]+""".r)) ~ ("\"" ~> ":" ~> "[" ~> repsep(("\"" ~> ("""[^" ]+""".r) <~ "\""), ",") <~ "]") ^^ {
@@ -114,24 +130,20 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
   }
 
   var ignoreClose = false
-  var output : PrintWriter = null
-  
+  var output: PrintWriter = null
+
   override def streamOut(du: DataUnit): Unit = {
 
-    require(this.outputArray!=null)
-    if (output==null) {
-      
+    require(this.outputArray != null)
+    if (output == null) {
+
       output = new PrintWriter(this.outputArray)
     }
 
-    
-    
-   // println(s"Got streamout")
+    // println(s"Got streamout")
 
     (du.isHierarchyClose, du.hierarchical, du.element, du.value) match {
 
-     
-      
       // Open
       //---------
       case (close, true, element, value) if (element != null) =>
@@ -145,18 +157,18 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
         value match {
           case null =>
             output.println(s"{")
-          
-          case v  =>
-            output.println(s"""\"${URLEncoder.encode(value,"UTF8")}\",""")
-            
+
+          case v =>
+            output.println(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
+
             // Ignore next close, because this output does not need a normal close
             ignoreClose = true
         }
 
         // Close already?
         close match {
-          case true =>
-           // output.println("}")
+          case true  =>
+          // output.println("}")
           case false =>
         }
 
@@ -165,29 +177,34 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
       case (true, _, _, _) =>
 
         //   println(s"Close")
-      	ignoreClose match {
-      	  case true => ignoreClose = false
-      	  case false => output.println(s"""},""")
-      	}
-        
+        ignoreClose match {
+          case true  => ignoreClose = false
+          case false => output.println(s"""},""")
+        }
 
       // Single element with value
       //--------------------------------
-      case (false, false, element, value) if(element!=null) =>
+      case (false, false, element, value) if (element != null) =>
 
-        output.println(s""""${element.name}":"${URLEncoder.encode(value,"UTF8")}",""")
+        output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
         ignoreClose = true
-        
+
+      // Attribute
+      //---------------
+      case (false, false, null, value) if (du.attribute != null) =>
+
+        output.println(s""""_@${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\", """)
+
       // Value only
       //-------------------
       case (false, false, null, value) =>
 
-        output.println(s"""\"${URLEncoder.encode(value,"UTF8")}\",""")
+        output.println(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
         ignoreClose = true
 
       case (close, hier, element, value) =>
 
-        println(s"Not Supported construct: " + element)
+        logFine(s"Not Supported construct: " + element)
     }
 
     // Pass it on
@@ -196,13 +213,13 @@ class JsonIO(var stringInput: Reader = null, var outputArray : CharArrayWriter =
 
   }
 
-  def finish : String = {
-    
+  def finish: String = {
+
     // Resolve the wrongly defined ,} sequences, and remove the last ,
-    outputArray.toString().replace(",\n}","\n}").replace("\n","").dropRight(1)
-    
+    outputArray.toString().replace(",\n}", "\n}").replace("\n", "").dropRight(1)
+
   }
-  
+
   def cloneIO: com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer = {
     this
   }

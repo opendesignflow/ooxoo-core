@@ -14,12 +14,17 @@ import com.idyria.osi.ooxoo.core.buffers.structural.any
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.CharArrayWriter
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
+import com.idyria.osi.tea.logging.TLog
 
 @xelement(name = "Test")
 class Test extends ElementBuffer {
 
   @xelement(name = "SimpleElement")
   var simpleElement: XSDStringBuffer = null
+  
+  @xattribute(name = "attr1")
+  var attr1: XSDStringBuffer = null
 
   @xelement(name = "MultipleElement")
   var MultipleElement = XList { new XSDStringBuffer }
@@ -70,7 +75,7 @@ class JSONTest extends FunSuite {
   var input = """{
       
       "Test" : {
-       
+		  	"_@attr1" : "AttributeValue",
     		"SimpleElement" : "/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript",
     		"MultipleElement": ["1","2",
     		 "3"],
@@ -117,10 +122,15 @@ class JSONTest extends FunSuite {
     //--------------
     var io = new JsonIO(new StringReader(input2))
     io.streamIn
+    
+    io = new JsonIO(new StringReader(input))
+    io.streamIn
   }
 
   test("Simple Input to object") {
 
+    TLog.setLevel(classOf[JsonIO],TLog.Level.FULL)
+    
     // Create
     //------------------
     AnyXList(classOf[SubSubTest])
@@ -137,6 +147,8 @@ class JSONTest extends FunSuite {
     // Top
     expectResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(top.simpleElement.toString)
 
+    expectResult("AttributeValue")(top.attr1.toString)
+    
     expectResult(3)(top.MultipleElement.size)
 
     // Sub
@@ -159,6 +171,7 @@ class JSONTest extends FunSuite {
   test("Simple streamout output") {
 
     var top = new Test
+    top.attr1 = "Val"
     top.simpleElement = "Test"
     top.MultipleElement += "1"
     top.MultipleElement += "2"
