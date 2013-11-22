@@ -62,6 +62,9 @@ object AnyXList {
 
     /**
         Register a new model in the models map
+        
+        Models are registered as namespaced and non-namespaced.
+        Use namespaces in case it is unclear if any collisions happen
 
         @throws IllegalArgumentException if cannot determine xelement parameters from class
     */
@@ -79,6 +82,7 @@ object AnyXList {
         // Register
         //------------------
         this.modelsMap = this.modelsMap +((xelement.ns -> xelement.name) -> {du => cl.newInstance()}) 
+        this.modelsMap = this.modelsMap +(("" -> xelement.name) -> {du => cl.newInstance()}) 
     }
     
     def register[T  <: Buffer](implicit tag: ClassTag[T]) = {
@@ -97,6 +101,7 @@ object AnyXList {
     // Register
     //------------------
     this.modelsMap = this.modelsMap + ((xelement.ns -> xelement.name) -> { du ⇒ cl })
+    this.modelsMap = this.modelsMap + (("" -> xelement.name) -> { du ⇒ cl })
 
   }
     
