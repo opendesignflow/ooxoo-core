@@ -1,5 +1,6 @@
 package com.idyria.osi.ooxoo.core.buffers.datatypes
 
+import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 
@@ -31,9 +32,19 @@ abstract class EnumerationBuffer extends Enumeration with BaseBufferTrait {
   
   override def streamIn(du:DataUnit) = {
     
+    println(s"******** Streamin Enum buffer (${getClass.getSimpleName()}): ${du.value} // ${du.attribute}**********")
+    
+    // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
+    //----------------------------
+    if (du.isHierarchyClose) {
+      this.cleanIOChain
+    }
+    
+    // Record value
+    //---------------------
     du.value match {
       case null => 
-      case _ => this.withName(_)
+      case v => this.selectedValue = this.withName(v)
     }
     
     
@@ -64,10 +75,13 @@ abstract class EnumerationBuffer extends Enumeration with BaseBufferTrait {
     }
   }
   
+  /*def ==(value: FT#Value) : Boolean = {
+    this.toString
+  }*/
   
   def unapply[FT <: Enumeration](value: FT#Value) : Boolean = {
     
-    println("in unapply")
+    //println("in unapply")
     
     this.selectedValue match {
       case null => false

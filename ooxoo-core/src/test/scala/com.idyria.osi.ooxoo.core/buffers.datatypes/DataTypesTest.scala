@@ -136,7 +136,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
   class MapContainer extends ElementBuffer {
 
     @xelement(name = "MapContent")
-    var mapContent = MapBuffer { new IntegerBuffer}
+    var mapContent = MapBuffer { new IntegerBuffer }
 
   }
 
@@ -172,15 +172,15 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     //--------------
     expectResult(4)(reread.mapContent.size)
   }
-  
+
   @xelement
   class DataMapContainer extends ElementBuffer {
 
     @xelement(name = "MapContent")
-    var mapContent = DataMapBuffer[IntegerBuffer,IntegerBuffer](new IntegerBuffer, new IntegerBuffer)
+    var mapContent = DataMapBuffer[IntegerBuffer, IntegerBuffer](new IntegerBuffer, new IntegerBuffer)
 
   }
-  
+
   test("Data Map Buffer") {
 
     // Create Map Container
@@ -209,58 +209,69 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     //--------------
     expectResult(4)(reread.mapContent.size)
   }
-  
+
   @xelement
   class EnumContainer extends ElementBuffer {
 
     @xelement(name = "TestEnum")
-    var testEnum : TestEnum = null
+    var testEnum: TestEnum = new TestEnum
+
+    @xattribute(name = "attr")
+    var attr: TestEnum = new TestEnum
+
+    @xattribute(name = "attr2")
+    var attr2 = new com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer {
+
+      type state = Value
+      val stopped, running, closed = Value
+      def selectstopped: Unit = this select this.stopped
+      def selectrunning: Unit = this select this.running
+      def selectclosed: Unit = this select this.closed
+    }
 
   }
-  
+
   class TestEnum extends EnumerationBuffer {
-     
-     type TestEnum = Value
-    val A,B,C,D = Value
-    
+
+    type TestEnum = Value
+    val A, B, C, D = Value
+
   }
   object TestEnum extends Enumeration {
-    
-      type TestEnum = Value
-      val A,B,C,D = Value
-      
-      def unapply[FT <: EnumerationBuffer](value: FT#Value) : Boolean = {
-    
-    println("in unapply")
-    
-    value match {
-      case null => true
-      case v if (v.toString()==value.toString()) => true
-      case _ => false
+
+    type TestEnum = Value
+    val A, B, C, D = Value
+
+    def unapply[FT <: EnumerationBuffer](value: FT#Value): Boolean = {
+
+      println("in unapply")
+
+      value match {
+        case null                                    => true
+        case v if (v.toString() == value.toString()) => true
+        case _                                       => false
+      }
+
     }
-    
+
   }
-    
-    
-  }
-  
-  
+
   test("Enum Buffer") {
-    
+
     // Create Container
     var container = new EnumContainer
     container.testEnum = new TestEnum
-   // container.testEnum.selectedValue = container.testEnum.A
+    // container.testEnum.selectedValue = container.testEnum.A
 
-   // container.testEnum select container.testEnum.B
-    
+    // container.testEnum select container.testEnum.B
+
     container.testEnum select TestEnum.C
-    
-   /* container.testEnum.selectedValue match {
+
+    /* container.testEnum.selectedValue match {
       case TestEnum.C => println("Value is C")
       case _ => println("Value is not C")
     }*/
-    
+
     // Streamout
     //-----------------
     var outStream = new ByteArrayOutputStream
@@ -272,6 +283,16 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     // Streamin
     //-----------------
+    container = new EnumContainer
+    io = StAXIOBuffer("""<?xml version="1.0" ?><EnumContainer  attr="C" attr2="closed"><TestEnum>C</TestEnum></EnumContainer>""")
+    container.appendBuffer(io)
+    io.streamIn
+
+    assert(container.testEnum != null)
+    expectResult(container.testEnum.C)(container.testEnum.selectedValue)
+    expectResult(container.attr.C)(container.attr.selectedValue)
+    expectResult(container.attr2.closed)(container.attr2.selectedValue)
+
     /*var reread = new MapContainer
     io = new StAXIOBuffer(new ByteArrayInputStream(outStream.toByteArray()))
     reread.appendBuffer(io)
@@ -280,8 +301,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // Check
     //--------------
     //expectResult(4)(reread.mapContent.size)
-    
-    
+
   }
 
 }

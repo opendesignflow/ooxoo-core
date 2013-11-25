@@ -347,13 +347,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             logFine[VerticalBuffer](s"Found element Buffer to pass in value: ${du.value}")
 
-            // Increase Stack size if we are fetching a non hierarchical buffer as a hierarchy in this element
-            // Typical: Elements that only contain a value, and thus are DataBuffers which are non hierarchical
-
-            if (!buffer.isInstanceOf[HierarchicalBuffer]) {
-              // Increase Stack Size
-              //this.stackSize+=1
-            }
+           
 
             //   println(s"Got an XML element for subfield: ${du.element.name}, stack size is now: ${stackSize}");
 
@@ -439,6 +433,10 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       case m ⇒ throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
     }
+    
+    // Call parent
+    super.streamIn(du)
+    
 
   }
 
@@ -479,7 +477,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    * Finds the attribute field of current class, matching provided name
    * Instanciate or return the reference to the Buffer
    */
-  private def getAttributeField(name: QName): Option[AbstractDataBuffer[AnyRef]] = {
+  private def getAttributeField(name: QName): Option[Buffer] = {
 
     logFine[VerticalBuffer]("*Looking for field for attribute: " + name.getLocalPart())
 
@@ -501,7 +499,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         logFine[VerticalBuffer](s"*Found field: $name")
 
         // Get Value
-        var fieldValue: AbstractDataBuffer[AnyRef] = ScalaReflectUtils.getFieldValue(this, targetField)
+        var fieldValue : Buffer = ScalaReflectUtils.getFieldValue(this, targetField)
 
         // Instanciate
         //------------------
