@@ -36,10 +36,26 @@
 					</execution>
 				</executions>
 			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.scalatest</groupId> -->
+<!-- 				<artifactId>scalatest-maven-plugin</artifactId> -->
+<!-- 				<configuration> -->
+<!-- 					<argLine>-oF</argLine> -->
+<!-- 				</configuration> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<id>test</id> -->
+<!-- 						<goals> -->
+<!-- 							<goal>test</goal> -->
+<!-- 						</goals> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
 		</plugins>
 	</build>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
 			<artifactId>xml-utils</artifactId>
@@ -47,10 +63,6 @@
 		<dependency>
 			<groupId>com.idyria.osi.java-utils</groupId>
 			<artifactId>security-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.idyria.osi.java-utils</groupId>
-			<artifactId>tea</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.idyria.osi.tea</groupId>
@@ -76,7 +88,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.10</artifactId>
+			<version>2.0</version>
+		</dependency>
 	</dependencies>
-
 
 </project>
