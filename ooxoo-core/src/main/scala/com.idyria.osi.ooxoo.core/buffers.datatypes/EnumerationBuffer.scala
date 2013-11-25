@@ -32,7 +32,7 @@ abstract class EnumerationBuffer extends Enumeration with BaseBufferTrait {
   
   override def streamIn(du:DataUnit) = {
     
-    println(s"******** Streamin Enum buffer (${getClass.getSimpleName()}): ${du.value} // ${du.attribute}**********")
+    //println(s"******** Streamin Enum buffer (${getClass.getSimpleName()}): ${du.value} // ${du.attribute}**********")
     
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
     //----------------------------

@@ -59,38 +59,35 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
   override def pull(du: DataUnit): DataUnit = {
 
     // Only Cache value if Transaction is enabled
-	  //--------------------------
-	  Transaction() match {
-	
-	    // Let through
-	    case Transaction.Stopped(transaction) ⇒
-	
-	      this.pullDataUnit = null
-	      super.pull(du)
-	
-	    // Retain
-	    case _ ⇒
-	    	
-	    // Return cached value if available, otherwise delegate
-	    if (pullDataUnit != null) {
-	      logFine("Returning cached value")
-	      this.pullDataUnit
-	    } else {
-	
-	      // Register to Transaction if not already
-	      Transaction()(transactionAction)
-	
-	      
-	
-	    }
-	    
-       // Pull, cache and return
-       this.pullDataUnit = super.pull(du)
-       this.pullDataUnit
-	
-	  }
-    
-    
+    //--------------------------
+    Transaction() match {
+
+      // Stopped -> D nothing
+      //-----------------------
+      case Transaction.Stopped(transaction) ⇒
+
+        this.pullDataUnit = null
+        super.pull(du)
+
+      // Cache, but no value already
+      case _ if (pullDataUnit == null) ⇒
+
+      	logFine("Pulling and caching value")
+      
+        // Pull, cache and return
+        // Register to Transaction if not already
+        Transaction()(transactionAction)
+        this.pullDataUnit = super.pull(du)
+        this.pullDataUnit
+
+      // Return Cached value
+      case _ =>
+
+        logFine("Returning cached value")
+        this.pullDataUnit
+
+    }
+
   }
 
   // Put
@@ -189,14 +186,14 @@ class Transaction {
 
     // Change State
     //-------------
-    var oldState =  this.state
+    var oldState = this.state
     this.state = Transaction.State.Commit
 
     // Execute The actions
     //  - Catch Errors and call roll back if needed
     //----------------------
     actions.foreach(_(this))
-    
+
     // Come back to previous state
     //-------------
     this.state = oldState

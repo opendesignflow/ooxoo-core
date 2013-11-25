@@ -1,275 +1,252 @@
 package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
+import org.scalatest.BeforeAndAfterEach
+import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
+import org.scalatest.GivenWhenThen
+import org.scalatest.matchers.ShouldMatchers
+import com.idyria.osi.tea.listeners.ListeningSupport
+import org.scalatest.FeatureSpec
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
+import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
+import org.scalatest.Matchers
+import com.idyria.osi.tea.logging.TLog
 
+class TransactionBufferTest extends FeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterEach {
 
-import org.scalatest._
-import org.scalatest.matchers._
+  override def beforeEach = {
+    Transaction.discardAll
+  }
 
+  /**
+   * Buffer designed to catch transaction propagations and report what it saw
+   */
+  //class ReceiveTransactionBuffer extends BaseBufferTrait with ListeningSupport {
 
-import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
-import com.idyria.osi.ooxoo.core.buffers.structural._
-import com.idyria.osi.ooxoo.core.buffers.datatypes._
+  //}
 
-import com.idyria.osi.tea.listeners._
+  feature("Transaction Begin") {
 
+    scenario("Two Begins in one thread give one transaction") {
 
-class TransactionBufferTest extends FeatureSpec with GivenWhenThen  with ShouldMatchers with BeforeAndAfterEach {
+      var transaction1 = Transaction()
+      var transaction2 = Transaction()
 
-
-
-    override def beforeEach = {
-        Transaction.discardAll
-    }
-
-
-
-
-
-
-
-
-    /**
-        Buffer designed to catch transaction propagations and report what it saw
-    */
-    class ReceiveTransactionBuffer extends BaseBufferTrait  with ListeningSupport {
-
-
-
+      assert(transaction1.hashCode == transaction2.hashCode)
 
     }
 
+    scenario("Two Begins in one thread give Two threads give two transactions") {
 
-    feature("Transaction Begin") {
+      Given("A Transaction from one thread")
 
-         scenario("Two Begins in one thread give one transaction") {
+      var transaction1: Transaction = null
+      var th1 = new Thread() {
+        override def run() = {
+          transaction1 = Transaction()
+        }
+      }
 
-            var transaction1 = Transaction()
-            var transaction2 = Transaction()
+      And("A transaction fron another thread")
 
-            assert(transaction1.hashCode == transaction2.hashCode)
+      var transaction2: Transaction = null
+      var th2 = new Thread() {
+        override def run() = {
+          transaction2 = Transaction()
+        }
+      }
 
-         }
+      Then("The two transactions are different")
+      th1.start();
+      th2.start();
+      List(th1, th2).foreach(_.join)
 
-         scenario("Two Begins in one thread give Two threads give two transactions") {
+      assert(transaction1.hashCode != transaction2.hashCode)
 
-            Given ("A Transaction from one thread")
+    }
 
-            var transaction1 : Transaction = null
-            var th1 = new Thread() {
-                override def run() = {
-                    transaction1 = Transaction()
-                }
-            }
+    scenario(" Transaction Data Unit Holding") {
 
-            And("A transaction fron another thread")
+      Given("A Transactional Buffer chain")
+      //--------------------
 
-            var transaction2 : Transaction = null
-            var th2 = new Thread() {
-                override def run() = {
-                    transaction2 = Transaction()
-                }
-            }
+      var baseBuffer = new LongBuffer()
+      baseBuffer - new TransactionBuffer()
 
+      Transaction.join {
 
-            Then("The two transactions are different")
-            th1.start();
-            th2.start();
-            List(th1,th2).foreach(_.join)
+        When("Setting Value on base long buffer")
+        //------------
+        baseBuffer.set(42)
 
-            assert(transaction1.hashCode != transaction2.hashCode)
+        Then(" there is transaction in TransactionBuffer, with one registered partitial function")
+        //---------------
+        var transaction = Transaction()
+        assert(transaction != null, "Transaction for current Thread must not be null")
 
-         }
+        transaction.actions.size should equal(1)
 
-        scenario(" Transaction Data Unit Holding") {
+        And("If resetting value on same buffer, only one action is still present")
+        baseBuffer.set(42)
+        transaction.actions.size should equal(1)
 
-            Given("A Transactional Buffer chain")
-            //--------------------
+      }
+    }
 
-            var baseBuffer = new LongBuffer()
-            baseBuffer - new TransactionBuffer()
+  }
 
-            Transaction.join {
-                       
-	            When("Setting Value on base long buffer")
-	            //------------
-	            baseBuffer.set(42)
-	
-	            Then(" there is transaction in TransactionBuffer, with one registered partitial function")
-	            //---------------
-	            var transaction = Transaction()
-	            assert(transaction!=null,"Transaction for current Thread must not be null")
-	
-	            transaction.actions.size should equal (1)
-	
-	            And("If resetting value on same buffer, only one action is still present")
-	            baseBuffer.set(42)
-	            transaction.actions.size should equal (1)
-            
-            }
+  feature("Transaction Commit") {
+
+    scenario("Single Value set commit ") {
+
+      Given("A Transactional Buffer chain")
+      //--------------------
+      var resultDataUnit: DataUnit = null
+      var baseBuffer = new LongBuffer()
+      baseBuffer - new TransactionBuffer()
+      baseBuffer - new BaseBufferTrait() {
+
+        override def pushRight(du: DataUnit) = {
+          resultDataUnit = du
         }
 
-    }
+      }
 
-    feature("Transaction Commit") {
+      Transaction.join {
 
+        When("Setting Value on base start buffer, ")
+        //------------------------------
+        baseBuffer.set(42)
 
-        scenario("Single Value set commit ") {
+        Then("the receiving buffer should't get any results")
+        //-----------------------------
+        expectResult(null)(resultDataUnit)
 
-            Given("A Transactional Buffer chain")
-            //--------------------
-            var resultDataUnit : DataUnit = null
-            var baseBuffer = new LongBuffer()
-            baseBuffer - new TransactionBuffer()
-            baseBuffer - new BaseBufferTrait() {
+        When("commiting the transaction")
+        //---------------------------------
+        Transaction().commit
 
-                override def pushRight(du:DataUnit) = {
-                    resultDataUnit = du
-                }
+        Then("The holded data unit gets received by the buffer after transaction buffer")
+        //---------------------
+        assert(resultDataUnit != null)
 
-            }
-
-            Transaction.join {
-            
-	            When("Setting Value on base start buffer, ")
-	            //------------------------------
-	            baseBuffer.set(42)
-	
-	            Then("the receiving buffer should't get any results")
-	            //-----------------------------
-	            expectResult(null)(resultDataUnit)
-	
-	            
-	            When("commiting the transaction")
-	            //---------------------------------
-	            Transaction().commit
-	
-	            Then("The holded data unit gets received by the buffer after transaction buffer")
-	            //---------------------
-	            assert(resultDataUnit!=null)
-
-            }
-
-        }
-
-        scenario("Multiple Buffer commit") (pending)
-
+      }
 
     }
 
-    feature("Transaction Cancel") {
+    scenario("Multiple Buffer commit")(pending)
 
-        scenario("Single Cancel") {
+  }
 
-            Given("A Transactional Buffer chain")
-            //--------------------
-            var resultDataUnit : DataUnit = null
-            var baseBuffer = new LongBuffer()
-            baseBuffer - new TransactionBuffer()
-            baseBuffer - new BaseBufferTrait() {
+  feature("Transaction Cancel") {
 
-                override def pushRight(du:DataUnit) = {
-                    resultDataUnit = du
-                }
+    scenario("Single Cancel") {
 
-            }
-            
-            Transaction().begin
+      Given("A Transactional Buffer chain")
+      //--------------------
+      var resultDataUnit: DataUnit = null
+      var baseBuffer = new LongBuffer()
+      baseBuffer - new TransactionBuffer()
+      baseBuffer - new BaseBufferTrait() {
 
-            When("Setting Value on base start buffer, ")
-            //------------------------------
-            baseBuffer.set(42)
-
-
-            And("Cancelling the transaction")
-            //---------------------------------
-            var transaction = Transaction()
-            Transaction().cancel
-
-            Then("No result should be received")
-            //-----------------------
-            assert(resultDataUnit==null)
-
-            And("Transaction has been discarded")
-            //----------------
-            var transactionAfterCancel = Transaction()
-            assert(transaction.hashCode != transactionAfterCancel.hashCode)
-            expectResult(Transaction.State.Stopped)(transactionAfterCancel.state)
-
-
+        override def pushRight(du: DataUnit) = {
+          resultDataUnit = du
         }
+
+      }
+
+      Transaction().begin
+
+      When("Setting Value on base start buffer, ")
+      //------------------------------
+      baseBuffer.set(42)
+
+      And("Cancelling the transaction")
+      //---------------------------------
+      var transaction = Transaction()
+      Transaction().cancel
+
+      Then("No result should be received")
+      //-----------------------
+      assert(resultDataUnit == null)
+
+      And("Transaction has been discarded")
+      //----------------
+      var transactionAfterCancel = Transaction()
+      assert(transaction.hashCode != transactionAfterCancel.hashCode)
+      expectResult(Transaction.State.Stopped)(transactionAfterCancel.state)
+
     }
+  }
 
-    feature("Transaction Rollback") {
+  feature("Transaction Rollback") {
 
-        scenario("Single Rollback") {
-
-
-
-
-        }
+    scenario("Single Rollback") {
 
     }
 
+  }
 
-    feature("Transaction Initiator") {
+  feature("Transaction Initiator") {
 
+    scenario("No Initiator Provided") {
 
-        scenario("No Initiator Provided") {
+      Given("A Normal transaction")
+      var tr = Transaction()
 
-
-            Given("A Normal transaction")
-            var tr = Transaction()
-
-            Then("Initiator must be null")
-            assert(tr.initiator == null)
-
-        }
-
-        scenario("Initiator Provided") {
-
-
-            Given("A Normal transaction")
-            var tr = Transaction(TransactionBufferTest.this)
-
-            Then("Initiator must be null")
-
-            expectResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
-
-        }
+      Then("Initiator must be null")
+      assert(tr.initiator == null)
 
     }
 
-    feature("Transaction Read Cache") {
+    scenario("Initiator Provided") {
 
-        Given("A Transactional Buffer chain")
-        //--------------------
-        var resultDataUnit : DataUnit = null
-        var pullCount = 0
-        var baseBuffer = new LongBuffer()
-        baseBuffer - new TransactionBuffer()
-        baseBuffer - new BaseBufferTrait() {
+      Given("A Normal transaction")
+      var tr = Transaction(TransactionBufferTest.this)
 
-            pullCount = 0
+      Then("Initiator must be null")
 
-            override def pull(du:DataUnit) : DataUnit = {
-                pullCount+=1
-                du.value = "45"
-                du
-            }
-
-        }
-
-        Then("Pulling Twice, should trigger only one pull on the buffer behind the transactional buffer")
-        baseBuffer.pull()
-        baseBuffer.pull()
-
-        expectResult(1)(pullCount)
-
-
-
+      expectResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
 
     }
 
+  }
+
+  feature("Transaction Read Cache") {
+ 
+    scenario("Simple Read Cache") {
+
+      Given("A Transactional Buffer chain")
+      //--------------------
+      TLog.setLevel(classOf[TransactionBuffer], TLog.Level.FULL)
+      var resultDataUnit: DataUnit = null
+      var pullCount = 0
+      var baseBuffer = new LongBuffer()
+      baseBuffer - new TransactionBuffer()
+      baseBuffer - new BaseBufferTrait() {
+
+        pullCount = 0
+
+        override def pull(du: DataUnit): DataUnit = {
+          pullCount += 1
+          du.value = "45"
+          du
+        }
+
+      }
+      
+      And("The transaction gets started")
+      Transaction.discardAll
+      Transaction().begin
+
+      Then("Pulling Twice, should trigger only one pull on the buffer behind the transactional buffer")
+      baseBuffer.pull()
+      baseBuffer.pull()
+
+      assertResult(1)(pullCount)
+
+    }
+
+  }
 
 }
 

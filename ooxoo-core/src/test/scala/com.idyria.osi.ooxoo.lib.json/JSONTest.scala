@@ -17,6 +17,7 @@ import java.io.CharArrayWriter
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
+import org.scalatest.BeforeAndAfter
 
 @xelement(name = "Test")
 class Test extends ElementBuffer {
@@ -100,8 +101,19 @@ object Action {
 
 }
 
-class JSONTest extends FunSuite {
+/**
+ * Main test
+ */
+class JSONTest extends FunSuite with BeforeAndAfter {
 
+  after {
+    
+	 TLog.resetLevels
+    
+  }
+  
+  
+  
   var input = """{
       
       "Test" : {

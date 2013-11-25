@@ -3,12 +3,10 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
-
 
 /**
  * Just a type marker
@@ -280,27 +278,29 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
         // Try to import value in case the Element Opening also contains a value
         //-----------------------------
-      	// Try to import if possible
-        //---------------
-        this match {
+        (du.value, this) match {
+
+          // No value, do nothing
+          case (null, _)                      =>
 
           //-- Call Import data unit if we are a databuffer
           //---------------
-          case db: AbstractDataBuffer[_] ⇒ db.importDataUnit(du)
+          case (_, db: AbstractDataBuffer[_]) ⇒ db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
-          case _ ⇒
+          case (_, _) ⇒
 
-            (this.getXContentField,this.getIOChain) match {
-              case (Some(content),Some(ios)) ⇒
-              	content.appendBuffer(ios)
-              	content <= du
-              case _          ⇒
+            //logFine[VerticalBuffer]("Trying to set ")
+            (this.getXContentField, this.getIOChain) match {
+              case (Some(content), Some(ios)) ⇒
+                content.appendBuffer(ios)
+                content <= du
+              case _ ⇒
             }
 
         }
-      
+
         // Set hierarchy
         if (du.hierarchical)
           this.inHierarchy = true;
@@ -346,8 +346,6 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
           case Some(buffer) ⇒
 
             logFine[VerticalBuffer](s"Found element Buffer to pass in value: ${du.value}")
-
-           
 
             //   println(s"Got an XML element for subfield: ${du.element.name}, stack size is now: ${stackSize}");
 
@@ -433,10 +431,9 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       case m ⇒ throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
     }
-    
+
     // Call parent
     super.streamIn(du)
-    
 
   }
 
@@ -499,7 +496,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         logFine[VerticalBuffer](s"*Found field: $name")
 
         // Get Value
-        var fieldValue : Buffer = ScalaReflectUtils.getFieldValue(this, targetField)
+        var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, targetField)
 
         // Instanciate
         //------------------
