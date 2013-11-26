@@ -12,7 +12,7 @@ class BooleanBuffer extends AbstractDataBuffer[java.lang.Boolean] with Comparabl
         this.data
     }
 
-    def dataToString : String = if (data!=null) this.data.toString() else "No value"
+    def dataToString : String = if (data!=null) this.data.toString() else null
 
     override def toString : String = this.dataToString
 

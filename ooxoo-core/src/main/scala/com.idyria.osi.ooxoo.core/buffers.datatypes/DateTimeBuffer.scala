@@ -43,7 +43,7 @@ class DateTimeBuffer extends AbstractDataBuffer[java.util.GregorianCalendar] wit
 
   }
 
-  def dataToString: String = if (data != null) String.format("%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS%tz", this.data); else "No value"
+  def dataToString: String = if (data != null) String.format("%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS%tz", this.data); else null
 
   override def toString: String = this.dataToString
 

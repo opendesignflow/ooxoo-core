@@ -56,7 +56,7 @@ class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java
         return this.data
     }
 
-    def dataToString : String = if (data!=null) this.data.toString() else "No value"
+    def dataToString : String = if (data!=null) this.data.toString() else null
 
     override def toString : String = this.dataToString
 
@@ -102,7 +102,7 @@ class DoubleBuffer extends AbstractDataBuffer[java.lang.Double] with Comparable[
         this.data
     }
 
-    def dataToString : String =  if (data!=null) this.data.toString() else "No value"
+    def dataToString : String =  if (data!=null) this.data.toString() else null
 
     override def toString : String = this.dataToString
 
@@ -138,7 +138,7 @@ class FloatBuffer extends AbstractDataBuffer[java.lang.Float] with Comparable[ja
         this.data
     }
 
-    def dataToString : String = if (data!=null) this.data.toString() else "No value"
+    def dataToString : String = if (data!=null) this.data.toString() else null
 
     override def toString : String = this.dataToString
 

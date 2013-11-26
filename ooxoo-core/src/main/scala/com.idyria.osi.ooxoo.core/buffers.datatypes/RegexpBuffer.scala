@@ -15,7 +15,7 @@ class RegexpBuffer extends AbstractDataBuffer[Regex] {
      
    }
    
-   def dataToString : String = if (data!=null) data.pattern.pattern(); else "No value"
+   def dataToString : String = if (data!=null) data.pattern.pattern(); else null
 
    override def toString : String = this.dataToString
   
