@@ -69,11 +69,17 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
         this.pullDataUnit = null
         super.pull(du)
 
+      // Blocked -> Always return the dataunit as it is cached right now
+      //--------------
+      case Transaction.Blocking(transaction) =>
+
+        this.pullDataUnit
+
       // Cache, but no value already
       case _ if (pullDataUnit == null) ⇒
 
-      	logFine("Pulling and caching value")
-      
+        logFine("Pulling and caching value")
+
         // Pull, cache and return
         // Register to Transaction if not already
         Transaction()(transactionAction)
@@ -229,6 +235,20 @@ class Transaction {
   }
 
   /**
+   * Block:
+   *
+   * - Cache the Push
+   * - Pull always returns nothing
+   */
+  def block() = {
+
+    // Change State
+    //-------------
+    this.state = Transaction.State.Blocking
+
+  }
+
+  /**
    * Discard Transaction
    * Discard is called at the end of a transaction to cleanup
    */
@@ -254,7 +274,7 @@ object Transaction extends TLogSource {
    */
   object State extends Enumeration {
     type State = Value
-    val Stopped, Pending, Commit, Cancel, Rollback, Discard = Value
+    val Stopped, Pending, Commit, Cancel, Rollback, Discard, Blocking = Value
   }
 
   object Stopped {
@@ -292,6 +312,16 @@ object Transaction extends TLogSource {
 
     def unapply(transaction: Transaction): Option[Transaction] = {
       if (transaction.state == Transaction.State.Discard)
+        return Option(transaction)
+      else
+        return None
+    }
+  }
+
+  object Blocking {
+
+    def unapply(transaction: Transaction): Option[Transaction] = {
+      if (transaction.state == Transaction.State.Blocking)
         return Option(transaction)
       else
         return None
@@ -347,6 +377,7 @@ object Transaction extends TLogSource {
 
   /**
    * Create a transaction, and stack it for the current thread
+   * If the initiator is not provided, use the previous one if possible
    */
   def begin(implicit initiator: AnyRef = null): Transaction = {
 
@@ -363,7 +394,10 @@ object Transaction extends TLogSource {
 
         // Create
         var transaction = new Transaction
-        transaction.initiator = initiator
+        transaction.initiator = initiator match {
+          case null      => transactions.head.initiator
+          case initiator => initiator
+        }
 
         // Stack
         transactions.push(transaction)
@@ -434,6 +468,39 @@ object Transaction extends TLogSource {
 
     currentTransactions.foreach { case (th, tr) ⇒ tr.foreach(discard(_)) }
 
+  }
+
+  /**
+   * Creates a new sub transaction in blocking mode, and commit it at the end
+   */
+  def doBlocking(cl: => Any): Any = {
+
+    //-- Create transaction
+    var transaction = Transaction.begin()
+    transaction.block
+    
+    //-- Execute
+    try {
+      cl
+      
+      //-- Commit
+      transaction.commit
+      
+    } catch {
+      
+      //-- Always rollback in case of error
+      case e : Throwable => 
+        transaction.cancel
+        throw e
+    } finally {
+      
+      // Discard Transaction (block is done)
+      Transaction.discard(transaction)
+      
+    }
+    
+    
+    
   }
 
 }
