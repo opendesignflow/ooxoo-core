@@ -7,6 +7,7 @@ import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
 
 /**
  * Just a type marker
@@ -22,7 +23,7 @@ trait HierarchicalBuffer {
  * @author rleys
  *
  */
-trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSource {
+trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSource with ReflectUtilsTrait {
 
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
@@ -74,14 +75,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     }*/
 
     try {
-      ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+      this.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
         f ⇒
 
           // println(s"Streamout for attribute "+f.getName)
           try {
 
             //-- Get value
-            var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
+            var value =  this.getFieldValue(this, f).asInstanceOf[Buffer]
 
             //-- streamOut
             this.getIOChain match {
@@ -116,11 +117,11 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Sub Elements
     //-------------------
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+    this.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
       f ⇒
 
         //-- Get value
-        var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
+        var value = this.getFieldValue(this, f).asInstanceOf[Buffer]
 
         //-- streamOut
         this.getIOChain match {
@@ -151,7 +152,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Any
     //-----------------
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+    this.getAnnotatedFields(this, classOf[any]).filter(this.getFieldValue(this, _) != null).foreach {
 
       f ⇒
 
@@ -177,14 +178,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Content
     //---------------
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[xcontent]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
+    this.getAnnotatedFields(this, classOf[xcontent]).filter(this.getFieldValue(this, _) != null).foreach {
 
       f ⇒
 
         // println(s"Streamout for xcontent field in ${getClass}")
 
         //-- Get value
-        var value = ScalaReflectUtils.getFieldValue(this, f).asInstanceOf[Buffer]
+        var value = this.getFieldValue(this, f).asInstanceOf[Buffer]
 
         //-- streamOut
         this.getIOChain match {
@@ -447,7 +448,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[xelement]).filter {
+    this.getAnnotatedFields(this, classOf[xelement]).filter {
       a ⇒
         var xelt = xelement_base(a)
         //logFine[VerticalBuffer]("xelement annotation name:/"+xelt.name+"/");
@@ -458,9 +459,9 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       case x if (!x.isEmpty) ⇒
 
         // Get Value
-        var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, x.head)
+        var fieldValue: Buffer = this.getFieldValue(this, x.head)
         if (fieldValue == null)
-          fieldValue = ScalaReflectUtils.instanciateFieldValue(this, x.head)
+          fieldValue = this.instanciateFieldValue(this, x.head)
         return Option(fieldValue)
 
       case _ ⇒
@@ -479,7 +480,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     logFine[VerticalBuffer]("*Looking for field for attribute: " + name.getLocalPart())
 
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
-    ScalaReflectUtils.getAnnotatedFields(this, classOf[xattribute]).filter {
+    this.getAnnotatedFields(this, classOf[xattribute]).filter {
       f ⇒
         var xattr = xattribute_base(f);
         //        	logFine[VerticalBuffer]("Found field with xattribute annotation, and name:"+xattr.name)
@@ -496,14 +497,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         logFine[VerticalBuffer](s"*Found field: $name")
 
         // Get Value
-        var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, targetField)
+        var fieldValue: Buffer = this.getFieldValue(this, targetField)
 
         // Instanciate
         //------------------
         if (fieldValue == null) {
 
           logFine[VerticalBuffer](s"Instanciating field for attribute: $name")
-          fieldValue = ScalaReflectUtils.instanciateFieldValue(this, targetField)
+          fieldValue = this.instanciateFieldValue(this, targetField)
 
         }
 
@@ -520,18 +521,18 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
   /**
    * Only returns the first found field marked as @any
    */
-  protected def getAnyField: Option[Buffer] = ScalaReflectUtils.getAnnotatedFields(this, classOf[any]).headOption match {
+  protected def getAnyField: Option[Buffer] = this.getAnnotatedFields(this, classOf[any]).headOption match {
 
     case Some(field) ⇒
 
       // Get Value
-      var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, field)
+      var fieldValue: Buffer = this.getFieldValue(this, field)
 
       // Instanciate
       //------------------
       if (fieldValue == null) {
 
-        fieldValue = ScalaReflectUtils.instanciateFieldValue(this, field)
+        fieldValue = this.instanciateFieldValue(this, field)
 
       }
 
@@ -544,18 +545,18 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
   /**
    * Only returns the first found field marked as @content, with instanciated type
    */
-  protected def getXContentField: Option[Buffer] = ScalaReflectUtils.getAnnotatedFields(this, classOf[xcontent]).headOption match {
+  protected def getXContentField: Option[Buffer] = this.getAnnotatedFields(this, classOf[xcontent]).headOption match {
 
     case Some(field) ⇒
 
       // Get Value
-      var fieldValue: Buffer = ScalaReflectUtils.getFieldValue(this, field)
+      var fieldValue: Buffer = this.getFieldValue(this, field)
 
       // Instanciate
       //------------------
       if (fieldValue == null) {
 
-        fieldValue = ScalaReflectUtils.instanciateFieldValue(this, field)
+        fieldValue = this.instanciateFieldValue(this, field)
 
       }
 
