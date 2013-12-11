@@ -220,6 +220,10 @@ class XList[T <: Buffer](
 }
 object XList {
 
+  def apply[T <: Buffer](implicit tag:ClassTag[T]) : XList[T] = {
+    return new XList[T]( du => tag.runtimeClass.newInstance().asInstanceOf[T])
+  }
+  
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */

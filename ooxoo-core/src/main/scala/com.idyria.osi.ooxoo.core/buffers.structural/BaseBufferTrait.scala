@@ -200,12 +200,15 @@ trait BaseBufferTrait extends Buffer {
 */
 
 
-  def streamIn(du: DataUnit) = {
+  override def streamIn(du: DataUnit) = {
 
+    
     // Pass
     if (this.previousBuffer!=null)
       this.previousBuffer <= du
 
+    
+      
   }
 
 }

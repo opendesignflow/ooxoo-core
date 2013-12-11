@@ -134,6 +134,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
       @->("element.start", left)
 
       left.classType = getType(right.toLowerCase()).getCanonicalName
+      left.imported = true
 
       @->("element.end", left)
 

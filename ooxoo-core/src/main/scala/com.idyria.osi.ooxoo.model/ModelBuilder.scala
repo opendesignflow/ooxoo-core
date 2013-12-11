@@ -114,6 +114,12 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
       
     }
     
+    /**
+     * Create a new Element in current, which has the direct class type names and such of the provided className
+     * Per default, the last part of the qualified class name is used as element name
+     */
+    def importElement(element: Element) : Element = importElement(element.name)
+    
     
     /**
      * Set class type of current element to the one matching a standard type
@@ -305,6 +311,14 @@ trait Common {
     @xelement(name="EnumerationValues")
     var enumerationValues = XList{ new XSDStringBuffer}
     
+    /**
+     * Sets the appropriate maxOccurs or boolean so that a List gets generated
+     */
+    def setMultiple = {
+      
+      maxOccurs = 2
+      
+    }
 
 }
 

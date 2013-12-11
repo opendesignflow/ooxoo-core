@@ -36,21 +36,21 @@
 					</execution>
 				</executions>
 			</plugin>
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.scalatest</groupId> -->
-<!-- 				<artifactId>scalatest-maven-plugin</artifactId> -->
-<!-- 				<configuration> -->
-<!-- 					<argLine>-oF</argLine> -->
-<!-- 				</configuration> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<id>test</id> -->
-<!-- 						<goals> -->
-<!-- 							<goal>test</goal> -->
-<!-- 						</goals> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin> -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.scalatest</groupId> -->
+			<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
+			<!-- <configuration> -->
+			<!-- <argLine>-oF</argLine> -->
+			<!-- </configuration> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>test</id> -->
+			<!-- <goals> -->
+			<!-- <goal>test</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 		</plugins>
 	</build>
 
@@ -92,6 +92,11 @@
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_2.10</artifactId>
 			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.atteo</groupId>
+			<artifactId>evo-inflector</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 	</dependencies>
 

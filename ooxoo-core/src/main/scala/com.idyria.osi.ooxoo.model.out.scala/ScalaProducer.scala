@@ -7,6 +7,8 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.BooleanBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.IntegerBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.DoubleBuffer
+import org.atteo.evo.inflector.English
+import com.idyria.osi.ooxoo.core.buffers.datatypes.CDataBuffer
 
 /**
  * This Producer creates scala class implementations for the models
@@ -19,7 +21,7 @@ class ScalaProducer extends ModelProducer {
   // Name Cleaning
   //-------------------
 
-  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object")
+  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object","type","lazy","extends","with")
 
   /**
    * Returns a scala friendly name from base name, without reserved keywords etc...
@@ -31,7 +33,7 @@ class ScalaProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
-      case true  ⇒ res = "_" + res
+      case true  ⇒ res = res + "_"
       case false ⇒
     }
 
@@ -43,10 +45,14 @@ class ScalaProducer extends ModelProducer {
    */
   def makePlural(name:String) : String = {
     
-    name.last match {
-      case 's' => name+"es"
-      case _ => name+"s"
-    }
+    English.plural(name)
+    /*
+    name match {
+      case name if (name.matches(".*[aeiou]s")) => name+"es"
+      case name if (name.matches(".*s")) => name
+      case name if (name.matches(".*e")) => name+"s"
+      case _ => name+"es"
+    }*/
   }
   
   /**
@@ -210,7 +216,7 @@ import scala.language.implicitConversions
           case count if (count > 1) ⇒
 
           	
-            out << s"""var ${makePlural(cleanName(resolvedName._2))} = XList { new ${attribute.classType}}
+            out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new ${attribute.classType}}
                         """
 
           // Attribute Needs Subclassing: Enumeration
@@ -263,7 +269,7 @@ import scala.language.implicitConversions
 
           case count if (count > 1) ⇒
 
-            out << s"""var ${makePlural(cleanName(resolvedName._2))} = XList { new $resolvedType}
+            out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new $resolvedType}
                         """
 
           case _ ⇒
@@ -297,6 +303,7 @@ import scala.language.implicitConversions
         val typesMap = Map(
 
           classOf[XSDStringBuffer] -> "String",
+          classOf[CDataBuffer] -> "String",
           classOf[IntegerBuffer] -> "Int",
           classOf[DoubleBuffer] -> "Double",
           classOf[BooleanBuffer] -> "Boolean"
