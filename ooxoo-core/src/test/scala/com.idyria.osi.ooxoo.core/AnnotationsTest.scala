@@ -43,7 +43,7 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
         Given("name if the name of the class")
         //-------------------------
-        expectResult("TopClass")(xelt.name)
+        assertResult("TopClass")(xelt.name)
 
 
 
@@ -68,7 +68,7 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
         Given("name is the name of the class (original class name: "+(new EmbeddedClass).getClass.getSimpleName+")")
         //-------------------------
-        expectResult("EmbeddedClass")(xelt.name)
+        assertResult("EmbeddedClass")(xelt.name)
 
 
     }
@@ -97,15 +97,15 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         //----------------------------------------------------------
         var xeltFields = ScalaReflectUtils.getAnnotatedFields(inst, classOf[xelement])
 
-        expectResult(1)(xeltFields.size)
-        expectResult("elt")(xeltFields.head.getName)
+        assertResult(1)(xeltFields.size)
+        assertResult("elt")(xeltFields.head.getName)
 
         Then("Name of xelement is the name of the field")
         //----------------------------------------------------------
         var xelt = xelement_base(xeltFields.head)
 
         assert(xelt!=null)
-        expectResult("elt")(xelt.name)
+        assertResult("elt")(xelt.name)
 
     }
 
@@ -133,7 +133,7 @@ class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
         Then("Name of xattribute is the name of the field")
         //-------------------------------------------------
         var xattr = xattribute_base(fields.head)
-        expectResult("attr")(xattr.name)
+        assertResult("attr")(xattr.name)
 
     }
 

@@ -11,7 +11,6 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import org.scalatest.matchers.ShouldMatchers
 import com.idyria.osi.ooxoo.core.utils._
-import com.idyria.osi.ooxoo.core.buffers.datatypes.MapBuffer
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 
@@ -24,12 +23,12 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("42")
-    expectResult(42)(buffer.data)
+    assertResult(42)(buffer.data)
 
     // To String
     //-----------------
     buffer.data = 2 * 42
-    expectResult("84")(buffer.dataToString)
+    assertResult("84")(buffer.dataToString)
 
   }
 
@@ -40,7 +39,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("0x42")
-    expectResult(66)(buffer.data)
+    assertResult(66)(buffer.data)
 
   }
 
@@ -51,12 +50,12 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("42")
-    expectResult(42)(buffer.data)
+    assertResult(42)(buffer.data)
 
     // To String
     //-----------------
     buffer.data = 2 * 42
-    expectResult("84")(buffer.dataToString)
+    assertResult("84")(buffer.dataToString)
 
   }
 
@@ -67,7 +66,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("0x42")
-    expectResult(66)(buffer.data)
+    assertResult(66)(buffer.data)
 
   }
 
@@ -78,12 +77,12 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("42.0")
-    expectResult(42.0)(buffer.data)
+    assertResult(42.0)(buffer.data)
 
     // To String
     //-----------------
     buffer.data = (2.0 * 42.0).toFloat
-    expectResult("84.0")(buffer.dataToString)
+    assertResult("84.0")(buffer.dataToString)
 
   }
 
@@ -94,12 +93,12 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     // From String
     //--------------------
     buffer.dataFromString("42.0")
-    expectResult(42.0)(buffer.data)
+    assertResult(42.0)(buffer.data)
 
     // To String
     //-----------------
     buffer.data = 2.0 * 42.0
-    expectResult("84.0")(buffer.dataToString)
+    assertResult("84.0")(buffer.dataToString)
 
   }
 
@@ -114,21 +113,21 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     // Check fields
     //------------------
-    expectResult(1998)(buffer.data.get(java.util.Calendar.YEAR))
-    expectResult(12)(buffer.data.get(java.util.Calendar.MONTH) + 1)
-    expectResult(14)(buffer.data.get(java.util.Calendar.DAY_OF_MONTH))
+    assertResult(1998)(buffer.data.get(java.util.Calendar.YEAR))
+    assertResult(12)(buffer.data.get(java.util.Calendar.MONTH) + 1)
+    assertResult(14)(buffer.data.get(java.util.Calendar.DAY_OF_MONTH))
 
     // The returned hour is the local hour based on the target timezone (the /(3600*1000) is to convert from milliseconds to hours)
     //println(s"parsed timezone: ${buffer.data.get(java.util.Calendar.ZONE_OFFSET)}")
     //println(s"local timezone: ${java.util.TimeZone.getDefault.getRawOffset/(3600*1000)}")
-    expectResult(23)(buffer.data.get(java.util.Calendar.HOUR_OF_DAY) + (2 - (java.util.TimeZone.getDefault.getRawOffset) / (3600 * 1000)))
+    assertResult(23)(buffer.data.get(java.util.Calendar.HOUR_OF_DAY) + (2 - (java.util.TimeZone.getDefault.getRawOffset) / (3600 * 1000)))
 
-    expectResult(54)(buffer.data.get(java.util.Calendar.MINUTE))
-    expectResult(2)(buffer.data.get(java.util.Calendar.SECOND))
+    assertResult(54)(buffer.data.get(java.util.Calendar.MINUTE))
+    assertResult(2)(buffer.data.get(java.util.Calendar.SECOND))
 
     // Reformat and check output, which is now in our local timezone
     //-------------------
-    expectResult("1998-12-14T22:54:02+0100")(buffer.toString)
+    assertResult("1998-12-14T22:54:02+0100")(buffer.toString)
 
   }
 
@@ -170,7 +169,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     // Check
     //--------------
-    expectResult(4)(reread.mapContent.size)
+    assertResult(4)(reread.mapContent.size)
   }
 
   @xelement
@@ -207,7 +206,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     // Check
     //--------------
-    expectResult(4)(reread.mapContent.size)
+    assertResult(4)(reread.mapContent.size)
   }
 
   @xelement
@@ -289,9 +288,9 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
     io.streamIn
 
     assert(container.testEnum != null)
-    expectResult(container.testEnum.C)(container.testEnum.selectedValue)
-    expectResult(container.attr.C)(container.attr.selectedValue)
-    expectResult(container.attr2.closed)(container.attr2.selectedValue)
+    assertResult(container.testEnum.C)(container.testEnum.selectedValue)
+    assertResult(container.attr.C)(container.attr.selectedValue)
+    assertResult(container.attr2.closed)(container.attr2.selectedValue)
 
     /*var reread = new MapContainer
     io = new StAXIOBuffer(new ByteArrayInputStream(outStream.toByteArray()))
@@ -300,7 +299,7 @@ class DataTypesTest extends FunSuite with ShouldMatchers with GivenWhenThen {
 
     // Check
     //--------------
-    //expectResult(4)(reread.mapContent.size)
+    //assertResult(4)(reread.mapContent.size)
 
   }
 

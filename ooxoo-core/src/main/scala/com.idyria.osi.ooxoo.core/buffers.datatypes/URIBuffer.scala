@@ -2,7 +2,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import java.net.URI
-
+import scala.language.implicitConversions
 
 
 class URIBuffer extends AbstractDataBuffer[URI] {

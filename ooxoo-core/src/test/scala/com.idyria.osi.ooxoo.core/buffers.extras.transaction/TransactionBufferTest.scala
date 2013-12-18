@@ -119,7 +119,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen with Matchers
 
         Then("the receiving buffer should't get any results")
         //-----------------------------
-        expectResult(null)(resultDataUnit)
+        assertResult(null)(resultDataUnit)
 
         When("commiting the transaction")
         //---------------------------------
@@ -173,7 +173,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen with Matchers
       //----------------
       var transactionAfterCancel = Transaction()
       assert(transaction.hashCode != transactionAfterCancel.hashCode)
-      expectResult(Transaction.State.Stopped)(transactionAfterCancel.state)
+      assertResult(Transaction.State.Stopped)(transactionAfterCancel.state)
 
     }
   }
@@ -205,7 +205,7 @@ class TransactionBufferTest extends FeatureSpec with GivenWhenThen with Matchers
 
       Then("Initiator must be null")
 
-      expectResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
+      assertResult(TransactionBufferTest.this.getClass.getName)(tr.initiator.getClass.getName)
 
     }
 

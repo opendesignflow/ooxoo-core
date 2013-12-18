@@ -23,7 +23,7 @@
     </distributionManagement>-->
 	
 	<properties>
-		<scala.mojo.version>0.5-SNAPSHOT</scala.mojo.version>
+		<scala.mojo.version>0.5.0</scala.mojo.version>
 	</properties>
 	<build>
 		<plugins>

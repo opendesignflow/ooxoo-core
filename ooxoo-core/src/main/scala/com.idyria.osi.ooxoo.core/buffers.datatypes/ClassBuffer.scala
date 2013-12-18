@@ -3,7 +3,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import scala.reflect._
 import scala.reflect.runtime.universe._
-
+import scala.language.implicitConversions
 
 class ClassBuffer[T] extends AbstractDataBuffer[Class[T]] {
   

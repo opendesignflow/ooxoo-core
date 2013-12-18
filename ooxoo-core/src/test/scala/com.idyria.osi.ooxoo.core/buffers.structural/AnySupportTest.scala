@@ -53,22 +53,22 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
 
         Then("The parsed model any content has two Elements")
         //--------------------
-        expectResult(2)(parsed.content.size)
-        expectResult("SomeElement")(parsed.content.head.asInstanceOf[AnyElementBuffer].name)
-        expectResult("SomeElement2")(parsed.content.last.asInstanceOf[AnyElementBuffer].name)
+        assertResult(2)(parsed.content.size)
+        assertResult("SomeElement")(parsed.content.head.asInstanceOf[AnyElementBuffer].name)
+        assertResult("SomeElement2")(parsed.content.last.asInstanceOf[AnyElementBuffer].name)
 
         And("Both have an attribute called name")
         //-------------------
-        expectResult(2)(parsed.content.head.asInstanceOf[AnyElementBuffer].content.size)
-        expectResult(1)(parsed.content.last.asInstanceOf[AnyElementBuffer].content.size)
+        assertResult(2)(parsed.content.head.asInstanceOf[AnyElementBuffer].content.size)
+        assertResult(1)(parsed.content.last.asInstanceOf[AnyElementBuffer].content.size)
 
-        expectResult("name")(parsed.content.head.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].name)
-        expectResult("name")(parsed.content.last.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].name)
+        assertResult("name")(parsed.content.head.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].name)
+        assertResult("name")(parsed.content.last.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].name)
 
         And("Their string values match")
         //-------------------
-        expectResult("test")(parsed.content.head.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].data)
-        expectResult("test2")(parsed.content.last.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].data)
+        assertResult("test")(parsed.content.head.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].data)
+        assertResult("test2")(parsed.content.last.asInstanceOf[AnyElementBuffer].content.head.asInstanceOf[AnyAttributeBuffer].data)
 
     }
     
@@ -123,18 +123,18 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
 
          Then("The parsed model any content has two Elements")
         //--------------------
-        expectResult(2)(parsed.content.size)
+        assertResult(2)(parsed.content.size)
 
         And("Both must be of Class Model type")
         //--------------------------
-        expectResult(classOf[SomeModeledElement])(parsed.content.head.getClass)
-        expectResult(classOf[SomeModeledElement2])(parsed.content.last.getClass)
-        //expectResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
+        assertResult(classOf[SomeModeledElement])(parsed.content.head.getClass)
+        assertResult(classOf[SomeModeledElement2])(parsed.content.last.getClass)
+        //assertResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
 
         And("Both must be have a correct name attribute")
         //--------------------------
-        expectResult("test")(parsed.content.head.asInstanceOf[SomeModeledElement].name.toString)
-        expectResult("test2")(parsed.content.last.asInstanceOf[SomeModeledElement2].name.toString)
+        assertResult("test")(parsed.content.head.asInstanceOf[SomeModeledElement].name.toString)
+        assertResult("test2")(parsed.content.last.asInstanceOf[SomeModeledElement2].name.toString)
     }
 
     // Streamout 
@@ -156,7 +156,7 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
 
         // Check
         println(s"Res: $res") 
-        expectResult(true,"RootTest must contain an any content element")(res.matches(".*<SomeModeledElement.*"))
+        assertResult(true,"RootTest must contain an any content element")(res.matches(".*<SomeModeledElement.*"))
         
     }
 
@@ -177,13 +177,13 @@ class AnySupportTest extends FunSuite with GivenWhenThen {
 
          Then("The parsed model any content has two Elements")
         //--------------------
-        expectResult(2)(parsed.content.size)
+        assertResult(2)(parsed.content.size)
 
         And("Both must be of Class Model type")
         //--------------------------
-        expectResult(classOf[SomeModeledElement])(parsed.content.head.getClass)
-       // expectResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
-        //expectResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
+        assertResult(classOf[SomeModeledElement])(parsed.content.head.getClass)
+       // assertResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
+        //assertResult(true)(parsed.content.head.isInstanceOf[SomeModeledElement])
     }
 
 */

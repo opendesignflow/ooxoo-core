@@ -190,26 +190,26 @@ class JSONTest extends FunSuite with BeforeAndAfter {
     //--------------------
 
     // Top
-    expectResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(top.simpleElement.toString)
+    assertResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(top.simpleElement.toString)
 
-    expectResult("AttributeValue")(top.attr1.toString)
+    assertResult("AttributeValue")(top.attr1.toString)
 
-    expectResult(3)(top.MultipleElement.size)
+    assertResult(3)(top.MultipleElement.size)
 
     // Enum
-    expectResult(top.enumelt.running)(top.enumelt.selectedValue)
-    expectResult(top.action.join)(top.action.selectedValue)
+    assertResult(top.enumelt.running)(top.enumelt.selectedValue)
+    assertResult(top.action.join)(top.action.selectedValue)
 
     // Sub
     assert(top.subTest != null)
-    expectResult(top.subTest.simpleElement.toString())("Value")
+    assertResult(top.subTest.simpleElement.toString())("Value")
 
     // Any
-    expectResult(1)(top.subTest.content.size)
-    expectResult(classOf[SubSubTest])(top.subTest.content.head.getClass())
+    assertResult(1)(top.subTest.content.size)
+    assertResult(classOf[SubSubTest])(top.subTest.content.head.getClass())
 
     var subsub = top.subTest.content.head.asInstanceOf[SubSubTest]
-    expectResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(subsub.path.toString)
+    assertResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(subsub.path.toString)
 
     println(s"Test: " + top.simpleElement)
 

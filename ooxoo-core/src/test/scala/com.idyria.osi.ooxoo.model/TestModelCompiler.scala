@@ -20,11 +20,11 @@ class TestModelCompiler extends FunSuite with GivenWhenThen {
 
         var modelInfos = ModelCompiler.compile(new File("src/test/scala/com.idyria.osi.ooxoo.model/SOAP.xmodel"))
 
-        expectResult("SOAP")(modelInfos.name)
+        assertResult("SOAP")(modelInfos.name)
 
         assert(modelInfos.producers!=null,"ModelInfos should contain a producers annotation")
-        expectResult(1)(modelInfos.producers.value.length)
-        expectResult(classOf[ScalaProducer])(modelInfos.producers.value()(0).value)
+        assertResult(1)(modelInfos.producers.value.length)
+        assertResult(classOf[ScalaProducer])(modelInfos.producers.value()(0).value)
 
 
 
