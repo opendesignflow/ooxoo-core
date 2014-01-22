@@ -46,7 +46,55 @@ class StreamOutTest extends FunSuite {
     var attr1: XSDStringBuffer = "Default Value"
 
   }
+  
+  
+  @xelement
+  class LazyValTestRoot extends ElementBuffer {
 
+    // Base Fields
+    //---------------------
+
+    @xattribute
+    var a: XSDStringBuffer = null
+
+    @xattribute
+    var b: XSDStringBuffer = null
+
+    @xelement(name = "subStringMultiple")
+    var subStringMultiple: XList[XSDStringBuffer] = XList[XSDStringBuffer] { new XSDStringBuffer }
+
+    @xelement
+    lazy val c : TestRootSub = new TestRootSub
+
+    @xelement(name="TestRootSubD")
+    lazy val d : TestRootSub = new TestRootSub
+
+
+  }
+  
+
+  test("Stream out with lazy val") {
+    
+    var root = new LazyValTestRoot
+    root.c
+    
+    //-- Add IO
+    var outStream = new ByteArrayOutputStream
+    var io = StAXIOBuffer(outStream)
+    root.appendBuffer(io)
+
+    //-- Streamout
+    root.streamOut()
+
+    // Results
+    //---------------
+
+    assert(outStream.toByteArray().length > 0, "Data must not be empty")
+
+    println("Result: " + new String(outStream.toByteArray()))
+    
+  }
+  
   test("Stream out a simple element") {
 
     //-- Instanciate Root
