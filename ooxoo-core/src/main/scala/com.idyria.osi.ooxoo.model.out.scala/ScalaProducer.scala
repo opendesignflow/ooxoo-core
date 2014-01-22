@@ -145,7 +145,7 @@ import scala.language.implicitConversions
 
       //-- Imported Traits
       var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
-        case traitsList if (traitsList.size > 0) => traitsList.mkString(" with ", " with ", " ")
+        case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
         case _                                   => ""
       }
 
@@ -260,7 +260,7 @@ import scala.language.implicitConversions
         // ResolvedType if imported of not
         //-----------------
         var resolvedType = element.imported.data.booleanValue() match {
-          case true  => element.classType.toString
+          case true  => model.splitName(element.classType.toString)._2
           case false => s"$targetPackage.${resolvedName._2}"
         }
         // Element definition

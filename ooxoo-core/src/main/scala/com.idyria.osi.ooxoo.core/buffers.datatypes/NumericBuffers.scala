@@ -157,6 +157,8 @@ object FloatBuffer {
     }
 
     implicit def convertFloatToFloatBuffer(value: java.lang.Float): FloatBuffer = FloatBuffer(value)
+    implicit def convertFloatToFloatBuffer(value: Float): FloatBuffer = FloatBuffer(value)
     implicit def convertFloatBufferToFloat(buffer: FloatBuffer): java.lang.Float = buffer.data
+    implicit def convertFloatBufferToScalaFloat(buffer: FloatBuffer): Float = buffer.data
 
 }
