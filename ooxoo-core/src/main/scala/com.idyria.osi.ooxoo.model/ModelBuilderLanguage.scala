@@ -30,6 +30,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("bool" -> classOf[BooleanBuffer]),
     ("regexp" -> classOf[RegexpBuffer]),
     ("uri" -> classOf[URIBuffer]),
+    ("url" -> classOf[URIBuffer]),
 
     ("map" -> classOf[StringMapBuffer])
   )
