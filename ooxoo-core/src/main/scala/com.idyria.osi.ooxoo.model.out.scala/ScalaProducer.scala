@@ -21,15 +21,15 @@ class ScalaProducer extends ModelProducer {
   // Name Cleaning
   //-------------------
 
-  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object","type","lazy","extends","with")
+  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object", "type", "lazy", "extends", "with")
 
   /**
    * Returns a scala friendly name from base name, without reserved keywords etc...
    */
   def cleanName(name: String): String = {
 
-    // Trim Lower case
-    var res = name.trim().toLowerCase()
+    // Trim and Lower case first character
+    var res = name.trim().zipWithIndex.map { case (c, 0) => c.toLower; case (c, i) => c }.mkString
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
@@ -43,8 +43,8 @@ class ScalaProducer extends ModelProducer {
   /**
    * Makes the name plural
    */
-  def makePlural(name:String) : String = {
-    
+  def makePlural(name: String): String = {
+
     English.plural(name)
     /*
     name match {
@@ -54,7 +54,36 @@ class ScalaProducer extends ModelProducer {
       case _ => name+"es"
     }*/
   }
-  
+
+  /**
+   * Creates a hierarchical CanonicalName for a class
+   */
+  def canonicalClassName(model: Model, element: Element): String = {
+
+    var name = element.name
+    model.splitName(element.name) match {
+      case (sNs, sName) ⇒ name = sName
+    }
+
+    // enumeration and name "Value" are incompatible
+    val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
+    var className = (element.classType, name.toString) match {
+      case (enumerationBufferClass, "Value") => "_Value"
+      case _                                 => name
+    }
+
+    // Merge ClassName with its parents
+    var current = element
+    var parentNames = ""
+    while (current.parent != null) {
+      parentNames = s"${model.splitName(current.parent.name.toString)._2}$parentNames"
+      current = current.parent
+    }
+
+    s"$parentNames$className"
+
+  }
+
   /**
    * The output package
    *
@@ -62,7 +91,7 @@ class ScalaProducer extends ModelProducer {
    */
   var targetPackage: String = ""
 
-  def writeEnumerationValues(localName:String,base: Common, out: Writer) = {
+  def writeEnumerationValues(localName: String, base: Common, out: Writer) = {
 
     // Declare Values
     //--------------------
@@ -112,9 +141,31 @@ class ScalaProducer extends ModelProducer {
                 case None =>
             }*/
 
+      // Class Name
+      //-----------------
+      var className = canonicalClassName(model,element)
+      
+      /*// enumeration and name "Value" are incompatible
+      val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
+      var className = (element.classType, name.toString) match {
+        case (enumerationBufferClass, "Value") => "_Value"
+        case _                                 => name
+      }
+
+      // Merge ClassName with its parents
+      
+      var current = element
+      var parentNames = ""
+      while (current.parent != null) {
+        parentNames = s"${model.splitName(current.parent.name.toString)._2}$parentNames"
+        current = current.parent
+      }
+
+      className = s"$parentNames$className"*/
+
       // If Type has already been written, don't overwrite it
       //-----------------------
-      var fileName = "./" + targetPackage + "/" + name + ".scala"
+      var fileName = "./" + targetPackage + "/" + className + ".scala"
       if (out.fileWritten(fileName)) {
         return
       }
@@ -149,14 +200,7 @@ import scala.language.implicitConversions
         case _                                   => ""
       }
 
-      //-- Class Name
-
-      // enumeration and name "Value" are incompatible
-      val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
-      var className = (element.classType, name.toString) match {
-        case (enumerationBufferClass, "Value") => "_Value"
-        case _                                 => name
-      }
+      // var parents = for( p <- current.parent if(current.parent!=null))
 
       //-- End of class start
       var classOrTrait = "class"
@@ -215,7 +259,6 @@ import scala.language.implicitConversions
 
           case count if (count > 1) ⇒
 
-          	
             out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new ${attribute.classType}}
                         """
 
@@ -224,10 +267,9 @@ import scala.language.implicitConversions
           case _ if (attribute.classType.toString == classOf[EnumerationBuffer].getCanonicalName()) =>
 
             out << s"""var ${cleanName(resolvedName._2)} = new ${attribute.classType} {"""
-            
-            writeEnumerationValues(localName,attribute,out)
-            	
-            
+
+            writeEnumerationValues(localName, attribute, out)
+
             out << s"""}"""
 
           // Normal Attribute
@@ -261,7 +303,15 @@ import scala.language.implicitConversions
         //-----------------
         var resolvedType = element.imported.data.booleanValue() match {
           case true  => model.splitName(element.classType.toString)._2
-          case false => s"$targetPackage.${resolvedName._2}"
+         
+          // Resolved Type is in the targetpackage, and is the canonical name of the subelement
+          case false => 
+            
+            //s"$targetPackage.${resolvedName._2}"
+            
+            s"$targetPackage.${canonicalClassName(model,element)}"
+       
+        
         }
         // Element definition
         //---------------
@@ -323,7 +373,7 @@ import scala.language.implicitConversions
               // Found base type for this Base data type
               case Some(baseType) ⇒
 
-                out << s"implicit def convertFromBaseDataType(data: $baseType) : $name =  { var res = new $name ; res.data = data; res; } "
+                out << s"implicit def convertFromBaseDataType(data: $baseType) : $className =  { var res = new $className ; res.data = data; res; } "
 
               // Not found, just ouput a warning comment
               case None ⇒
