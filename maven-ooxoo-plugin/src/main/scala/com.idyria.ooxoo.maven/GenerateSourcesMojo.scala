@@ -28,6 +28,9 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
     @Parameter(defaultValue="${project}")
     var project : MavenProject = null
 
+    @Parameter(property="ooxoo.force",defaultValue="false")
+    var force : Boolean = false
+
     var sourceFolder = new File("src/main/scala")
 
     var modelsFolder = new File("src/main/xmodels")
@@ -99,29 +102,41 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport  {
         //--  - First Filter the on that don't have to be regenerated
         //--  - Then Produce
         //------------------
+
+        force match {
+            case true => getLog().info( "Forcing regeneration ofr models");
+            case false => 
+
+        }
+
         xModelFiles.filter {
             f =>
-                // Get or set a timestamp file to detect if model file changed since last run
-                //-------------------
+            force match {
+                case true => true
+                case false => 
+                    // Get or set a timestamp file to detect if model file changed since last run
+                    //-------------------
 
-                //-- Set timestamps. If modified is greater than the last timestamp -> regenerate
-                var lastTimeStamp : Long = 0
-                var lastModified = f.lastModified
+                    //-- Set timestamps. If modified is greater than the last timestamp -> regenerate
+                    var lastTimeStamp : Long = 0
+                    var lastModified = f.lastModified
 
-               
-                statusFolder.mkdirs
-                var timestampFile = new File(statusFolder,s"${f.getName}.ts")
-                timestampFile.exists match {
-                    case true => 
-                        lastTimeStamp = java.lang.Long.parseLong(Source.fromFile(timestampFile).mkString)
-                    case false =>
-                }
- 
-                // Write Actual timestamp
-                //-------------
-                //java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
+                   
+                    statusFolder.mkdirs
+                    var timestampFile = new File(statusFolder,s"${f.getName}.ts")
+                    timestampFile.exists match {
+                        case true => 
+                            lastTimeStamp = java.lang.Long.parseLong(Source.fromFile(timestampFile).mkString)
+                        case false =>
+                    }
+     
+                    // Write Actual timestamp
+                    //-------------
+                    //java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
 
-                lastModified > lastTimeStamp
+                    lastModified > lastTimeStamp
+            }
+                
 
         }.foreach {
             f => 
