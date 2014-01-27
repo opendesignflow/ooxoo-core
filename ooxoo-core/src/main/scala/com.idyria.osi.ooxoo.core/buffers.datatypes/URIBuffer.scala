@@ -57,6 +57,8 @@ class URIBuffer extends AbstractDataBuffer[URI] {
 
 object URIBuffer {
   
+  def apply() = new URIBuffer
+  
   implicit def convertFromStringToURIBuffer(str:String) : URIBuffer = new URIBuffer(str)
   implicit def convertFromURItoURIBuffer(uri: URI) : URIBuffer = new URIBuffer(uri)
   

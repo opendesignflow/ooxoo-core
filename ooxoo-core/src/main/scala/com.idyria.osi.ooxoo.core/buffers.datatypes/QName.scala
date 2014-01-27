@@ -28,6 +28,8 @@ class QName(localPart:String) extends XSDStringBuffer {
  */
 object QName {
 
+  def apply() = new QName("")
+  
   implicit def convertStringToQName(str: String) : QName = new QName(str)
 
 }

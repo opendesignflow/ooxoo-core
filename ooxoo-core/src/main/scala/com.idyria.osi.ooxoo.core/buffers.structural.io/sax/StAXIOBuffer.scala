@@ -261,7 +261,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       //---------------
       else if (reader.isEndElement()) {
 
-        // println("Sending End element for: "+reader.getName())
+         logInfo("Sending End element for: "+reader.getName())
 
         // Just send an empty data unit with hiearchical = false
         var closeDU = new DataUnit

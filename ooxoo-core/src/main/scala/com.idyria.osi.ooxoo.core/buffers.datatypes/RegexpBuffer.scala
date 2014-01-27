@@ -22,6 +22,8 @@ class RegexpBuffer extends AbstractDataBuffer[Regex] {
 }
 object RegexpBuffer {
   
+  def apply() = new RegexpBuffer
+  
   // Conversions
   //-----------------
   

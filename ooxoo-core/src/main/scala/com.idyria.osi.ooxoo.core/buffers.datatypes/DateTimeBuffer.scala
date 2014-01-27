@@ -55,6 +55,8 @@ class DateTimeBuffer extends AbstractDataBuffer[java.util.GregorianCalendar] wit
 
 object DateTimeBuffer {
 
+  def apply() = new DateTimeBuffer
+  
   implicit def convertDateTimeBufferToCalendar(b: DateTimeBuffer): java.util.GregorianCalendar = b.data
   implicit def convertCalendarToDateTimeBuffer(c: java.util.GregorianCalendar): DateTimeBuffer = {
 

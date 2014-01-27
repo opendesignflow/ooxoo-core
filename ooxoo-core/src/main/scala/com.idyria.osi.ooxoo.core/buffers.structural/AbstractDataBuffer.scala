@@ -5,8 +5,8 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
-
 import com.idyria.osi.tea.logging._
+import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
 
 /**
  *
@@ -95,12 +95,12 @@ abstract class AbstractDataBuffer[DT](
     //lockIO
     //println("Entered Streamout of Databuffer: " + this.hashCode() + " io: " + this.getIOChain)
 
-   /* this.foreachNextBuffer {
+    /* this.foreachNextBuffer {
       b => 
         
         println("--> Next: "+b)
     }*/
-    
+
     //-- Add Value
     du.setValue(this.dataToString)
 
@@ -109,7 +109,6 @@ abstract class AbstractDataBuffer[DT](
     super.streamOut(du)
 
     //-- Clean
-    
 
     //unlockIO
     //cleanIOChain
@@ -124,11 +123,21 @@ abstract class AbstractDataBuffer[DT](
 
     // Import Data
     //----------------------
+
     if (du.value != null) {
+
+      xelement_base(this) match {
+
+        //-- Element, don't eat if an attribute
+        case elt if(elt!=null && du.attribute!=null) =>  
+          
+        //-- Eat
+        case _ => this.set(this.dataFromString(du.value))
+      }
 
       //println("Importing data: "+du.value)
 
-      this.set(this.dataFromString(du.value))
+     
     }
 
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
@@ -157,4 +166,17 @@ object AbstractDataBuffer {
 
   // def convertFromStringToAnyDataBuffer[T <: AbstractDataBuffer[_]](str: String) : T
 
+  def baseTypesToBuffer(cl:Class[_]) : AbstractDataBuffer[_] = {
+    
+   
+    cl match {
+      case long if (classOf[scala.Long] == long) =>  new LongBuffer
+      case long if (classOf[Long] == long) =>  new LongBuffer
+      case long if (classOf[Long].isAssignableFrom(long)) =>  new LongBuffer
+      case long if (cl.getCanonicalName()=="scala.Long") =>  new LongBuffer
+      case _                                     => throw new RuntimeException("Cannot Prepare Data buffer for type: " + cl.getCanonicalName())
+    }
+    
+  }
+  
 }

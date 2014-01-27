@@ -23,7 +23,7 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
 
   
   @xelement(name = "Entry")
-  class EntryElement() extends ElementBuffer with IOTransparentBuffer {
+  class EntryElement() extends ElementBuffer  {
 
     @xattribute(name="name")
     var name: XSDStringBuffer = null
@@ -148,6 +148,7 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
 
 object MapBuffer {
   
+  
   def apply[T <: Buffer](cl: => T) = new MapBuffer({ du => cl})
   
 }
@@ -155,7 +156,7 @@ class DataMapBuffer[K <: AbstractDataBuffer[_],V <: Buffer](var keyCreateClosure
 
   
   @xelement(name = "Entry")
-  class EntryElement() extends ElementBuffer with IOTransparentBuffer {
+  class EntryElement() extends ElementBuffer  {
 
     @xattribute(name="key")
     var key: K = keyCreateClosure()

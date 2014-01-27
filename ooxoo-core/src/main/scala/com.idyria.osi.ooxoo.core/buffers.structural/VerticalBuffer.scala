@@ -82,7 +82,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
           try {
 
             //-- Get value
-            var value =  this.getFieldValue(this, f).asInstanceOf[Buffer]
+            var value = this.getFieldValue(this, f).asInstanceOf[Buffer]
 
             //-- streamOut
             this.getIOChain match {
@@ -237,7 +237,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     //println(s"In VBuffer streaming for ${getClass}")
 
-    logFine[VerticalBuffer]("Got DU " + du)
+    logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) Got DU " + du)
 
     (this.inHierarchy, du.isHierarchyClose, du.element, du.attribute) match {
 
@@ -245,6 +245,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       case (_, true, _, _) ⇒
 
         // println("--- End of "+getClass.getSimpleName())
+        logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) -- End of " + getClass.getSimpleName())
 
         this.inHierarchy = false
         this.cleanIOChain
@@ -295,8 +296,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             //logFine[VerticalBuffer]("Trying to set ")
             (this.getXContentField, this.getIOChain) match {
               case (Some(content), Some(ios)) ⇒
-                content.appendBuffer(ios)
+              
+                content.appendBuffer(this.lastBuffer);
+                // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
+                du.setHierarchyClose 
+              	
                 content <= du
+                
               case _ ⇒
             }
 
@@ -309,6 +315,8 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       //-- Some Value
       //---------------------
       case (true, false, null, null) if (du.value != null) ⇒
+
+        logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) -- Found du with only value:  ${du.value} ")
 
         // Try to import if possible
         //---------------
@@ -324,8 +332,16 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             (this.getXContentField, this.getIOChain) match {
               case (Some(content), Some(ios)) ⇒
-                content.appendBuffer(ios)
+
+                logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) ---- Passing to xcontent:  ${du.value} ")
+
+                content.appendBuffer(this.lastBuffer);
+                // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
+                du.setHierarchyClose 
                 content <= du
+
+              //-- Close content buffer because it is only a value
+
               case _ ⇒
             }
 
@@ -400,7 +416,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       //-------------
       case (true, false, null, attribute) ⇒
 
-        //println(s"-- Attribute: ${attribute.name} ")
+        logFine[VerticalBuffer](s"-- Attribute: ${attribute.name} , value: ${du.value} ")
 
         this.getAttributeField(du.attribute.name) match {
 
@@ -412,7 +428,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             // Stream in attribute
             buffer <= du
 
-            logFine[VerticalBuffer](s"-------> ${buffer}")
+            logFine[VerticalBuffer](s"-------> Send attribute to ${buffer.getClass()}")
 
           // Try Nay
           case None ⇒

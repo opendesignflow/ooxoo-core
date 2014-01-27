@@ -65,6 +65,7 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
 object XSDStringBuffer {
 
   def apply(str:String) = new XSDStringBuffer(str)
+  def apply() = new XSDStringBuffer
   
   implicit def convertAnyToXSDStringBuffer(str: Any): XSDStringBuffer = new XSDStringBuffer(str.toString)
   implicit def convertStringToXSDStringBuffer(str: String): XSDStringBuffer = new XSDStringBuffer(str)
@@ -91,6 +92,8 @@ class CDataBuffer extends XSDStringBuffer {
 }
 object CDataBuffer {
   
+  def apply(str:String) = new CDataBuffer(str)
+  def apply() = new CDataBuffer
   implicit def convertStringToCDataBuffer(str: String): CDataBuffer = new CDataBuffer(str)
   
 }

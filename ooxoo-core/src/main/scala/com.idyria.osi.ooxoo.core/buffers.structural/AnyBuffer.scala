@@ -89,6 +89,9 @@ object AnyXList {
       AnyXList(tag.runtimeClass.asInstanceOf[Class[T]])
     }
 
+    /**
+     * Register Closure that acts as a factory for a given type
+     */
     def register[T  <: Buffer](cl: => T)(implicit tag: ClassTag[T]) = {
       
       // Get name and ns from annotation

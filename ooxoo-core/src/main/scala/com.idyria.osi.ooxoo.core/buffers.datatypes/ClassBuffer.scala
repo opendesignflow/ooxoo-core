@@ -26,6 +26,8 @@ class ClassBuffer[T] extends AbstractDataBuffer[Class[T]] {
 
 object ClassBuffer {
   
+  def apply() = new ClassBuffer
+  
   implicit def convertFromClassTagToClassBuffer[T](ct: ClassTag[T]) : ClassBuffer[T] = {
     
     var cb = new ClassBuffer[T]

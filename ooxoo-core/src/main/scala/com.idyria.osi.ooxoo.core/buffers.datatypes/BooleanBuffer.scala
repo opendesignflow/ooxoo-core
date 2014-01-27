@@ -26,6 +26,8 @@ class BooleanBuffer extends AbstractDataBuffer[java.lang.Boolean] with Comparabl
  
 object BooleanBuffer {
 
+	def apply() : BooleanBuffer = false
+  
     implicit def convertBooleanBufferToBool( b : BooleanBuffer) : Boolean = b.data
     implicit def convertBoolToBooleanBuffer( b : Boolean) : BooleanBuffer = {
 
