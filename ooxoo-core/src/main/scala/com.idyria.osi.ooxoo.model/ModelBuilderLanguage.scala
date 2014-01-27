@@ -221,6 +221,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
   }
   implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(str)
+  implicit def elementToIsWordWrapping(elt: Element): IsWordElementWrapper = new IsWordElementWrapper(elt)
 
   // Attribute Language
   //------------------------------

@@ -73,7 +73,11 @@ class ScalaProducer extends ModelProducer {
     }
 
     // Merge ClassName with its parents
-    var current = element
+    // If element is its own parent (recursion), then start on parent
+    var current =  element.parent match {
+      case p if(p!=null && p.name.toString==element.name.toString) => p
+      case _ => element
+    }
     var parentNames = ""
     while (current.parent != null) {
       parentNames = s"${model.splitName(current.parent.name.toString)._2}$parentNames"
@@ -276,7 +280,11 @@ import scala.language.implicitConversions
           //-------------------
           case _ ⇒
 
-            out << s"""var ${cleanName(resolvedName._2)} : ${attribute.classType} = null
+            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
+                        """
+            out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
+                        """
+            out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}();__${cleanName(resolvedName._2)} case v => v }
                         """
         }
 
@@ -324,8 +332,14 @@ import scala.language.implicitConversions
 
           case _ ⇒
 
-            out << s"""var ${cleanName(resolvedName._2)} : $resolvedType = null
+            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
                         """
+            
+            out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
+                        """
+            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
+                        """
+            
         }
       }
 

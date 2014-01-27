@@ -7,229 +7,239 @@ import scala.language.implicitConversions
 import java.io.ByteArrayOutputStream
 
 /**
-   Contains the methods and tree stacking utilities to be able to define an XML model in a convienient way.
-
-   The model can then be exported to documentation or Source files
-
-*/
-@xelement(name="Model")
+ * Contains the methods and tree stacking utilities to be able to define an XML model in a convienient way.
+ *
+ * The model can then be exported to documentation or Source files
+ *
+ */
+@xelement(name = "Model")
 class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
+  // Producers configuration
+  //-------------------------------
 
-    // Producers configuration
-    //-------------------------------
+  def producers: producers = {
 
-    def producers : producers =  {
+    getClass.getAnnotation(classOf[producers])
 
-        getClass.getAnnotation(classOf[producers])
+  }
 
-    }
+  // Element Creation/Editing
+  //-----------------------
 
+  //-- Element stack and current
+  var elementsStack = scala.collection.mutable.Stack[Element]()
 
-    // Element Creation/Editing
-    //-----------------------
-    
-    //-- Element stack and current
-    var elementsStack = scala.collection.mutable.Stack[Element]()
-    
+  /**
+   * When an element is added
+   */
+  onWith("element.start") {
 
-    /**
-        When an element is added
-    */
-    onWith("element.start") {
+    elt: Element =>
 
-    elt : Element => 
+      //println("Inside element.start for "+elt.name)
 
-        //println("Inside element.start for "+elt.name)
-
-        // - If there is a current element, add new element to it, otherwise it is a top element
-        // - If the target element lists already contains this one, just stack
-        elementsStack.headOption match {
-
-            case Some(top) if(top.elements.contains(elt)) =>
-
-            case Some(top) => 
-                    elt.parent=top;
-                    top.elements += elt
-
-            case None if(topElements.contains(elt)) => topElements+=elt
-            case None => topElements+=elt
-        }
-
-        // Stack element
-        elementsStack.push(elt)
-
-    }
-
-    onWith("element.end") { elt : Element => 
-
-       // println("Inside element.end for "+elt.name)
- 
-        // Unstack element
-        if (elementsStack.size > 0) {
-
-            elementsStack.pop
-        }
-    }
-    
-    /**
-     * Set class Type of current element to full string class name
-     */
-    def classType(classType: String) : Unit  = {
-      
+      // - If there is a current element, add new element to it, otherwise it is a top element
+      // - If the target element lists already contains this one, just stack
       elementsStack.headOption match {
-            case Some(element) => element.classType = classType
-            case None => throw new RuntimeException("Cannot call classType() outside of an element")
-        }
-      
+
+        case Some(top) if (top.elements.contains(elt)) =>
+
+        case Some(top) =>
+          elt.parent = top;
+          top.elements += elt
+
+        case None if (topElements.contains(elt)) => topElements += elt
+        case None                                => topElements += elt
+      }
+
+      // Stack element
+      elementsStack.push(elt)
+
+  }
+
+  onWith("element.end") { elt: Element =>
+
+    // println("Inside element.end for "+elt.name)
+
+    // Unstack element
+    if (elementsStack.size > 0) {
+
+      elementsStack.pop
     }
-    
-    /**
-     * Set class type of current element to another element definitions one
-     */
-    def classType(element: Element) : Unit = classType(element.classType.toString)
+  }
 
-    /**
-     * Create a new Element in current, which has the direct class type names and such of the provided className
-     * Per default, the last part of the qualified class name is used as element name
-     */
-    def importElement(className: String) : Element = {
-      
-      elementsStack.headOption match {
-            case Some(element) =>
-              	
-              // Create new 
-              var newElement = new Element(className.split("""\.""").last)
-              newElement.classType = className
-              newElement.imported = true
-              
-              this.@->("element.start",newElement)
-              this.@->("element.end",newElement)
-              
-              newElement
-              
-            case None => throw new RuntimeException("Cannot call importElement() outside of an element")
-        }
-      
-      
-    }
-    
-    /**
-     * Create a new Element in current, which has the direct class type names and such of the provided className
-     * Per default, the last part of the qualified class name is used as element name
-     */
-    def importElement(element: Element) : Element = importElement(element.name)
-    
-    
-    /**
-     * Set class type of current element to the one matching a standard type
-     */
-    def ofType(str:String) : Unit = classType(getType(str.toLowerCase()).getCanonicalName())
-    
-    def withTrait(traitType: String) = {
+  /**
+   * Set class Type of current element to full string class name
+   */
+  def classType(classType: String): Unit = {
 
-        elementsStack.headOption match {
-            case Some(element) => element.traits+=traitType
-            case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
-        }
-
+    elementsStack.headOption match {
+      case Some(element) => element.classType = classType
+      case None          => throw new RuntimeException("Cannot call classType() outside of an element")
     }
 
-    def withTrait(traitType: Element) = {
+  }
 
-        elementsStack.headOption match {
-            case Some(element) => element.traits+=traitType.name
-            case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
-        }
+  /**
+   * Set class type of current element to another element definitions one
+   */
+  def classType(element: Element): Unit = classType(element.classType.toString)
+
+  /**
+   * Create a new Element in current, which has the direct class type names and such of the provided className
+   * Per default, the last part of the qualified class name is used as element name
+   */
+  def importElement(className: String): Element = {
+
+    elementsStack.headOption match {
+      case Some(element) =>
+
+        // Create new 
+        var newElement = new Element(className.split("""\.""").last)
+        newElement.classType = className
+        newElement.imported = true
+
+        this.@->("element.start", newElement)
+        this.@->("element.end", newElement)
+
+        newElement
+
+      case None => throw new RuntimeException("Cannot call importElement() outside of an element")
+    }
+
+  }
+
+  /**
+   * Create a new Element in current, which has the direct class type names and such of the provided className
+   * Per default, the last part of the qualified class name is used as element name
+   */
+  def importElement(element: Element): Element = {
+
+    elementsStack.headOption match {
+      case Some(parent) =>
+
+        // Create new 
+        var newElement = new Element(element.name)
+        newElement.classType = element.name
+
+        this.@->("element.start", newElement)
+        this.@->("element.end", newElement)
+
+        newElement
+
+      case None => throw new RuntimeException("Cannot call importElement() outside of an element")
+    }
+
+  }
+
+  /**
+   * Set class type of current element to the one matching a standard type
+   */
+  def ofType(str: String): Unit = classType(getType(str.toLowerCase()).getCanonicalName())
+
+  def withTrait(traitType: String) = {
+
+    elementsStack.headOption match {
+      case Some(element) => element.traits += traitType
+      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+    }
+
+  }
+
+  def withTrait(traitType: Element) = {
+
+    elementsStack.headOption match {
+      case Some(element) => element.traits += traitType.name
+      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+    }
+
+  }
+
+  def isTrait = {
+
+    elementsStack.headOption match {
+      case Some(element) => element.isTrait = true
+      case None          => throw new RuntimeException("Cannot call isTrait() outside of an element")
+    }
+
+  }
+
+  def any = {
+
+    elementsStack.headOption match {
+      case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
+      case None          => throw new RuntimeException("Cannot call any() outside of an element")
+    }
+
+  }
+
+  // Attribute Creation/Editing
+  //---------------------
+
+  implicit val defaultDesc = { "" }
+  def attribute(name: String)(implicit desc: String): Attribute = {
+
+    // Create Attribute 
+    var attr = new Attribute(name)
+    @->("attribute.add", attr)
+    attr
+
+    // Set Description
+    attr.description = desc
+
+    attr
+  }
+
+  def -@(name: String)(implicit desc: String): Attribute = attribute(name)(desc)
+
+  def attribute(attr: IsWordAttributeWrapper)(implicit desc: String): Attribute = {
+
+    // Set Description
+    attr.left.description = desc
+
+    attr.left
+
+  }
+
+  onWith("attribute.add") {
+    attribute: Attribute =>
+
+      // Add only if not already added
+      // Fail if no elements on stack
+      //-----------
+      this.elementsStack.headOption match {
+
+        case Some(element) if (!element.attributes.contains(attribute)) => element.attributes += attribute
+        case Some(element) =>
+        case None =>
+          throw new RuntimeException("Cannot create attribute outside an element")
+
+      }
+
+  }
+
+  // General Descriptions and such
+  //---------------------
+
+  /**
+   * Sets the description of current element
+   */
+  def withDescription(desc: String): Unit = {
+
+    this.elementsStack.headOption match {
+
+      case Some(element) => element.description = desc
+      case None =>
+        throw new RuntimeException("Cannot set description outside an element")
 
     }
 
-    def isTrait = {
+  }
 
-        elementsStack.headOption match {
-            case Some(element) => element.isTrait = true
-            case None => throw new RuntimeException("Cannot call isTrait() outside of an element")
-        }
-
-    }
-
-    def any = {
-
-        elementsStack.headOption match {
-            case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
-            case None => throw new RuntimeException("Cannot call any() outside of an element")
-        }
-
-    }
-
-    // Attribute Creation/Editing
-    //---------------------
-
-
-    implicit val defaultDesc = { "" } 
-    def attribute(name: String)(implicit desc: String) : Attribute  = {
-
-        // Create Attribute 
-        var attr = new Attribute(name)
-        @->("attribute.add",attr)
-        attr
-
-        // Set Description
-        attr.description = desc
-
-        attr
-    }
-
-    def -@(name:String)(implicit desc: String) : Attribute  = attribute(name)(desc)
-
-    def attribute(attr: IsWordAttributeWrapper)(implicit desc: String) : Attribute  = {
-
-        // Set Description
-        attr.left.description = desc
-
-        attr.left
-        
-    }
- 
-    onWith("attribute.add") {
-        attribute : Attribute =>
-
-        // Add only if not already added
-        // Fail if no elements on stack
-        //-----------
-        this.elementsStack.headOption match {
-
-            case Some(element) if (!element.attributes.contains(attribute)) => element.attributes+=attribute
-            case Some(element) => 
-            case None => 
-                throw new RuntimeException("Cannot create attribute outside an element")
-
-        }
-        
-
-    }
-
-    // General Descriptions and such
-    //---------------------
-
-    /**
-        Sets the description of current element
-    */
-    def withDescription(desc: String) : Unit = {
-
-        this.elementsStack.headOption match {
-
-            case Some(element)  => element.description = desc
-            case None => 
-                throw new RuntimeException("Cannot set description outside an element")
-
-        }
-
-    }
-
-    // Multiple
-    //-------------------
-    /*def multiple(strType : String) : Class[ _ <: Buffer] = {
+  // Multiple
+  //-------------------
+  /*def multiple(strType : String) : Class[ _ <: Buffer] = {
 
         this.multiple()
         getType(strType)
@@ -247,40 +257,34 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         elt.left.maxOccurs = 10
     }*/
 
-    // Utilities
-    //-----------------
-    def toXML : String = {
+  // Utilities
+  //-----------------
+  def toXML: String = {
 
-        println(s"Top Elements count ${topElements.size}")
+    println(s"Top Elements count ${topElements.size}")
 
-        // Create StaxIO
-        //-------------------
-        var io = new StAXIOBuffer()
-        this - io
+    // Create StaxIO
+    //-------------------
+    var io = new StAXIOBuffer()
+    this - io
 
-        // Streamout
-        //--------------
-        this.streamOut {
-            du => 
-                du("prefixes" -> Map( (com.idyria.osi.ooxoo.core.ns -> "ooxoo")  ))
-                du
-        }
-        //this.streamOut()
-
-        // Return res
-        new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray)
-
+    // Streamout
+    //--------------
+    this.streamOut {
+      du =>
+        du("prefixes" -> Map((com.idyria.osi.ooxoo.core.ns -> "ooxoo")))
+        du
     }
+    //this.streamOut()
+
+    // Return res
+    new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray)
+
+  }
 
 }
 
-
-
-
-
 object ModelBuilder {
-
-
 
 }
 
@@ -288,138 +292,131 @@ object ModelBuilder {
 //--------------------
 trait Common {
 
-    @xattribute(name="name")
-    var name :XSDStringBuffer = null
+  @xattribute(name = "name")
+  var name: XSDStringBuffer = null
 
-    @xelement(name="Description")
-    var description : XSDStringBuffer = null 
+  @xelement(name = "Description")
+  var description: XSDStringBuffer = null
 
-    @xattribute(name="minOccurs")
-    var minOccurs = IntegerBuffer(1)
+  @xattribute(name = "minOccurs")
+  var minOccurs = IntegerBuffer(1)
 
-    @xattribute(name="maxOccurs")
-    var maxOccurs = IntegerBuffer(1)
+  @xattribute(name = "maxOccurs")
+  var maxOccurs = IntegerBuffer(1)
 
-    @xattribute(name="ClassType")
-    var classType : XSDStringBuffer = null
+  @xattribute(name = "ClassType")
+  var classType: XSDStringBuffer = null
 
-    /**
-     * An Imported element is not written to output, its classType is just used as is
-     */
-    var imported : BooleanBuffer = false
-    
-    @xelement(name="EnumerationValues")
-    var enumerationValues = XList{ new XSDStringBuffer}
-    
-    /**
-     * Sets the appropriate maxOccurs or boolean so that a List gets generated
-     */
-    def setMultiple = {
-      
-      maxOccurs = 2
-      
-    }
+  /**
+   * An Imported element is not written to output, its classType is just used as is
+   */
+  var imported: BooleanBuffer = false
+
+  @xelement(name = "EnumerationValues")
+  var enumerationValues = XList { new XSDStringBuffer }
+
+  /**
+   * Sets the appropriate maxOccurs or boolean so that a List gets generated
+   */
+  def setMultiple = {
+
+    maxOccurs = 2
+
+  }
 
 }
 
 // Element Model
 //-----------------------
-@xelement(name="Element")
+@xelement(name = "Element")
 class Element(
-    inputName : String
-       ) extends ElementBuffer with Common {
+    inputName: String) extends ElementBuffer with Common {
 
-	// Structure
-	//---------------
-  
-	@xelement(name="Element")
-    var elements = XList { du => 
-            var elt = new Element(du.element.name)
-            elt.parent = this
-            elt
+  // Structure
+  //---------------
+
+  @xelement(name = "Element")
+  var elements = XList { du =>
+    var elt = new Element(du.element.name)
+    elt.parent = this
+    elt
+  }
+
+  @xelement(name = "Attribute")
+  var attributes = XList { du => new Attribute(du.element.name) }
+
+  @xelement(name = "Trait")
+  var traits = XList { new XSDStringBuffer }
+
+  @xattribute(name = "isTrait")
+  var isTrait: BooleanBuffer = false
+
+  // Related Type
+  //------------------
+
+  var parent: Element = null
+
+  def depth: Int = {
+
+    var res = 0
+    var current = this
+    while (current.parent != null) {
+      res += 1
+      current = current.parent
     }
+    res
+  }
 
-    @xelement(name="Attribute")
-    var attributes = XList { du => new Attribute(du.element.name)}
+  /**
+   * If set, this element is just instanciating the defined Element, so no need to write it out as oyn type
+   */
+  var instanceOfElement: Element = null
 
-    @xelement(name="Trait")
-    var traits = XList{ new XSDStringBuffer }
-  
-    @xattribute(name="isTrait")
-    var isTrait : BooleanBuffer = false
-    
-    // Related Type
-    //------------------
+  // Defaults
+  //-------------
+  this.classType = classOf[ElementBuffer].getCanonicalName
+  this.traits += classOf[ElementBuffer].getCanonicalName
+  this.name = inputName
 
-    var parent : Element = null
+  // Description
+  //-----------------------
 
-    def depth : Int = {
+  def apply(desc: String) = {
+    this.description = desc
+  }
 
-        var res = 0
-        var current = this 
-        while(current.parent!=null) {
-            res += 1 
-            current = current.parent
-        }
-        res 
-    }
-
-    /**
-        If set, this element is just instanciating the defined Element, so no need to write it out as oyn type
-    */
-    var instanceOfElement : Element = null
-
-    // Defaults
-    //-------------
-    this.classType = classOf[ElementBuffer].getCanonicalName
-    this.traits+=classOf[ElementBuffer].getCanonicalName
-    this.name = inputName
-
-    // Description
-    //-----------------------
-
-    
-
-    def apply(desc: String) = {
-        this.description = desc
-    }
-
-    /*def :+ (desc: String) = {
+  /*def :+ (desc: String) = {
 
         println("Setting Description on element") 
         this.description = desc
     }*/
 
-    // Sub Elements
-    //-------------------
-
-    
+  // Sub Elements
+  //-------------------
 
 }
 object Element {
 
-    implicit def stringToElement(str: String) :  Element = {
+  implicit def stringToElement(str: String): Element = {
 
+    new Element(str)
 
-        new Element(str)
-  
-
-    }
+  }
 
 }
 
 // Attribute Model
 //-------------------------
-@xelement(name="Attribute")
-class Attribute( inputName : String ) extends ElementBuffer with Common {
+@xelement(name = "Attribute")
+class Attribute(inputName: String) extends ElementBuffer with Common {
 
-    // Defaults
-    //-------------
-    this.classType = classOf[XSDStringBuffer].getCanonicalName
-    this.name = inputName
+  // Defaults
+  //-------------
+  this.classType = classOf[XSDStringBuffer].getCanonicalName
+  this.name = inputName
 
 }
 object Attribute {
 
-    implicit def stringToAttribute(str: String) :  Attribute = new Attribute(str)
+  implicit def stringToAttribute(str: String): Attribute = new Attribute(str)
 }
