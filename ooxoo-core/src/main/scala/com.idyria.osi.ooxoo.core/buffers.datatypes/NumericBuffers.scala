@@ -49,6 +49,8 @@ object IntegerBuffer {
  */
 class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java.lang.Long] {
 
+  this.data = 0
+  
   def dataFromString(str: String): java.lang.Long = {
     
     str.trim match {
