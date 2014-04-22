@@ -1,0 +1,1 @@
+Index.PACKAGES = {"com.idyria.osi.ooxoo.maven" : [{"class" : "com\/idyria\/osi\/ooxoo\/maven\/GenerateSourcesMojo.html", "name" : "com.idyria.osi.ooxoo.maven.GenerateSourcesMojo"}], "com.idyria.osi.ooxoo" : [], "com.idyria.osi" : [], "com.idyria" : [], "com" : []};
