@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Core runtime for OOXOO - Dependency Information</title>
+    <title>Maven plugin for ooxoo to generate sources from modeling - Dependency Information</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -17,7 +17,7 @@
   <body class="composite">
     <div id="banner">
                     <div id="bannerLeft">
-                Core runtime for OOXOO
+                Maven plugin for ooxoo to generate sources from modeling
                 </div>
                     <div class="clear">
         <hr/>
@@ -30,7 +30,7 @@
         <span id="publishDate">Last Published: 2014-04-22</span>
                   &nbsp;| <span id="projectVersion">Version: 3.0.1-SNAPSHOT</span>
                       </div>
-            <div class="xright">                    <a href="${project.url}" title="Core runtime for OOXOO">Core runtime for OOXOO</a>
+            <div class="xright">                    <a href="${project.url}" title="Maven plugin for ooxoo to generate sources from modeling">Maven plugin for ooxoo to generate sources from modeling</a>
               
                     
       </div>
@@ -119,38 +119,39 @@
 <h3>Apache Maven<a name="Apache_Maven"></a></h3><a name="Apache_Maven"></a>
 <div class="source">
 <pre>&lt;dependency&gt;
-  &lt;groupId&gt;com.idyria.osi.ooxoo&lt;/groupId&gt;
-  &lt;artifactId&gt;ooxoo-core&lt;/artifactId&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-ooxoo-plugin&lt;/artifactId&gt;
   &lt;version&gt;3.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;type&gt;maven-plugin&lt;/type&gt;
 &lt;/dependency&gt;</pre></div></div>
 <div class="section">
 <h3>Apache Buildr<a name="Apache_Buildr"></a></h3><a name="Apache_Buildr"></a>
 <div class="source">
-<pre>'com.idyria.osi.ooxoo:ooxoo-core:jar:3.0.1-SNAPSHOT'</pre></div></div>
+<pre>'org.apache.maven.plugins:maven-ooxoo-plugin:maven-plugin:3.0.1-SNAPSHOT'</pre></div></div>
 <div class="section">
 <h3>Apache Ant<a name="Apache_Ant"></a></h3><a name="Apache_Ant"></a>
 <div class="source">
-<pre>&lt;dependency org=&quot;com.idyria.osi.ooxoo&quot; name=&quot;ooxoo-core&quot; rev=&quot;3.0.1-SNAPSHOT&quot;&gt;
-  &lt;artifact name=&quot;ooxoo-core&quot; type=&quot;jar&quot; /&gt;
+<pre>&lt;dependency org=&quot;org.apache.maven.plugins&quot; name=&quot;maven-ooxoo-plugin&quot; rev=&quot;3.0.1-SNAPSHOT&quot;&gt;
+  &lt;artifact name=&quot;maven-ooxoo-plugin&quot; type=&quot;maven-plugin&quot; /&gt;
 &lt;/dependency&gt;</pre></div></div>
 <div class="section">
 <h3>Groovy Grape<a name="Groovy_Grape"></a></h3><a name="Groovy_Grape"></a>
 <div class="source">
 <pre>@Grapes(
-@Grab(group='com.idyria.osi.ooxoo', module='ooxoo-core', version='3.0.1-SNAPSHOT')
+@Grab(group='org.apache.maven.plugins', module='maven-ooxoo-plugin', version='3.0.1-SNAPSHOT')
 )</pre></div></div>
 <div class="section">
 <h3>Grails<a name="Grails"></a></h3><a name="Grails"></a>
 <div class="source">
-<pre>compile 'com.idyria.osi.ooxoo:ooxoo-core:3.0.1-SNAPSHOT'</pre></div></div>
+<pre>compile 'org.apache.maven.plugins:maven-ooxoo-plugin:3.0.1-SNAPSHOT'</pre></div></div>
 <div class="section">
 <h3>Leiningen<a name="Leiningen"></a></h3><a name="Leiningen"></a>
 <div class="source">
-<pre>[com.idyria.osi.ooxoo/ooxoo-core &quot;3.0.1-SNAPSHOT&quot;]</pre></div></div>
+<pre>[org.apache.maven.plugins/maven-ooxoo-plugin &quot;3.0.1-SNAPSHOT&quot;]</pre></div></div>
 <div class="section">
 <h3>SBT<a name="SBT"></a></h3><a name="SBT"></a>
 <div class="source">
-<pre>libraryDependencies += &quot;com.idyria.osi.ooxoo&quot; %% &quot;ooxoo-core&quot; % &quot;3.0.1-SNAPSHOT&quot;</pre></div></div></div>
+<pre>libraryDependencies += &quot;org.apache.maven.plugins&quot; %% &quot;maven-ooxoo-plugin&quot; % &quot;3.0.1-SNAPSHOT&quot;</pre></div></div></div>
       </div>
     </div>
     <div class="clear">
