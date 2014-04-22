@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Global Gatherall project for OOXOO3 - Reactor Dependency Convergence</title>
+    <title>Top project for OOXOO3 - Reactor Dependency Convergence</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -17,7 +17,7 @@
   <body class="composite">
     <div id="banner">
                     <div id="bannerLeft">
-                Global Gatherall project for OOXOO3
+                Top project for OOXOO3
                 </div>
                     <div class="clear">
         <hr/>
@@ -30,7 +30,7 @@
         <span id="publishDate">Last Published: 2014-04-22</span>
                   &nbsp;| <span id="projectVersion">Version: 3.0.1-SNAPSHOT</span>
                       </div>
-            <div class="xright">                    <a href="${project.url}" title="Global Gatherall project for OOXOO3">Global Gatherall project for OOXOO3</a>
+            <div class="xright">                    <a href="${project.url}" title="Top project for OOXOO3">Top project for OOXOO3</a>
               
                     
       </div>
@@ -45,13 +45,16 @@
                                 <h5>Parent Project</h5>
                   <ul>
                   <li class="none">
-                          <a href="../../../../scpexe:/wurst.idyria.com/access/osi/com.idyria.osi/superpom-scala/maven-site/superpom-scala/index.html" title="Idyria's Superpom for OSI Scala Projects">Idyria's Superpom for OSI Scala Projects</a>
+                          <a href="../../../../com.idyria.osi/superpom-scala/maven-site/superpom-scala/index.html" title="Idyria's Superpom for OSI Scala Projects">Idyria's Superpom for OSI Scala Projects</a>
             </li>
           </ul>
                        <h5>Modules</h5>
                   <ul>
                   <li class="none">
                           <a href="ooxoo-core/index.html" title="Core runtime for OOXOO">Core runtime for OOXOO</a>
+            </li>
+                  <li class="none">
+                          <a href="maven-ooxoo-plugin/index.html" title="OOXOO Plugin for maven">OOXOO Plugin for maven</a>
             </li>
           </ul>
                        <h5>Project Documentation</h5>
@@ -135,13 +138,13 @@
 </caption>
 <tr class="a">
 <th>Number of sub-projects:</th>
-<td>2</td></tr>
+<td>3</td></tr>
 <tr class="b">
 <th>Number of dependencies (NOD):</th>
-<td>7</td></tr>
+<td>12</td></tr>
 <tr class="a">
 <th>Number of unique artifacts (NOA):</th>
-<td>7</td></tr>
+<td>12</td></tr>
 <tr class="b">
 <th>Number of SNAPSHOT artifacts (NOS):</th>
 <td>0</td></tr>
@@ -153,6 +156,18 @@
 <td><img alt="success" src="images/icon_success_sml.gif" />&#160;<b>Success</b></td></tr></table></div>
 <div class="section">
 <h3>Dependencies used in sub-projects<a name="Dependencies_used_in_sub-projects"></a></h3>
+<div class="section">
+<h4>com.idyria.osi.ooxoo:ooxoo-core<a name="com.idyria.osi.ooxoo:ooxoo-core"></a></h4>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td><img alt="success" src="images/icon_success_sml.gif" /></td>
+<td>
+<table border="0" class="bodyTable">
+<tr class="b">
+<td width="25%">3.0.1-SNAPSHOT</td>
+<td>
+<ol style="list-style-type: lower-alpha">
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
 <div class="section">
 <h4>com.idyria.osi.tea:tea<a name="com.idyria.osi.tea:tea"></a></h4>
 <table border="0" class="bodyTable">
@@ -166,6 +181,18 @@
 <ol style="list-style-type: lower-alpha">
 <li>com.idyria.osi.ooxoo:ooxoo-core</li></ol></td></tr></table></td></tr></table></div>
 <div class="section">
+<h4>com.jsuereth:scala-mojo-support_2.10<a name="com.jsuereth:scala-mojo-support_2.10"></a></h4>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td><img alt="success" src="images/icon_success_sml.gif" /></td>
+<td>
+<table border="0" class="bodyTable">
+<tr class="b">
+<td width="25%">0.5.0</td>
+<td>
+<ol style="list-style-type: lower-alpha">
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
+<div class="section">
 <h4>net.java.dev.stax-utils:stax-utils<a name="net.java.dev.stax-utils:stax-utils"></a></h4>
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -178,6 +205,30 @@
 <ol style="list-style-type: lower-alpha">
 <li>com.idyria.osi.ooxoo:ooxoo-core</li></ol></td></tr></table></td></tr></table></div>
 <div class="section">
+<h4>org.apache.maven.plugin-tools:maven-plugin-annotations<a name="org.apache.maven.plugin-tools:maven-plugin-annotations"></a></h4>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td><img alt="success" src="images/icon_success_sml.gif" /></td>
+<td>
+<table border="0" class="bodyTable">
+<tr class="b">
+<td width="25%">3.2</td>
+<td>
+<ol style="list-style-type: lower-alpha">
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
+<div class="section">
+<h4>org.apache.maven:maven-plugin-api<a name="org.apache.maven:maven-plugin-api"></a></h4>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td><img alt="success" src="images/icon_success_sml.gif" /></td>
+<td>
+<table border="0" class="bodyTable">
+<tr class="b">
+<td width="25%">3.1.0</td>
+<td>
+<ol style="list-style-type: lower-alpha">
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
+<div class="section">
 <h4>org.atteo:evo-inflector<a name="org.atteo:evo-inflector"></a></h4>
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -189,6 +240,18 @@
 <td>
 <ol style="list-style-type: lower-alpha">
 <li>com.idyria.osi.ooxoo:ooxoo-core</li></ol></td></tr></table></td></tr></table></div>
+<div class="section">
+<h4>org.codehaus.plexus:plexus-utils<a name="org.codehaus.plexus:plexus-utils"></a></h4>
+<table border="0" class="bodyTable">
+<tr class="a">
+<td><img alt="success" src="images/icon_success_sml.gif" /></td>
+<td>
+<table border="0" class="bodyTable">
+<tr class="b">
+<td width="25%">3.0.1</td>
+<td>
+<ol style="list-style-type: lower-alpha">
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
 <div class="section">
 <h4>org.scala-lang:scala-compiler<a name="org.scala-lang:scala-compiler"></a></h4>
 <table border="0" class="bodyTable">
@@ -213,7 +276,8 @@
 <td>
 <ol style="list-style-type: lower-alpha">
 <li>com.idyria.osi.ooxoo:ooxoo-all</li>
-<li>com.idyria.osi.ooxoo:ooxoo-core</li></ol></td></tr></table></td></tr></table></div>
+<li>com.idyria.osi.ooxoo:ooxoo-core</li>
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div>
 <div class="section">
 <h4>org.scala-lang:scala-reflect<a name="org.scala-lang:scala-reflect"></a></h4>
 <table border="0" class="bodyTable">
@@ -238,7 +302,8 @@
 <td>
 <ol style="list-style-type: lower-alpha">
 <li>com.idyria.osi.ooxoo:ooxoo-all</li>
-<li>com.idyria.osi.ooxoo:ooxoo-core</li></ol></td></tr></table></td></tr></table></div></div>
+<li>com.idyria.osi.ooxoo:ooxoo-core</li>
+<li>org.apache.maven.plugins:maven-ooxoo-plugin</li></ol></td></tr></table></td></tr></table></div></div>
       </div>
     </div>
     <div class="clear">
