@@ -43,7 +43,30 @@ class DateTimeBuffer extends AbstractDataBuffer[java.util.GregorianCalendar] wit
 
   }
 
-  def dataToString: String = if (data != null) String.format("%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS%tz", this.data); else null
+  def dataToString: String = if (data != null) String.format("%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS%tz", this.data);
+
+/*
+ * #%L
+ * Core runtime for OOXOO
+ * %%
+ * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+else null
 
   override def toString: String = this.dataToString
 

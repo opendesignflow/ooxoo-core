@@ -2,7 +2,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-ooxoo-plugin</artifactId>
-	<name>Maven plugin for ooxoo to generate sources from modeling</name>
+	<name>OOXOO Plugin for maven</name>
+	<description>Maven plugin for ooxoo to generate ooxoo class bindings from data model sources</description>
 	<packaging>maven-plugin</packaging>
 
 	<parent>
@@ -65,6 +66,26 @@
         			<addZincArgs>-no-color</addZincArgs>
         		</configuration>
 			</plugin>
+			<plugin>
+              <groupId>com.github.github</groupId>
+              <artifactId>site-maven-plugin</artifactId>
+              <version>0.9</version>
+              <configuration>
+                <message>Creating site for ${project.version}</message>
+                <repositoryName>ooxoo-core</repositoryName>
+                <repositoryOwner>richnou</repositoryOwner>
+                <path>maven-ooxoo-plugin</path>
+                <merge>true</merge>
+              </configuration>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>site</goal>
+                  </goals>
+                  <phase>site</phase>
+                </execution>
+              </executions>
+            </plugin>
 		</plugins>
 		
 	</build>
