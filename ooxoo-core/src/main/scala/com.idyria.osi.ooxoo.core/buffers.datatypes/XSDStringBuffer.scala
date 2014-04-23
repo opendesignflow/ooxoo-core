@@ -123,3 +123,6 @@ object CDataBuffer {
 
 class StringMapBuffer extends MapBuffer[XSDStringBuffer]( { du => new XSDStringBuffer} )
 
+object StringMapBuffer {
+  def apply() = new StringMapBuffer
+}
