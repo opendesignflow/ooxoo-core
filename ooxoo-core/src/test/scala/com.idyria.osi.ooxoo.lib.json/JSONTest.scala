@@ -265,7 +265,19 @@ class JSONTest extends FunSuite with BeforeAndAfter {
 
     top.streamOut()
 
+    var res = io.finish
+    
     println(s"Result: " + io.finish)
+    
+    // Checks
+    //--------------
+    
+    //-- Unbalanced braces
+    var lbc = res.count(_=='{')
+    var rbc = res.count(_=='}')
+    assertResult(lbc,"Left and Right curly braces must not be unbalanced")(rbc)
+    println(s"Found ${res.count(_=='{')} {")
+    println(s"Found ${res.count(_=='}')} }")
 
   }
 

@@ -1,41 +1,3 @@
-package com.idyria.osi.ooxoo.lib.json
-
-import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
-import com.idyria.osi.tea.logging.TLogSource
-import java.io.Reader
-import scala.util.parsing.combinator.RegexParsers
-import scala.io.Source
-import scala.util.parsing.input.StreamReader
-import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
-import java.io.PrintStream
-import java.io.CharArrayWriter
-import java.io.PrintWriter
-import java.net.URLEncoder
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
-
-class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
-
-  def top = "{" ~> jsonHierarchy <~ "}" ^^ {
-
-    r =>
-      //println(s"In Top Matcher: ")
-
-      r.foreach {
-        du =>
-          //   println(s"Sending DU: hier: ${du.hierarchical}, close: "+du.isHierarchyClose)
-          super.streamIn(du)
-      }
-
-      /*r.foreach {
-        du => 
-          println(s"DatUnit: "+du.element.name)
-      }*/
-      r
-  }
-
-  def jsonHierarchy: Parser[List[DataUnit]] = ("\"" ~> ("""[\w ]+""".r) ^^ { r => logFine(s"Start: $r");
-
 /*
  * #%L
  * Core runtime for OOXOO
@@ -57,7 +19,44 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValue, ",").? <~ ("}" ^^ { v => logFine(s"--Close"); v })) ^^ {
+package com.idyria.osi.ooxoo.lib.json
+
+import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
+import com.idyria.osi.tea.logging.TLogSource
+import java.io.Reader
+import scala.util.parsing.combinator.RegexParsers
+import scala.io.Source
+import scala.util.parsing.input.StreamReader
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
+import java.io.PrintStream
+import java.io.CharArrayWriter
+import java.io.PrintWriter
+import java.net.URLEncoder
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
+import com.idyria.osi.ooxoo.core.buffers.structural.XList
+
+class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
+
+  def top = "{" ~> jsonHierarchy <~ "}" ^^ {
+
+    r =>
+      //println(s"In Top Matcher: ")
+
+      r.foreach {
+        du =>
+          //   println(s"Sending DU: hier: ${du.hierarchical}, close: "+du.isHierarchyClose)
+          super.streamIn(du)
+      }
+
+      /*r.foreach {
+        du => 
+          println(s"DatUnit: "+du.element.name)
+      }*/
+      r
+  }
+
+  def jsonHierarchy: Parser[List[DataUnit]] = ("\"" ~> ("""[\w ]+""".r) ^^ { r => logFine(s"Start: $r"); r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValue, ",").? <~ ("}" ^^ { v => logFine(s"--Close"); v })) ^^ {
     r =>
 
       //   println("Matched JSON Hierarchy: " + r)
@@ -173,14 +172,32 @@ r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValu
 
         //println(s"Open")
 
-        output.print(s""""${element.name}":""")
+       
 
-        // Value: Set value to element
-        // Not value: Open hierarchy
+        // Detect multiple elements presence using IO chain stack
+        //-------------------
+        var (isMultiple,isFirst) = this.previousStack.headOption match {
+          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].head == this.firstBuffer)
+          case _ => (false,false)
+        }
+        
+        //-- Name output, don't output if multiple and not first
+        (isMultiple,isFirst) match {
+          case (true,false) => 
+          case _ => output.print(s""""${element.name}":""")
+        }
+         
+        
         value match {
+          
+          // Not value and multiple, open Multiple Hierarchy
+          case null if (isMultiple && isFirst) => output.println(s"[{")
+          
+          // Not value: Open hierarchy
           case null =>
             output.println(s"{")
-
+            
+           // Value: Set value to element
           case v =>
             output.println(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
 
@@ -188,12 +205,7 @@ r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValu
             ignoreClose = true
         }
 
-        // Close already?
-        close match {
-          case true  =>
-          // output.println("}")
-          case false =>
-        }
+        
 
       // Close
       //-------------
@@ -202,21 +214,73 @@ r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValu
         //   println(s"Close")
         ignoreClose match {
           case true  => ignoreClose = false
-          case false => output.println(s"""},""")
+          case false => 
+            
+            // Detect multiple elements presence using IO chain stack
+	        //-------------------
+	        var (isMultiple,isLast) = this.previousStack.headOption match {
+	          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].last == this.firstBuffer)
+	          case _ => (false,false)
+	        }
+	        
+	        //-- Close: Add multiple close if multiple and last
+	        (isMultiple,isLast) match {
+	          case (true,true) => output.println(s"""}],""")
+	          case _ => output.println(s"""},""")
+	        }
+            
+            
         }
 
       // Single element with value
       //--------------------------------
       case (false, false, element, value) if (element != null) =>
-
-        output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
-        ignoreClose = true
+      
+        
+        // Detect multiple elements presence using IO chain stack
+        //-------------------
+        var (isMultiple,isFirst,isLast) = this.previousStack.headOption match {
+          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].head == this.firstBuffer,p.asInstanceOf[XList[_]].last == this.firstBuffer)
+          case _ => (false,false,false)
+        }
+        
+        //-- Name output: Normal, multiple first, or multiple last
+        //-----------
+        (isMultiple,isFirst) match {
+          
+          // Multiple first
+          case (true,true) => output.print(s""""${element.name}":[""")
+          	
+            
+            // Multiple not first: none
+          case (true,false) => 
+            // Normal
+          case _ => output.print(s""""${element.name}":""")
+        }
+        
+        // Value
+        //---------------
+        
+        //output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
+        output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
+        
+        // Close : Close last multiple or just a ,
+        //----------------
+        (isMultiple,isLast) match {
+          
+          // Last
+          case (true,true) => output.println(s"""],""")
+          
+          // Otherwise normal ,
+          case _ => output.println(s""",""")
+        }
+        //ignoreClose = true
 
       // Attribute
       //---------------
       case (false, false, null, value) if (du.attribute != null) =>
 
-        output.println(s""""_@${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\", """)
+        output.println(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\", """)
 
       // Value only
       //-------------------
@@ -240,7 +304,7 @@ r }) ~ ("\"" ~> ":" ~> "{" ~> repsep(jsonHierarchy | multipleValues | simpleValu
 
     // Resolve the wrongly defined ,} sequences, and remove the last ,
     outputArray.toString().replace(",\n}", "\n}").replace("\n", "").dropRight(1)
-
+    //outputArray.toString().replace(",\n}", "\n}").dropRight(2)
   }
 
   def cloneIO: com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer = {
