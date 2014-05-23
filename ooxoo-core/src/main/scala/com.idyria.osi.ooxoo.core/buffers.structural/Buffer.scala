@@ -222,7 +222,34 @@ trait Buffer {
 
   }
   def pull(): DataUnit = this.pull(DataUnit())
+  
+  def pullRight = pull()
+  def pullRight(du:DataUnit) = pull(du)
+  
+  /**
+   * Request value pull from right buffer
+   * If we have someone on the left, respond using pull(dataUnit)
+   *
+   * @return The Data Unit to be pulled in
+   */
+  def pullLeft(indu: DataUnit): DataUnit = {
 
+    var du: DataUnit = null
+
+    // Pull Left
+    if (getPreviousBuffer != null)
+      du = getPreviousBuffer.pullLeft(indu)
+
+    // Create Data Unit if necessary
+    if (du == null)
+      du = this.createDataUnit
+
+    du
+
+  }
+
+  def pullLeft : DataUnit = pullLeft(DataUnit())
+  
   // Buffer Chain Management
   //-------------------------------
 
