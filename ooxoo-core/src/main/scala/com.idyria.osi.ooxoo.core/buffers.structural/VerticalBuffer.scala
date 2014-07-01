@@ -355,7 +355,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
                 logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) ---- Passing to xcontent:  ${du.value} ")
 
-                content.appendBuffer(this.lastBuffer);
+                content.appendBuffer(this.getIOChain.get.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
                 du.setHierarchyClose 
                 content <= du
@@ -388,10 +388,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             // Clone this IO to the buffer
             //--------------
-            buffer.appendBuffer(this.lastBuffer);
+           /* buffer.withIOChain(this) {
+        	  buffer <= du
+          	}*/
+            
 
             // Stream in DU to element
             //---------------------
+           buffer.appendBuffer(this.getIOChain.get.cloneIO);
             buffer <= du
 
             logFine[VerticalBuffer](s"-------> ${buffer}")
@@ -408,7 +412,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
                 // Clone this IO to the buffer
                 //--------------
-                any.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
+                any.appendBuffer(this.getIOChain.get.cloneIO);
 
                 // Stream in DU to element
                 //---------------------
@@ -421,7 +425,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
                 // Clone this IO to the buffer
                 //--------------
-                any.appendBuffer(this.lastBuffer.asInstanceOf[IOBuffer].cloneIO);
+                any.appendBuffer(this.getIOChain.get.cloneIO);
 
                 // Stream in DU to element
                 //---------------------
@@ -446,7 +450,12 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             // println(s"Found attribute Buffer to pass in value: ${du.value}")
 
             // Stream in attribute
+          	buffer.withIOChain(this) {
+        	  buffer <= du
+          	}
+          	/*buffer.appendBuffer(this.getIOChain.cloneIO);
             buffer <= du
+            buffer.cleanIOChain*/
 
             logFine[VerticalBuffer](s"-------> Send attribute to ${buffer.getClass()}")
 

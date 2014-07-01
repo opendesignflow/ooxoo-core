@@ -45,9 +45,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
  */
 trait BaseBufferTrait extends Buffer {
 
-
   protected var nextBuffer: Buffer = null
-
 
   protected var previousBuffer: Buffer = null
 
@@ -65,53 +63,50 @@ trait BaseBufferTrait extends Buffer {
 
   }
 
-  def getNextBuffer : Buffer = this.nextBuffer
+  def getNextBuffer: Buffer = this.nextBuffer
 
   /**
    * Sets this nextbuffer to provided buffer
    */
-  def setNextBuffer(buffer: Buffer) : Buffer = {
+  def setNextBuffer(buffer: Buffer): Buffer = {
 
     if (buffer == this.nextBuffer)
       return buffer
-
-
     this.nextBuffer = buffer
-    buffer
 
+   /* if (buffer != null)
+      buffer.setPreviousBuffer(this)*/
+
+    buffer
 
   }
 
-  def getPreviousBuffer : Buffer = this.previousBuffer
+  def getPreviousBuffer: Buffer = this.previousBuffer
 
   /**
    * Only sets previous buffer to this one
    */
-  def setPreviousBuffer(buffer:Buffer) : Buffer = {
+  def setPreviousBuffer(buffer: Buffer): Buffer = {
 
     if (buffer == this.previousBuffer)
       return buffer
-
-          
-
     this.previousBuffer = buffer
+
+    if (buffer != null)
+      buffer.setNextBuffer(this)
+
     buffer
-
-
 
   }
 
-
   def insertNextBuffer(buffer: Buffer): Buffer = {
 
-
-    if(this.nextBuffer == buffer || this == buffer)
+    if (this.nextBuffer == buffer || this == buffer)
       return buffer
-
 
     // remove provided buffer from where it is now
     //-----------------
-     /* if (buffer!=null)
+    /* if (buffer!=null)
         buffer.remove*/
 
     // save next
@@ -124,13 +119,13 @@ trait BaseBufferTrait extends Buffer {
 
     // Next gets this as previous
     //-----------
-    if (this.nextBuffer!=null) {
-    	this.nextBuffer setPreviousBuffer(this)
+    if (this.nextBuffer != null) {
+      this.nextBuffer setPreviousBuffer (this)
     }
 
     // New next gets old next as next
     //------------
-    this.nextBuffer setNextBuffer(oldNext)
+    this.nextBuffer setNextBuffer (oldNext)
 
     // Old next gets new next as previous
     //----------
@@ -153,8 +148,6 @@ trait BaseBufferTrait extends Buffer {
     allNexts
   }
 
-
-
   def prependBuffer(buffer: Buffer): Buffer = {
 
     // Find Head
@@ -171,12 +164,12 @@ trait BaseBufferTrait extends Buffer {
 
   def insertPreviousBuffer(buffer: Buffer): Buffer = {
 
-    if(this.previousBuffer == buffer)
+    if (this.previousBuffer == buffer)
       return buffer
 
     // remove provided buffer from where it is now
     //-----------------
-     /* if (buffer!=null)
+    /* if (buffer!=null)
         buffer.remove*/
 
     // save previous
@@ -189,12 +182,12 @@ trait BaseBufferTrait extends Buffer {
 
     // Previous gets this as next
     //------------
-    if (this.previousBuffer!=null)
-    	this.previousBuffer setNextBuffer(this)
+    if (this.previousBuffer != null)
+      this.previousBuffer setNextBuffer (this)
 
     // Previous gets oldprevious as previous
     //------------
-     this.previousBuffer setPreviousBuffer(oldPrevious)
+    this.previousBuffer setPreviousBuffer (oldPrevious)
 
     // Old prev gets new prev as next
     //----------
@@ -220,16 +213,12 @@ trait BaseBufferTrait extends Buffer {
   def streamOut( cl : DataUnit => DataUnit) = streamOut(cl(createDataUnit))
 */
 
-
   override def streamIn(du: DataUnit) = {
 
-    
     // Pass
-    if (this.previousBuffer!=null)
+    if (this.previousBuffer != null)
       this.previousBuffer <= du
 
-    
-      
   }
 
 }

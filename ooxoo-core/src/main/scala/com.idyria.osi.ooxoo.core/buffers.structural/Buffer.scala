@@ -26,6 +26,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import java.util.concurrent.locks.ReentrantLock
+import scala.reflect.ClassTag
 
 /**
  *
@@ -56,45 +57,7 @@ trait Buffer {
   // Streamout/in Interface
   //---------------------------------
 
-  var cleanLock = new ReentrantLock
-
-  def lockIO = cleanLock.lock()
-  def unlockIO = cleanLock.unlock()
-
-  /**
-   * ONly front Buffer can clean the IO chain, and if I/Os are not locked
-   */
-  def cleanIOChain = {
-
-    if (this.getPreviousBuffer == null && cleanLock.getHoldCount() == 0) {
-      
-      //println("Clean IO from "+getClass)
-      this.foreachNextBuffer {
-        case io: IOBuffer ⇒
-
-          //println("Removing IO Buffer")
-          io.remove
-        case _ ⇒
-      }
-    }
-
-  }
-
-  /**
-   * Return all the buffers that ar of IO type and connected to the end of this buffer
-   */
-  def getIOChain: Option[IOBuffer] = {
-
-    this.foreachNextBuffer {
-      case io: IOBuffer ⇒
-
-        return Some(io)
-      case _ ⇒
-    }
-
-    None
-
-  }
+  
 
   /**
    * Pushs a data unit coming from previous buffer in chain
@@ -405,4 +368,77 @@ trait Buffer {
    */
   def insertPreviousBuffer(buffer: Buffer): Buffer
 
+  // Buffer Type Search
+  //--------------
+  def findBufferType[T <: Buffer](implicit tag : ClassTag[T]) : Option[T] = {
+    
+    var res : Option[T] = None
+    this.foreachNextBuffer {
+        case b: T ⇒
+
+          res = Some(b)
+        case _ ⇒ 
+      
+    }
+  
+   res
+    
+  }
+  // IO Chain
+  //----------
+  
+  /**
+   * Run Some code with the IOChain of another buffer (transfer and clean)
+   */
+  def withIOChain(buffer: Buffer)(cl : => Any) {
+    
+    buffer.getIOChain match {
+      case Some(io) =>
+        this.appendBuffer(io)
+        cl
+        this.cleanIOChain
+      case None => cl
+    }
+    
+  }
+  
+  var cleanLock = new ReentrantLock
+
+  def lockIO = cleanLock.lock()
+  def unlockIO = cleanLock.unlock()
+
+  /**
+   * ONly front Buffer can clean the IO chain, and if I/Os are not locked
+   */
+  def cleanIOChain = {
+
+    if (this.getPreviousBuffer == null && cleanLock.getHoldCount() == 0) {
+      
+      //println("Clean IO from "+getClass)
+      this.foreachNextBuffer {
+        case io: IOBuffer ⇒
+
+          //println("Removing IO Buffer")
+          io.remove
+        case _ ⇒
+      }
+    }
+
+  }
+
+  /**
+   * Return all the buffers that ar of IO type and connected to the end of this buffer
+   */
+  def getIOChain: Option[IOBuffer] = {
+
+    this.foreachNextBuffer {
+      case io: IOBuffer ⇒
+
+        return Some(io)
+      case _ ⇒
+    }
+
+    None
+
+  }
 }

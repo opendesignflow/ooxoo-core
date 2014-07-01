@@ -115,6 +115,9 @@ abstract class BaseIOBuffer extends IOBuffer with BaseBufferTrait {
       //println(s"IO Buffer (${hashCode}) leaves $previousBuffer for: "+finalBuffer)
       this.previousStack.push(this.previousBuffer)
       
+      //-- Set new previous buffer next to this
+      /*if(buffer!=null)
+    	  buffer.setNextBuffer(this)*/
     }
     	
    
