@@ -332,6 +332,12 @@ object StAXIOBuffer {
     new StAXIOBuffer(new StringReader(str))
 
   }
+  
+  def apply(url: URL) = {
+
+    new StAXIOBuffer(url)
+
+  }
 
   /**
    * Creates a StaxIOBuffer with a specific data output stream

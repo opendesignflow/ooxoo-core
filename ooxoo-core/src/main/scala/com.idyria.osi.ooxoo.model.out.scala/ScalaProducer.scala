@@ -1,3 +1,24 @@
+/*
+ * #%L
+ * Core runtime for OOXOO
+ * %%
+ * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
 package com.idyria.osi.ooxoo.model.out.scala
 
 import com.idyria.osi.ooxoo.model._
@@ -29,34 +50,15 @@ class ScalaProducer extends ModelProducer {
   def cleanName(name: String): String = {
 
     // Trim and Lower case first character
-    var res = name.trim().zipWithIndex.map { case (c, 0) => c.toLower;
+    var res = name.trim().zipWithIndex.map {
+      case (c, 0) => c.toLower;
 
-/*
- * #%L
- * Core runtime for OOXOO
- * %%
- * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-case (c, i) => c }.mkString
+      case (c, i) => c
+    }.mkString
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
-      case true  ⇒ res = res + "_"
+      case true ⇒ res = res + "_"
       case false ⇒
     }
 
@@ -92,13 +94,13 @@ case (c, i) => c }.mkString
     val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
     var className = (element.classType, name.toString) match {
       case (enumerationBufferClass, "Value") => "_Value"
-      case _                                 => name
+      case _ => name
     }
 
     // Merge ClassName with its parents
     // If element is its own parent (recursion), then start on parent
-    var current =  element.parent match {
-      case p if(p!=null && p.name.toString==element.name.toString) => p
+    var current = element.parent match {
+      case p if (p != null && p.name.toString == element.name.toString) => p
       case _ => element
     }
     var parentNames = ""
@@ -143,7 +145,7 @@ case (c, i) => c }.mkString
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
       case Some(p) ⇒ p
-      case None    ⇒ model.getClass().getPackage().getName()
+      case None ⇒ model.getClass().getPackage().getName()
     }
 
     def writeElement(element: Element): Unit = {
@@ -170,8 +172,8 @@ case (c, i) => c }.mkString
 
       // Class Name
       //-----------------
-      var className = canonicalClassName(model,element)
-      
+      var className = canonicalClassName(model, element)
+
       /*// enumeration and name "Value" are incompatible
       val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
       var className = (element.classType, name.toString) match {
@@ -217,14 +219,14 @@ import scala.language.implicitConversions
 
       //-- Class Definition
       (namespace, name) match {
-        case ("", name)        ⇒ out << s"""@xelement(name="$name")"""
+        case ("", name) ⇒ out << s"""@xelement(name="$name")"""
         case (namespace, name) ⇒ out << s"""@xelement(name="$name",ns="$namespace")"""
       }
 
       //-- Imported Traits
       var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
         case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
-        case _                                   => ""
+        case _ => ""
       }
 
       // var parents = for( p <- current.parent if(current.parent!=null))
@@ -333,16 +335,15 @@ import scala.language.implicitConversions
         // ResolvedType if imported of not
         //-----------------
         var resolvedType = element.imported.data.booleanValue() match {
-          case true  => model.splitName(element.classType.toString)._2
-         
+          case true => model.splitName(element.classType.toString)._2
+
           // Resolved Type is in the targetpackage, and is the canonical name of the subelement
-          case false => 
-            
+          case false =>
+
             //s"$targetPackage.${resolvedName._2}"
-            
-            s"$targetPackage.${canonicalClassName(model,element)}"
-       
-        
+
+            s"$targetPackage.${canonicalClassName(model, element)}"
+
         }
         // Element definition
         //---------------
@@ -357,12 +358,12 @@ import scala.language.implicitConversions
 
             out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
                         """
-            
+
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
             out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
                         """
-            
+
         }
       }
 
@@ -393,9 +394,7 @@ import scala.language.implicitConversions
           classOf[CDataBuffer] -> "String",
           classOf[IntegerBuffer] -> "Int",
           classOf[DoubleBuffer] -> "Double",
-          classOf[BooleanBuffer] -> "Boolean"
-
-        )
+          classOf[BooleanBuffer] -> "Boolean")
 
         var classType = Thread.currentThread.getContextClassLoader().loadClass(element.classType.toString)
         classOf[AbstractDataBuffer[_]].isAssignableFrom(classType) match {

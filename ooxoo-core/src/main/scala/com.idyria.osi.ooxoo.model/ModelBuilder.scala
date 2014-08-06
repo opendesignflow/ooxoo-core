@@ -158,7 +158,15 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
   /**
    * Set class type of current element to the one matching a standard type
    */
-  def ofType(str: String): Unit = classType(getType(str.toLowerCase()).getCanonicalName())
+  def ofType(str: String): Unit = {
+    
+    str.contains(".") match {
+      case true => classType(str)
+      case false => classType(getType(str.toLowerCase()).getCanonicalName())
+    }
+    
+    
+  } 
 
   def withTrait(traitType: String) = {
 

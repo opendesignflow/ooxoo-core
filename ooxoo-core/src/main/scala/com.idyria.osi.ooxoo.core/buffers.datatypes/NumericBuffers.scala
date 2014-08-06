@@ -31,6 +31,8 @@ import scala.language.implicitConversions
  */
 class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Int] {
 
+  this.data = 0
+  
   def dataFromString(str: String): Integer = {
     this.data = Integer.decode(str)
     this.data
@@ -123,6 +125,8 @@ object LongBuffer {
  */
 class DoubleBuffer extends AbstractDataBuffer[java.lang.Double] with Comparable[java.lang.Double] {
 
+  this.data = 0.0
+  
   def dataFromString(str: String): java.lang.Double = {
     this.data = java.lang.Double.parseDouble(str)
     this.data
@@ -159,6 +163,8 @@ object DoubleBuffer {
  */
 class FloatBuffer extends AbstractDataBuffer[java.lang.Float] with Comparable[java.lang.Float] {
 
+  this.data = 0.0f
+  
   def dataFromString(str: String): java.lang.Float = {
     this.data = java.lang.Float.parseFloat(str)
     this.data

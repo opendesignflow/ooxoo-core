@@ -317,7 +317,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             (this.getXContentField, this.getIOChain) match {
               case (Some(content), Some(ios)) ⇒
               
-                content.appendBuffer(this.lastBuffer);
+                content.appendBuffer(ios.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
                 du.setHierarchyClose 
               	
@@ -355,7 +355,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
                 logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) ---- Passing to xcontent:  ${du.value} ")
 
-                content.appendBuffer(this.getIOChain.get.cloneIO);
+                content.appendBuffer(ios.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
                 du.setHierarchyClose 
                 content <= du

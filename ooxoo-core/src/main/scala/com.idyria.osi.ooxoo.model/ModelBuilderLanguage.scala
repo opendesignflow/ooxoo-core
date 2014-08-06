@@ -53,14 +53,13 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("uri" -> classOf[URIBuffer]),
     ("url" -> classOf[URIBuffer]),
 
-    ("map" -> classOf[StringMapBuffer])
-  )
+    ("map" -> classOf[StringMapBuffer]))
 
   def getType(str: String): Class[_ <: Buffer] = {
 
     this.typesMap.get(str) match {
       case Some(resClass) => resClass
-      case None           => throw new RuntimeException(s"""ModelBuilderLanguage: Specified type "$str" did not map to a registered Class""")
+      case None => throw new RuntimeException(s"""ModelBuilderLanguage: Specified type "$str" did not map to a registered Class""")
     }
   }
 
@@ -132,17 +131,15 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
           @->("element.start", left)
 
-	      left.classType = getType(right.toLowerCase()).getCanonicalName
-	
-	      @->("element.end", left)
-          
+          left.classType = getType(right.toLowerCase()).getCanonicalName
+
+          @->("element.end", left)
+
         // Description
         //-------------------
-        case _ => 
+        case _ =>
           left.description = right
       }
-
-      
 
       this
 
@@ -155,8 +152,13 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       @->("element.start", left)
 
-      left.classType = getType(right.toLowerCase()).getCanonicalName
+      //left.classType = getType(right.toLowerCase()).getCanonicalName
       left.imported = true
+
+      right.contains(".") match {
+        case true => left.classType = right
+        case false => left.classType = getType(right.toLowerCase()).getCanonicalName()
+      }
 
       @->("element.end", left)
 
@@ -274,7 +276,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
       this
 
     }
-    
+
     /**
      * Set Enumeration type
      */
@@ -284,7 +286,6 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       left.classType = classOf[EnumerationBuffer].getCanonicalName
       values.foreach(left.enumerationValues += _)
-      
 
       this
 
