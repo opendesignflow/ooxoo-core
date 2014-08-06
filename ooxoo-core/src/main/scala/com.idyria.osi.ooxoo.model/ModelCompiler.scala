@@ -116,8 +116,8 @@ object ModelCompiler {
    */
   def bind(name: String, value: Any) = {
 
-    imain.bindValue(name, value)
-
+    imain.bind(name, value)
+   // imain.
   }
 
   /**
@@ -181,8 +181,8 @@ $inputModel
 
         // Get Annotations
         //----------
-        imain.bindValue("modelInfos", modelInfos)
-        imain.bindValue("file", file)
+        imain.bind("modelInfos", modelInfos)
+        imain.bind("file", file)
 
         // Run
         //----------------
@@ -225,8 +225,8 @@ $inputModel
     //println("Produce compiled model: "+modelInfos.name)
 
     //imain.bindValue(s"${modelInfos.name}",modelInfos)
-    imain.bindValue("producer", producer)
-    imain.bindValue("writer", out)
+    imain.bind("producer", producer)
+    imain.bind("writer", out)
     imain.interpret(s"""${modelInfos.name}.name match { case null => ${modelInfos.name}.name = "${modelInfos.name}"; case _ => ;}""")
     /* imain.interpret(s"""
 println("Model infos "+${modelInfos.name})

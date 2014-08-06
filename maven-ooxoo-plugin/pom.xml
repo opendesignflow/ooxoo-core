@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.idyria.osi.ooxoo</groupId>
 		<artifactId>ooxoo-all</artifactId>
-		<version>3.0.1-SNAPSHOT</version>
+		<version>3.1.0-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
  
@@ -23,7 +23,7 @@
     </distributionManagement>-->
 	
 	<properties>
-		<scala.mojo.version>0.5.0</scala.mojo.version>
+		<scala.mojo.version>0.5.1-SNAPSHOT</scala.mojo.version>
 	</properties>
 	<build>
 		<plugins>
@@ -34,7 +34,7 @@
 		        <dependencies>
 					<dependency>
 						<groupId>com.jsuereth</groupId>
-						<artifactId>scala-mojo-support_2.10</artifactId>
+						<artifactId>scala-mojo-support_2.11</artifactId>
 						<version>${scala.mojo.version}</version>
 					</dependency>
 				</dependencies>
@@ -119,7 +119,7 @@
 	    </dependency>
 	    <dependency>
 			<groupId>com.jsuereth</groupId>
-			<artifactId>scala-mojo-support_2.10</artifactId>
+			<artifactId>scala-mojo-support_2.11</artifactId>
 			<version>${scala.mojo.version}</version>
 		</dependency>
 	</dependencies>
