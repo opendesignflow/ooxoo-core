@@ -40,7 +40,10 @@ trait ModelBuilderLanguage extends ListeningSupport {
    * Types map is used to map type strings to actual Buffer implementation
    */
   var typesMap = Map[String, Class[_ <: Buffer]](
+      
     ("string" -> classOf[XSDStringBuffer]),
+    ("htmlstring" -> classOf[HTMLStringBuffer]),
+    
     ("cdata" -> classOf[CDataBuffer]),
     ("int" -> classOf[IntegerBuffer]),
     ("integer" -> classOf[IntegerBuffer]),
