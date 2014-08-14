@@ -440,16 +440,18 @@ object Transaction extends TLogSource {
   /**
    * Executes the closure on the transaction, issuing a commit at the end of join group
    */
-  def join(cl: ⇒ Any): Unit = {
+  def join[T <: Any](cl: ⇒ T): T = {
 
     //-- Make the transaction pending
     Transaction().begin
 
     //-- Execute
-    cl
+    var res = cl
 
     //-- Commit
     Transaction().commit
+    
+    res
 
   }
 
@@ -494,7 +496,7 @@ object Transaction extends TLogSource {
   /**
    * Creates a new sub transaction in blocking mode, and commit it at the end
    */
-  def doBlocking(cl: => Any): Any = {
+  def doBlocking[T <: Any](cl: => T): T = {
 
     //-- Create transaction
     var transaction = Transaction.begin()
@@ -502,10 +504,12 @@ object Transaction extends TLogSource {
     
     //-- Execute
     try {
-      cl
+      var res = cl
       
       //-- Commit
       transaction.commit
+      
+      res
       
     } catch {
       
