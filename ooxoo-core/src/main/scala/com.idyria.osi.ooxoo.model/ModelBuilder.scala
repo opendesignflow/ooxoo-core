@@ -325,6 +325,9 @@ trait Common {
   @xattribute(name = "name")
   var name: XSDStringBuffer = null
 
+  @xattribute(name = "className")
+  var className: XSDStringBuffer = null
+  
   @xelement(name = "Description")
   var description: XSDStringBuffer = null
 
@@ -407,6 +410,7 @@ class Element(
   this.classType = classOf[ElementBuffer].getCanonicalName
   this.traits += classOf[ElementBuffer].getCanonicalName
   this.name = inputName
+  this.className = inputName
 
   // Description
   //-----------------------
@@ -444,6 +448,7 @@ class Attribute(inputName: String) extends ElementBuffer with Common {
   //-------------
   this.classType = classOf[XSDStringBuffer].getCanonicalName
   this.name = inputName
+  this.className = inputName
 
 }
 object Attribute {

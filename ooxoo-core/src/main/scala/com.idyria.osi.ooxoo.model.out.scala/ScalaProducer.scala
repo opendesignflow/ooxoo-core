@@ -85,8 +85,11 @@ class ScalaProducer extends ModelProducer {
    */
   def canonicalClassName(model: Model, element: Element): String = {
 
-    var name = element.name
-    model.splitName(element.name) match {
+    var name = element.className match {
+      case null => element.name 
+      case _ => element.className
+    }
+    model.splitName(name) match {
       case (sNs, sName) ⇒ name = sName
     }
 
@@ -105,7 +108,12 @@ class ScalaProducer extends ModelProducer {
     }
     var parentNames = ""
     while (current.parent != null) {
-      parentNames = s"${model.splitName(current.parent.name.toString)._2}$parentNames"
+
+      var currentName = current.parent.className match {
+      case null => current.parent.name 
+      case _ => current.parent.className
+    }
+      parentNames = s"${model.splitName(currentName.toString)._2}$parentNames"
       current = current.parent
     }
 

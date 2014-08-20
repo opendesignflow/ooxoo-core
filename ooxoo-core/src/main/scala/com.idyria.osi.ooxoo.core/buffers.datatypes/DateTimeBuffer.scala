@@ -1,11 +1,10 @@
 package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-
 import scala.language.implicitConversions
-
-import java.util._
-import java.text._
+import java.text.SimpleDateFormat
+import java.util.GregorianCalendar
+import java.text.ParsePosition
 
 /**
  * DateTimeBuffer bears per default the time at object creation
@@ -17,35 +16,60 @@ class DateTimeBuffer extends AbstractDataBuffer[java.util.GregorianCalendar] wit
   //--------------------
   this.data = new GregorianCalendar
 
+ 
+  /**
+   * Selected format detected when parsing
+   */
+  var selectedFormat: Option[String] = None
+
   def dataFromString(str: String): java.util.GregorianCalendar = {
 
     //this.data = java.lang.Boolean.parseBoolean(str)
     //this.data
 
-    // Parse
-    //-------------
-    var dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
-    var date = dateFormat.parse(str, new ParsePosition(0))
-    if (date == null) {
-      throw new RuntimeException(s"""Could not parse date: $str , does not match correct format: yyyy-MM-dd'T'HH:mm:ssX""")
-    }
+    // Find Format if necessary
+    //---------------
+    selectedFormat = DateTimeBuffer.availableFormats.find {
+      format =>
 
-    // Create Gregoran Calendar from this date
-    //----------------
-    this.data = new GregorianCalendar
+        try {
+          // Parse
+          //-------------
+          var dateFormat = new SimpleDateFormat(format)
+          var date = dateFormat.parse(str, new ParsePosition(0))
+          if (date == null) {
+            throw new RuntimeException(s"""Could not parse date: $str , does not match correct format: yyyy-MM-dd'T'HH:mm:ssX""")
+          }
 
-    /* println(s"parsed with offset: ${date.getTimezoneOffset()}")
+          // Create Gregoran Calendar from this date
+          //----------------
+          this.data = new GregorianCalendar
+
+          /* println(s"parsed with offset: ${date.getTimezoneOffset()}")
         // The Timezone offset is relative to the current one in seconds
         this.data.getTimeZone.setRawOffset((date.getTimezoneOffset()))*/
 
-    this.data.setTime(date)
+          this.data.setTime(date)
+          
+          true
+        } catch {
+          
+          //-- Format fail
+          case e: Throwable => false
+        }
+
+    } match {
+      case None => throw new IllegalArgumentException(s"DateTimeBuffer could not parse input $str agains any of the configured format: ${DateTimeBuffer.availableFormats}")
+      case r => r
+    }
+
     this.data
 
   }
 
   def dataToString: String = if (data != null) String.format("%1$tY-%1$tm-%1$tdT%1$tH:%1$tM:%1$tS%tz", this.data);
 
-/*
+  /*
  * #%L
  * Core runtime for OOXOO
  * %%
@@ -66,7 +90,7 @@ class DateTimeBuffer extends AbstractDataBuffer[java.util.GregorianCalendar] wit
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-else null
+  else null
 
   override def toString: String = this.dataToString
 
@@ -78,8 +102,14 @@ else null
 
 object DateTimeBuffer {
 
-  def apply() = new DateTimeBuffer
+   /**
+   * List of possible date formats
+   */
+  var availableFormats = List("yyyy-MM-dd'T'HH:mm:ssX", "yyyy-MM-dd HH:mm:ss")
+
   
+  def apply() = new DateTimeBuffer
+
   implicit def convertDateTimeBufferToCalendar(b: DateTimeBuffer): java.util.GregorianCalendar = b.data
   implicit def convertCalendarToDateTimeBuffer(c: java.util.GregorianCalendar): DateTimeBuffer = {
 
