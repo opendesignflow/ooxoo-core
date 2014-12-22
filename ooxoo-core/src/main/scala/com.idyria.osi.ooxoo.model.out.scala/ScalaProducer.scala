@@ -155,6 +155,9 @@ class ScalaProducer extends ModelProducer {
       case Some(p) ⇒ p
       case None ⇒ model.getClass().getPackage().getName()
     }
+    
+    //-- Convert Target  Package to Folder path and create as well
+    var targetPackagePath = this.targetPackage.replace(".","/")
 
     def writeElement(element: Element): Unit = {
 
@@ -202,7 +205,7 @@ class ScalaProducer extends ModelProducer {
 
       // If Type has already been written, don't overwrite it
       //-----------------------
-      var fileName = "./" + targetPackage + "/" + className + ".scala"
+      var fileName = "./" + targetPackagePath + "/" + className + ".scala"
       if (out.fileWritten(fileName)) {
         return
       }
