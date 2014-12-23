@@ -392,8 +392,30 @@ import scala.language.implicitConversions
         out << ""
       }
 
+      //-- Add URL constructor factory if type is not abstract
+      //----------------
+      
       //-- Add An Automatic conversion from base type if it is a base type
       //---------------
+      if (!element.isTrait) {
+        out << s"""
+def apply(url : java.net.URL) = {
+  
+  // Instanciate
+  var res = new $className
+  
+  // Set Stax Parser and streamIn
+  var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(url)
+  res.appendBuffer(io)
+  io.streamIn
+  
+  // Return
+  res
+  
+}
+
+"""
+      }
       try {
 
         val typesMap = Map(
