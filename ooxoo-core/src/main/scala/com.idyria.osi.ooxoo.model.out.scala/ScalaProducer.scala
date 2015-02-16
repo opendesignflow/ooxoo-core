@@ -320,7 +320,9 @@ import scala.language.implicitConversions
                         """
             out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
                         """
-            out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}();__${cleanName(resolvedName._2)} case v => v }
+            /*out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}();__${cleanName(resolvedName._2)} case v => v }
+                        """*/
+            out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
                         """
         }
 
@@ -372,9 +374,10 @@ import scala.language.implicitConversions
 
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
-            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
+            /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
+                        """*/
+           out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)}
                         """
-
         }
       }
 
@@ -401,6 +404,8 @@ import scala.language.implicitConversions
       //-- Add An Automatic conversion from base type if it is a base type
       //---------------
       if (!element.isTrait) {
+        
+        //-- Add From URL Factory
         out << s"""
 def apply(url : java.net.URL) = {
   
@@ -417,6 +422,23 @@ def apply(url : java.net.URL) = {
   
 }
 
+"""
+      //-- Add From String factory
+      out << s"""
+def apply(xml : String) = {
+  
+  // Instanciate
+  var res = new $className
+  
+  // Set Stax Parser and streamIn
+  var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(xml)
+  res.appendBuffer(io)
+  io.streamIn
+  
+  // Return
+  res
+  
+}
 """
       }
       try {

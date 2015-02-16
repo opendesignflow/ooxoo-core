@@ -30,6 +30,8 @@ trait AnyBufferTrait extends Buffer {
     var name : String = null
     
     var ns : String = null
+    
+    var text : String = null
 }
 
 @any
@@ -37,6 +39,16 @@ class AnyElementBuffer extends ElementBuffer with AnyBufferTrait {
 
     @any 
     var content = AnyXList()
+    
+    override def streamIn(du:DataUnit) = {
+      this.lockIO
+      if (du!=null && du.value!=null) {
+        this.text = du.value
+      }
+      this.unlockIO
+      
+      super.streamIn(du)
+    }
 
 }
 
@@ -175,6 +187,7 @@ object AnyXList {
                                 var elementBuffer = new AnyElementBuffer
                                 elementBuffer.name = element.name
                                 elementBuffer.ns = element.ns
+                                elementBuffer.text = du.value
                                 res = elementBuffer
                         }
 
@@ -191,6 +204,7 @@ object AnyXList {
                           case "" => null
                           case ns => ns
                         }
+                        attributeBuffer.text = du.value
                         res = attributeBuffer
 
                        //null 

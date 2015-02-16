@@ -50,6 +50,8 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("long" -> classOf[LongBuffer]),
     ("float" -> classOf[FloatBuffer]),
     ("datetime" -> classOf[DateTimeBuffer]),
+    ("time" -> classOf[DateTimeBuffer]),
+    ("date" -> classOf[DateTimeBuffer]),
     ("boolean" -> classOf[BooleanBuffer]),
     ("bool" -> classOf[BooleanBuffer]),
     ("regexp" -> classOf[RegexpBuffer]),

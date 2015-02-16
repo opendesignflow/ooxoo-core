@@ -30,6 +30,9 @@ import java.lang.reflect.ParameterizedType
 import scala.language.implicitConversions
 import com.idyria.osi.tea.logging._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.AbstractBuffer
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
@@ -39,10 +42,23 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
  */
 class XList[T <: Buffer](
 
-    val createBuffer: DataUnit ⇒ T) extends MutableList[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
+    val createBuffer: DataUnit ⇒ T) extends   ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
   var currentBuffer: Buffer = null
 
+  /*def -=(b:Buffer) : Boolean = {
+    this.contains(b) match {
+      case true =>  super.-
+      case false => false
+    }
+  }*/
+  
+  // Accessors
+  //----------------
+  def get(index:Int) : Option[T] = {
+    Some(this(index))
+  }
+  
   override def streamOut(du: DataUnit) = {
 
     //println(s"Streamout in XList for ${size} elements")
