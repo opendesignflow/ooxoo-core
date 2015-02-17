@@ -10,7 +10,7 @@
         <groupId>com.idyria.osi</groupId>
         <artifactId>superpom-scala</artifactId>
         <version>2.11.5.r1</version>
-    </parent>
+    </parent> 
 
     <!-- Site Distribution -->
     <!-- ################# -->
