@@ -41,6 +41,7 @@ class BooleanBuffer extends AbstractDataBuffer[java.lang.Boolean] with Comparabl
 
     def compareTo(comp: java.lang.Boolean ) : Int = this.data.compareTo(comp)
 
+    def toBool = this.data.booleanValue()
    
 
 }
@@ -56,5 +57,11 @@ object BooleanBuffer {
         bb.data = b 
         bb
 
+    }
+    
+    implicit def convertFromString(data:String) : BooleanBuffer = {
+        var b = new BooleanBuffer
+        b.dataFromString(data)
+        b
     }
 }

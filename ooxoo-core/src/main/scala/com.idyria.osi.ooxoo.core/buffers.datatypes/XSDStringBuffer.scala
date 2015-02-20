@@ -71,6 +71,11 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
     //println("Called compare to to xsdstringbuffer")
     this.data.compareTo(comp)
   }
+  
+  def ===(str:String) : Boolean = {
+      println(s"in equals compare")
+      this.data == str
+  }
 
   /* implicit def convertSubClassesToStringBufferType[T <: XSDStringBuffer](str:String) : T = {
     
