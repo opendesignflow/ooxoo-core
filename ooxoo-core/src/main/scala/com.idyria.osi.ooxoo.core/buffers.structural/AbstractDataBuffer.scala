@@ -1,12 +1,34 @@
 /**
- *
+ * #%L
+ * Core runtime for OOXOO
+ * %%
+ * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
-import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
-import com.idyria.osi.tea.logging._
+import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
+import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
+import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
+
 
 /**
  *
@@ -45,9 +67,21 @@ abstract class AbstractDataBuffer[DT](
 
   }
 
-  // Propagate
+  // Push/Pull
   //-----------------
-
+  override def pushRight(du:DataUnit) = {
+      importDataUnit(du)
+      super.pushRight(du)
+      
+  }
+  
+  override def pushLeft(du:DataUnit) = {
+      importDataUnit(du)
+      super.pushLeft(du)
+      
+  }
+  
+  
   // Data Unit
   //---------------------
 
@@ -79,7 +113,7 @@ abstract class AbstractDataBuffer[DT](
    * Create data unit using string conversion
    */
   override def importDataUnit(du: DataUnit): Unit = {
-
+  
     var res = this.dataFromString(du.value)
     this.data = res
 
@@ -148,27 +182,7 @@ abstract class AbstractDataBuffer[DT](
     /*if (du.attribute == null && du.element == null && du.hierarchical == false && du.value == null) {
       logFine("---- End of hierarchy for data buffer (" + this.getClass() + ") -> remove IO chain");
 
-/*
- * #%L
- * Core runtime for OOXOO
- * %%
- * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
+
 
       logFine("---- BCBefore: " + this.printForwardChain)
       if (this.lastBuffer.isInstanceOf[IOBuffer])

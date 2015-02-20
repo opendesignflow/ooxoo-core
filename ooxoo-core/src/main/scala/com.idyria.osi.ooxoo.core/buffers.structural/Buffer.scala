@@ -133,7 +133,7 @@ trait Buffer {
     this.pushRight(dataUnit)
     this.pushLeft(dataUnit)
   }
-  def push: Unit = push(DataUnit())
+  def push: Unit = push(null)
 
   /**
    * Push a Data Unit to the right of the buffer chain
