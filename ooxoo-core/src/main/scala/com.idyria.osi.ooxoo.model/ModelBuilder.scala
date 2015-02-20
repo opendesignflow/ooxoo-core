@@ -344,6 +344,9 @@ trait Common {
    * An Imported element is not written to output, its classType is just used as is
    */
   var imported: BooleanBuffer = false
+  
+   @xattribute(name = "default")
+  var default : XSDStringBuffer = null
 
   @xelement(name = "EnumerationValues")
   var enumerationValues = XList { new XSDStringBuffer }

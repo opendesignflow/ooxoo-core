@@ -41,7 +41,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
    */
   var typesMap = Map[String, Class[_ <: Buffer]](
       
-    ("string" -> classOf[XSDStringBuffer]),
+    ("string" -> classOf[XSDStringBuffer]), 
     ("htmlstring" -> classOf[HTMLStringBuffer]),
     
     ("cdata" -> classOf[CDataBuffer]),
@@ -170,6 +170,18 @@ trait ModelBuilderLanguage extends ListeningSupport {
       this
 
     }
+    
+    /**
+     * Set type of element based on string
+     */
+    def default(right: String): IsWordElementWrapper = {
+
+      //left.im
+      left.default = right
+
+      this
+
+    }
 
     /**
      * Set Enumeration type
@@ -194,7 +206,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
       this
     }
 
-    def is(right: => Any): Element = {
+    def is(right: => Any): Element = { 
 
       //println("in is definition for Element")
 

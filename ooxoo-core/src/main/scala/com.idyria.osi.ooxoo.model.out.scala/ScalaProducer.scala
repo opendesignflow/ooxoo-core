@@ -315,6 +315,12 @@ import scala.language.implicitConversions
           // Normal Attribute
           //-------------------
           case _ ⇒
+          
+               // Default value
+              var defaultValue = attribute.default match {
+                case null => "null"
+                case defaultValue =>  s"""${attribute.classType}.convertFromString("$defaultValue")"""
+            }
 
             out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
                         """
@@ -369,7 +375,13 @@ import scala.language.implicitConversions
 
           case _ ⇒
 
-            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
+              // Default value
+              var defaultValue = element.default match {
+                case null => "null"
+                case defaultValue =>  s"""${resolvedType}.convertFromString("$defaultValue")""" 
+            }
+          
+            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
                         """
 
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
@@ -465,6 +477,10 @@ def apply(xml : String) = {
               case Some(baseType) ⇒
 
                 out << s"implicit def convertFromBaseDataType(data: $baseType) : $className =  { var res = new $className ; res.data = data; res; } "
+                
+                // Convert from string does not make sense for String type
+                if (baseType!="String")
+                    out << s"implicit def convertFromString(data: String) : $className =  { var res = new $className ; res.dataFromString(data); res; } "
 
               // Not found, just ouput a warning comment
               case None ⇒
