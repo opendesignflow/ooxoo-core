@@ -107,7 +107,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
       left.maxOccurs = 10
 
       left.classType = right.name
-      left.instanceOfElement = right
+      //left.instanceOfElement = right
 
       @->("element.end", left)
 
