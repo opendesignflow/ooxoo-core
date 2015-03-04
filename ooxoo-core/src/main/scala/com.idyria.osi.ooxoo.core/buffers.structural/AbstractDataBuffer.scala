@@ -166,7 +166,9 @@ abstract class AbstractDataBuffer[DT](
         case elt if(elt!=null && du.attribute!=null) =>  
           
         //-- Eat
-        case _ => this.set(this.dataFromString(du.value))
+        case _ => 
+          this.importDataUnit(du)
+          //this.set(this.dataFromString(du.value))
       }
 
       //println("Importing data: "+du.value)
