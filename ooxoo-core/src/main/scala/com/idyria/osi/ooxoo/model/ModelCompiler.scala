@@ -151,7 +151,7 @@ $inputModel
 
     // Determine object name
     //------------
-    """object\s+([A-Za-z]+)\s+.+""".r.findFirstMatchIn(inputModel) match {
+    """object\s+([A-Za-z\w]+)\s+.+""".r.findFirstMatchIn(inputModel) match {
       case Some(matchRes) => modelName = List(modelName, matchRes.group(1)).filterNot(_ == "").mkString(".")
       case None =>
         throw new RuntimeException(s"Could not determine object name of model: $inputModel")

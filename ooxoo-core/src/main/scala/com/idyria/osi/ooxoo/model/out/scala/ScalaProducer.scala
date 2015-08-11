@@ -70,7 +70,13 @@ class ScalaProducer extends ModelProducer {
    */
   def makePlural(name: String): String = {
 
-    English.plural(name)
+   
+
+  name match {
+      case name if (name.matches(".*s")) => name
+      case _ =>  English.plural(name)
+    }
+
     /*
     name match {
       case name if (name.matches(".*[aeiou]s")) => name+"es"
@@ -322,7 +328,7 @@ import scala.language.implicitConversions
                 case defaultValue =>  s"""${attribute.classType}.convertFromString("$defaultValue")"""
             }
 
-            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
+            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = $defaultValue
                         """
             out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
                         """

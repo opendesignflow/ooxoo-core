@@ -341,6 +341,14 @@ trait ModelBuilderLanguage extends ListeningSupport {
       this
 
     }
+    
+    /**
+     * Default value
+     */
+    def default(right:String) : IsWordAttributeWrapper = {
+      left.default = right
+      this
+    }
   }
 
   class AttributeWordAttributeWrapper(var left: Attribute) {

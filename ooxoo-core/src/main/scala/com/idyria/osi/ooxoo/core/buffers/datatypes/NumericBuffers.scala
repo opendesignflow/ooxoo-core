@@ -57,6 +57,13 @@ object IntegerBuffer {
     res.data = value
     res
   }
+  
+  def convertFromString( str : String) : IntegerBuffer = {
+    
+    var b = new IntegerBuffer
+    b.dataFromString(str)
+    b
+  }
 
   implicit def convertIntegerToIntegerBuffer(value: Integer): IntegerBuffer = IntegerBuffer(value)
   implicit def convertIntegerBufferToInteger(buffer: IntegerBuffer): Integer = buffer.data
@@ -111,12 +118,21 @@ object LongBuffer {
     res.data = value
     res
   }
+  
+  def convertFromString( str : String)  = {
+    
+    var b = new LongBuffer
+    b.dataFromString(str)
+    b
+  }
 
   implicit def convertLongToLongBuffer(value: java.lang.Long): LongBuffer = LongBuffer(value)
   implicit def convertLongBufferToLong(buffer: LongBuffer): java.lang.Long = buffer.data
 
   implicit def convertLong2ToLongBuffer(value: Long): LongBuffer = LongBuffer(value)
   implicit def convertLongBufferToLong2(buffer: LongBuffer): Long = buffer.data
+  
+  
 }
 
 /**
@@ -150,6 +166,13 @@ object DoubleBuffer {
     var res = new DoubleBuffer
     res.data = value
     res
+  }
+  
+  def convertFromString( str : String)  = {
+    
+    var b = new DoubleBuffer
+    b.dataFromString(str)
+    b
   }
 
   implicit def convertDoubleToDoubleBuffer(value: java.lang.Double): DoubleBuffer = DoubleBuffer(value)
@@ -190,6 +213,13 @@ object FloatBuffer {
     res
   }
 
+  def convertFromString( str : String)  = {
+    
+    var b = new FloatBuffer
+    b.dataFromString(str)
+    b
+  }
+  
   implicit def convertFloatToFloatBuffer(value: java.lang.Float): FloatBuffer = FloatBuffer(value)
   implicit def convertFloatToFloatBuffer(value: Float): FloatBuffer = FloatBuffer(value)
   implicit def convertFloatBufferToFloat(buffer: FloatBuffer): java.lang.Float = buffer.data
