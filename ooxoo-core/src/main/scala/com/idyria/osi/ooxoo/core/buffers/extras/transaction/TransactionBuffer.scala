@@ -64,6 +64,11 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
       this.pushDataUnit = null
       this.pullDataUnit = null
 
+    case Transaction.Buffering(transaction) ⇒
+
+      this.pushDataUnit = null
+      this.pullDataUnit = null
+
     case _ ⇒
 
       this.pushDataUnit = null
@@ -131,13 +136,30 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
 
     Transaction() match {
 
-      // Let through
+      // Stopped, just push the DU
       case Transaction.Stopped(transaction) ⇒
-
+      
         this.pushDataUnit = null
         this.pullDataUnit = null
         super.pushRight(du)
 
+      // Buffering, Save Data Unit and/or add value
+      case Transaction.Buffering(transaction) => 
+        
+        println(s"Buffering")
+         if (this.pushDataUnit==null) {
+           this.pushDataUnit = du
+         }
+        this.pullDataUnit = du
+         
+         var currentArray= this.pushDataUnit("buffer").asInstanceOf[Option[Array[String]]].getOrElse(new Array[String](0)).toVector
+         currentArray = (currentArray  :+ du.value)
+         //println(s"Size of b: "+currentArray.size)
+         this.pushDataUnit("buffer" -> currentArray.toArray)
+         
+         Transaction()(transactionAction)
+        
+        
       // Retain
       case _ ⇒
 
@@ -270,6 +292,17 @@ class Transaction {
   }
 
   /**
+   * Buffer
+   *  - Cache and stack the Push
+   *  - Pull always returns the last value
+   */
+  def buffer() = {
+    // Change State
+    //-------------
+    this.state = Transaction.State.Buffering
+  }
+
+  /**
    * Discard Transaction
    * Discard is called at the end of a transaction to cleanup
    */
@@ -295,7 +328,7 @@ object Transaction extends TLogSource {
    */
   object State extends Enumeration {
     type State = Value
-    val Stopped, Pending, Commit, Cancel, Rollback, Discard, Blocking = Value
+    val Stopped, Pending, Commit, Cancel, Rollback, Discard, Blocking, Buffering = Value
   }
 
   object Stopped {
@@ -343,6 +376,16 @@ object Transaction extends TLogSource {
 
     def unapply(transaction: Transaction): Option[Transaction] = {
       if (transaction.state == Transaction.State.Blocking)
+        return Option(transaction)
+      else
+        return None
+    }
+  }
+
+  object Buffering {
+
+    def unapply(transaction: Transaction): Option[Transaction] = {
+      if (transaction.state == Transaction.State.Buffering)
         return Option(transaction)
       else
         return None
@@ -416,7 +459,7 @@ object Transaction extends TLogSource {
         // Create
         var transaction = new Transaction
         transaction.initiator = initiator match {
-          case null      => transactions.head.initiator
+          case null => transactions.head.initiator
           case initiator => initiator
         }
 
@@ -450,7 +493,7 @@ object Transaction extends TLogSource {
 
     //-- Commit
     Transaction().commit
-    
+
     res
 
   }
@@ -501,31 +544,62 @@ object Transaction extends TLogSource {
     //-- Create transaction
     var transaction = Transaction.begin()
     transaction.block
-    
+
     //-- Execute
     try {
       var res = cl
-      
+
       //-- Commit
       transaction.commit
-      
+
       res
-      
+
     } catch {
-      
+
       //-- Always rollback in case of error
-      case e : Throwable => 
+      case e: Throwable =>
         transaction.cancel
         throw e
     } finally {
-      
+
       // Discard Transaction (block is done)
       Transaction.discard(transaction)
-      
+
     }
-    
-    
-    
+
+  }
+  
+  /**
+   * Creates a new sub transaction in blocking mode, and commit it at the end
+   */
+  def doBuffering[T <: Any](cl: => T): T = {
+
+    //-- Create transaction
+    var transaction = Transaction.begin()
+    transaction.buffer
+
+    //-- Execute
+    try {
+      var res = cl
+
+      //-- Commit
+      transaction.commit
+
+      res
+
+    } catch {
+
+      //-- Always rollback in case of error
+      case e: Throwable =>
+        transaction.cancel
+        throw e
+    } finally {
+
+      // Discard Transaction (block is done)
+      Transaction.discard(transaction)
+
+    }
+
   }
 
 }
