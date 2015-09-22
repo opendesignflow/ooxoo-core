@@ -95,6 +95,7 @@ object XSDStringBuffer {
   implicit def convertStringToXSDStringBuffer(str: String): XSDStringBuffer = new XSDStringBuffer(str)
   implicit def convertXSDStringBufferToString(str: XSDStringBuffer): String = str.toString
 
+   def convertFromString(data:String) : XSDStringBuffer = new XSDStringBuffer(data)
 }
 
 class CDataBuffer extends XSDStringBuffer {
@@ -117,6 +118,7 @@ object CDataBuffer {
   def apply(str: String) = new CDataBuffer(str)
   def apply() = new CDataBuffer
   implicit def convertStringToCDataBuffer(str: String): CDataBuffer = new CDataBuffer(str)
+   def convertFromString(data:String) : CDataBuffer = new CDataBuffer(data)
 
 }
 

@@ -146,7 +146,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
       // Buffering, Save Data Unit and/or add value
       case Transaction.Buffering(transaction) => 
         
-        println(s"Buffering")
+        //println(s"Buffering")
          if (this.pushDataUnit==null) {
            this.pushDataUnit = du
          }

@@ -39,7 +39,7 @@ class TestModelCompiler extends FunSuite with GivenWhenThen {
 
     test("Compiler test") {
 
-        var modelInfos = ModelCompiler.compile(new File("src/test/scala/com.idyria.osi.ooxoo.model/SOAP.xmodel"))
+        var modelInfos = ModelCompiler.compile(new File("src/test/scala/com/idyria/osi/ooxoo/model/SOAP.xmodel"))
 
         assertResult("SOAP")(modelInfos.name)
 
@@ -59,7 +59,7 @@ class TestModelCompiler extends FunSuite with GivenWhenThen {
         scalaProducer.targetPackage = "com.idyria.osi.ooxoo.model.test"
         var writer = new StdoutWriter
 
-        ModelCompiler.produce(new File("src/test/scala/com.idyria.osi.ooxoo.model/SOAP.xmodel"),scalaProducer,writer)
+        ModelCompiler.produce(new File("src/test/scala/com/idyria/osi/ooxoo/model/SOAP.xmodel"),scalaProducer,writer)
 
     }
 
