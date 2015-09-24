@@ -194,7 +194,8 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
   def isTrait(changeName : Boolean = false) : Unit = {
 
     elementsStack.headOption match {
-      case Some(element) => element.makeTrait(changeName)
+      case Some(element) => 
+        element.makeTrait(changeName)
       case None          => throw new RuntimeException("Cannot call isTrait() outside of an element")
     }
 
@@ -466,7 +467,10 @@ class Element(
     }
   }
   
-  def makeTraitAndObject = {
+  /**
+   * transforms this element in a trait, change its name, but use original name as class instantiation
+   */
+  def makeTraitAndUseCustomImplementation = {
     this.traitSeparateFromObject = this.className
     this.makeTrait(true)
   }

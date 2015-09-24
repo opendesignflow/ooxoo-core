@@ -11,7 +11,8 @@ import java.net.URL
  * @author zm4632
  */
 trait STAXSyncTrait extends ElementBuffer {
-
+  
+  var staxPreviousFile : Option[File] = None
   def toFile(f: File) = {
 
     // Create 
@@ -34,6 +35,18 @@ trait STAXSyncTrait extends ElementBuffer {
     io.streamIn
     
     this
+  }
+  
+  def fromFile(url: File) = {
+    
+    this.fromURL(url.toURI().toURL)
+    
+    this.staxPreviousFile = Some(url)
+  }
+  
+  def resyncToFile = staxPreviousFile match {
+    case Some(file) => this.toFile(file)
+    case None => throw new IllegalAccessException(s"Cannot Resync Class ${getClass.getCanonicalName} to file because none has been set. Use the fromFile method first to set the source file")
   }
 
 }
