@@ -514,11 +514,11 @@ def apply(xml : String) = {
                 // Found base type for this Base data type
                 case Some(baseType) ⇒
 
-                  out << s"implicit def convertFromBaseDataType(data: $baseType) : objectName =  { var res = new objectName ; res.data = data; res; } "
+                  out << s"implicit def convertFromBaseDataType(data: $baseType) : $objectName =  { var res = new $objectName ; res.data = data; res; } "
 
                   // Convert from string does not make sense for String type
                   if (baseType != "String")
-                    out << s"implicit def convertFromString(data: String) : objectName =  { var res = new objectName ; res.dataFromString(data); res; } "
+                    out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.dataFromString(data); res; } "
 
                 // Not found, just ouput a warning comment
                 case None ⇒
