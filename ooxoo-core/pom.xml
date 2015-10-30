@@ -75,9 +75,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.idyria.osi.tea</groupId>
+			<groupId>com.idyria.osi</groupId>
 			<artifactId>tea</artifactId>
-			<version>3.1.0</version>
+			<version>3.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
