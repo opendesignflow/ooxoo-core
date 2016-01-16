@@ -19,9 +19,6 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-/**
- *
- */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.annotation.Annotation
@@ -61,6 +58,7 @@ object xelement_base {
           // Get Annotation and instanciate base object
           //--------------------
           var annot = cl.getAnnotation(classOf[xelement])
+          //println(s"Annot: ${annot.name()}")
           if (annot!=null) {
 
             // Name: annotation content, or Object name
@@ -68,6 +66,7 @@ object xelement_base {
             var name = annot.name() match {
               
               case "" => firstName
+               case null => firstName
               case aname if (aname.trim().length==0) =>
 
                 //println(s"Found xelement on ${cl.getSimpleName}, with name: '${aname.trim().length}'")
@@ -86,7 +85,7 @@ object xelement_base {
                 }
 
              
-              case aname => firstName
+              case aname => aname
             }
 
             // NS: annotation content
