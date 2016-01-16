@@ -47,14 +47,14 @@ object xelement_base {
     */
    def apply(baseClass: Class[_]) : xelement_base = {
 
-      //println("Searching for xelement on baseclass: "+baseClass)
+      //println("Searching for xelement on baseclass: "+baseClass.getSimpleName)
 
       //baseClass.getClasses.foreach {
      //     cl => println("-> "+cl)
      // }
 
      // println("Superclass: "+baseClass.getSuperclass())
-
+      var firstName = baseClass.getSimpleName
       var cl : Class[_] = baseClass
       do {
 
@@ -66,19 +66,27 @@ object xelement_base {
             // Name: annotation content, or Object name
             //---------
             var name = annot.name() match {
-              case aname if (aname.length==0) =>
+              
+              case "" => firstName
+              case aname if (aname.trim().length==0) =>
 
+                //println(s"Found xelement on ${cl.getSimpleName}, with name: '${aname.trim().length}'")
+                
                 // Class Name, name can have some funny $annon$...$1 constructs
                 // So we need to filter
                 var regexp = """(?:.*\$)?([a-zA-Z][\w]+)(?:\$[0-9]+)?\z""".r
                 regexp.findFirstMatchIn(cl.getSimpleName) match {
                   case Some(m) => m.group(1)
+                  
+                  // Ifn o Name, always return first name
                   case None    =>
                     //println("Could not match in class name filter")
-                    cl.getSimpleName
+                    //cl.getSimpleName
+                    firstName
                 }
 
-              case aname => aname
+             
+              case aname => firstName
             }
 
             // NS: annotation content

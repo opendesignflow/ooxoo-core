@@ -6,6 +6,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import java.io.PrintStream
 import java.net.URL
+import java.io.ByteArrayOutputStream
 
 /**
  * @author zm4632
@@ -47,6 +48,18 @@ trait STAXSyncTrait extends ElementBuffer {
   def resyncToFile = staxPreviousFile match {
     case Some(file) => this.toFile(file)
     case None => throw new IllegalAccessException(s"Cannot Resync Class ${getClass.getCanonicalName} to file because none has been set. Use the fromFile method first to set the source file")
+  }
+  
+  def toXMLString : String = {
+    var res = StAXIOBuffer(this, true)
+
+    var bout = new ByteArrayOutputStream()
+    var out = new PrintStream(bout)
+    out.append(res)
+    out.close()
+   
+    new String(bout.toByteArray())
+    
   }
 
 }
