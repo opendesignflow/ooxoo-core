@@ -46,7 +46,7 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
   /**
    * Set provided string to actual data
    */
-  def dataFromString(str: String): String = { this.data = str; data }
+  def dataFromString(str: String): String = { this.data = str.trim; data }
 
   override def toString: String = {
     if (this.data == null)
@@ -73,7 +73,7 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
   }
   
   def ===(str:String) : Boolean = {
-      println(s"in equals compare")
+     // println(s"in equals compare")
       this.data == str
   }
 

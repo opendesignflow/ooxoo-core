@@ -168,7 +168,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     
   } 
 
-  def withTrait(traitType: String) = {
+  def withTrait(traitType: String)  : Unit = {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType
@@ -176,8 +176,12 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     }
 
   }
+  
+   def withTrait(traitClass: Class[ _ <: Buffer])  : Unit = {
+     withTrait(traitClass.getCanonicalName)
+  }
 
-  def withTrait(traitType: Element) = {
+  def withTrait(traitType: Element) : Unit = {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType.name

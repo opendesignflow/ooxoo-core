@@ -50,11 +50,15 @@ class ScalaProducer extends ModelProducer {
   def cleanName(name: String): String = {
 
     // Trim and Lower case first character
-    var res = name.trim().zipWithIndex.map {
-      case (c, 0) => c.toLower;
+    // If all letters are capital, keep it this way
+    var res = name.trim().find { c => c.isLower } match {
+      case None => name.trim()
+      case _ => name.trim().zipWithIndex.map {
+        case (c, 0) => c.toLower;
 
-      case (c, i) => c
-    }.mkString
+        case (c, i) => c
+      }.mkString
+    }
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
@@ -86,7 +90,7 @@ class ScalaProducer extends ModelProducer {
   def canonicalClassName(model: Model, element: Element): String = {
 
     var name = element.className match {
-      case null => element.name 
+      case null => element.name
       case _ => element.className
     }
     model.splitName(name) match {
@@ -110,9 +114,9 @@ class ScalaProducer extends ModelProducer {
     while (current.parent != null) {
 
       var currentName = current.parent.className match {
-      case null => current.parent.name 
-      case _ => current.parent.className
-    }
+        case null => current.parent.name
+        case _ => current.parent.className
+      }
       parentNames = s"${model.splitName(currentName.toString)._2}$parentNames"
       current = current.parent
     }
@@ -155,9 +159,9 @@ class ScalaProducer extends ModelProducer {
       case Some(p) ⇒ p
       case None ⇒ model.getClass().getPackage().getName()
     }
-    
+
     //-- Convert Target  Package to Folder path and create as well
-    var targetPackagePath = this.targetPackage.replace(".","/")
+    var targetPackagePath = this.targetPackage.replace(".", "/")
 
     def writeElement(element: Element): Unit = {
 
@@ -315,11 +319,11 @@ import scala.language.implicitConversions
           // Normal Attribute
           //-------------------
           case _ ⇒
-          
-               // Default value
-              var defaultValue = attribute.default match {
-                case null => "null"
-                case defaultValue =>  s"""${attribute.classType}.convertFromString("$defaultValue")"""
+
+            // Default value
+            var defaultValue = attribute.default match {
+              case null => "null"
+              case defaultValue => s"""${attribute.classType}.convertFromString("$defaultValue")"""
             }
 
             out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
@@ -375,21 +379,33 @@ import scala.language.implicitConversions
 
           case _ ⇒
 
-              // Default value
-              var defaultValue = element.default match {
-                case null => "null"
-                case defaultValue =>  s"""${resolvedType}.convertFromString("$defaultValue")""" 
+            // Default value
+            var defaultValue = element.default match {
+              case null => "null"
+              case defaultValue => s"""${resolvedType}.convertFromString("$defaultValue")"""
             }
-          
+
             out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
                         """
 
+            // setter
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
             /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
                         """*/
-           out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)}
-                        """
+            // getter
+            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)}
+           """
+
+            // getter with creator
+            out << s""" def ${cleanName(resolvedName._2)}(create:Boolean) : $resolvedType = ${cleanName(resolvedName._2)} match {
+             case null if (create) => 
+               this.${cleanName(resolvedName._2)} = new $resolvedType()
+               this.${cleanName(resolvedName._2)}
+             case _ => this.${cleanName(resolvedName._2)}
+           }
+                      
+           """
         }
       }
 
@@ -412,11 +428,11 @@ import scala.language.implicitConversions
 
       //-- Add URL constructor factory if type is not abstract
       //----------------
-      
+
       //-- Add An Automatic conversion from base type if it is a base type
       //---------------
       if (!element.isTrait) {
-        
+
         //-- Add From URL Factory
         out << s"""
 def apply(url : java.net.URL) = {
@@ -435,8 +451,8 @@ def apply(url : java.net.URL) = {
 }
 
 """
-      //-- Add From String factory
-      out << s"""
+        //-- Add From String factory
+        out << s"""
 def apply(xml : String) = {
   
   // Instanciate
@@ -477,10 +493,10 @@ def apply(xml : String) = {
               case Some(baseType) ⇒
 
                 out << s"implicit def convertFromBaseDataType(data: $baseType) : $className =  { var res = new $className ; res.data = data; res; } "
-                
+
                 // Convert from string does not make sense for String type
-                if (baseType!="String")
-                    out << s"implicit def convertFromString(data: String) : $className =  { var res = new $className ; res.dataFromString(data); res; } "
+                if (baseType != "String")
+                  out << s"implicit def convertFromString(data: String) : $className =  { var res = new $className ; res.dataFromString(data); res; } "
 
               // Not found, just ouput a warning comment
               case None ⇒
