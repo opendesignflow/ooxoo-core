@@ -35,6 +35,8 @@ import java.io.PrintWriter
 import java.net.URLEncoder
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
+import java.io.ByteArrayOutputStream
+import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 
 class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
 
@@ -311,4 +313,24 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
     this
   }
 
+}
+
+
+object JsonIO {
+  
+  /**
+   * Streams out an ElementBuffer to a string
+   */
+  def apply(in: ElementBuffer,indenting : Boolean = false) : String = {
+    
+    var io = new JsonIO(outputArray = new CharArrayWriter)
+    //io.indenting = indenting
+    in.appendBuffer(io)
+    in.streamOut()
+   
+    
+    return io.finish
+    
+  }
+  
 }

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.idyria.osi.ooxoo</groupId>
@@ -11,7 +12,7 @@
 
 	<!-- Site Distribution -->
 	<!-- ################# -->
-	
+
 
 	<build>
 		<plugins>
@@ -35,25 +36,25 @@
 				</executions>
 			</plugin>
 			<plugin>
-              <groupId>com.github.github</groupId>
-              <artifactId>site-maven-plugin</artifactId>
-              <version>0.9</version>
-              <configuration>
-                <message>Creating site for ${project.version}</message>
-                <repositoryName>ooxoo-core</repositoryName>
-                <repositoryOwner>richnou</repositoryOwner>
-                <path>ooxoo-core</path>
-                <merge>true</merge>
-              </configuration>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>site</goal>
-                  </goals>
-                  <phase>site</phase>
-                </execution>
-              </executions>
-            </plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.9</version>
+				<configuration>
+					<message>Creating site for ${project.version}</message>
+					<repositoryName>ooxoo-core</repositoryName>
+					<repositoryOwner>richnou</repositoryOwner>
+					<path>ooxoo-core</path>
+					<merge>true</merge>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>site</phase>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- <plugin> -->
 			<!-- <groupId>org.scalatest</groupId> -->
 			<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
@@ -74,9 +75,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.idyria.osi.tea</groupId>
+			<groupId>com.idyria.osi</groupId>
 			<artifactId>tea</artifactId>
-			<version>3.1.0</version>
+			<version>3.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -100,7 +101,7 @@
 		<dependency>
 			<groupId>org.atteo</groupId>
 			<artifactId>evo-inflector</artifactId>
-			<version>1.0.1</version>
+			<version>1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

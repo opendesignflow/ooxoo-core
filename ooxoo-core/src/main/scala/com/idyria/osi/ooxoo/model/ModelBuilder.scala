@@ -144,6 +144,8 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         // Create new 
         var newElement = new Element(element.name)
         newElement.classType = element.name
+        newElement.importSource = element
+        newElement.imported  =true
 
         this.@->("element.start", newElement)
         this.@->("element.end", newElement)
@@ -189,11 +191,15 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     }
 
   }
-
-  def isTrait = {
+  
+  def isTrait   : Unit = {
+    isTrait(false)
+  }
+  def isTrait(changeName : Boolean = false) : Unit = {
 
     elementsStack.headOption match {
-      case Some(element) => element.isTrait = true
+      case Some(element) => 
+        element.makeTrait(changeName)
       case None          => throw new RuntimeException("Cannot call isTrait() outside of an element")
     }
 
@@ -388,9 +394,12 @@ class Element(
   @xelement(name = "Trait")
   var traits = XList { new XSDStringBuffer }
 
-  @xattribute(name = "isTrait")
-  var isTrait: BooleanBuffer = false
+  
 
+  // Import Relation
+  //-----------------
+  var importSource : Element = null
+  
   // Related Type
   //------------------
 
@@ -434,6 +443,41 @@ class Element(
 
   // Sub Elements
   //-------------------
+  
+  // Body 
+  //---------------------
+  //var body : String = ""
+  //var bodyContent
+  
+  // Trait Support
+  //--------------------
+  
+  @xattribute(name = "isTrait")
+  var isTrait: BooleanBuffer = false
+  
+  /**
+   * This value requests that the trait be produced, with a different name than the specified element
+   * The final object however has a different name
+   */
+  var traitSeparateFromObject : String = null
+  
+  /**
+   * Set to trait and change name
+   */
+  def makeTrait(changeName : Boolean = false) = {
+    this.isTrait = true
+    if (changeName && !this.className.endsWith("Trait")) {
+      this.className = this.className+"Trait"
+    }
+  }
+  
+  /**
+   * transforms this element in a trait, change its name, but use original name as class instantiation
+   */
+  def makeTraitAndUseCustomImplementation = {
+    this.traitSeparateFromObject = this.className
+    this.makeTrait(true)
+  }
 
 }
 object Element {

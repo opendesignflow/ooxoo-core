@@ -71,6 +71,7 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
     //println("Called compare to to xsdstringbuffer")
     this.data.compareTo(comp)
   }
+
   
   def ===(str:String) : Boolean = {
      // println(s"in equals compare")
@@ -93,8 +94,14 @@ object XSDStringBuffer {
 
   implicit def convertAnyToXSDStringBuffer(str: Any): XSDStringBuffer = new XSDStringBuffer(str.toString)
   implicit def convertStringToXSDStringBuffer(str: String): XSDStringBuffer = new XSDStringBuffer(str)
-  implicit def convertXSDStringBufferToString(str: XSDStringBuffer): String = str.toString
+  implicit def convertXSDStringBufferToString(str: XSDStringBuffer): String = {
+    str match {
+      case null => ""
+      case other => other.toString()
+    }
+  }
 
+  def convertFromString(data: String): XSDStringBuffer = new XSDStringBuffer(data)
 }
 
 class CDataBuffer extends XSDStringBuffer {
@@ -117,6 +124,7 @@ object CDataBuffer {
   def apply(str: String) = new CDataBuffer(str)
   def apply() = new CDataBuffer
   implicit def convertStringToCDataBuffer(str: String): CDataBuffer = new CDataBuffer(str)
+  def convertFromString(data: String): CDataBuffer = new CDataBuffer(data)
 
 }
 

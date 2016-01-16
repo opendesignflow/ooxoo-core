@@ -53,6 +53,14 @@ class XList[T <: Buffer](
     }
   }*/
   
+  // Create
+  //----------------
+  def add : T = {
+    val res = createBuffer(null)
+    this += res
+    res
+  }
+  
   // Accessors
   //----------------
   def get(index:Int) : Option[T] = {

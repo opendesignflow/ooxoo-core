@@ -74,7 +74,11 @@ class ScalaProducer extends ModelProducer {
    */
   def makePlural(name: String): String = {
 
-    English.plural(name)
+    name match {
+      case name if (name.matches(".*s")) => name
+      case _ => English.plural(name)
+    }
+
     /*
     name match {
       case name if (name.matches(".*[aeiou]s")) => name+"es"
@@ -84,15 +88,29 @@ class ScalaProducer extends ModelProducer {
     }*/
   }
 
+  
+  def canonicalClassName(model: Model, element: Element): String = {
+    
+    var name: String = element.className match {
+      case null => element.name
+      case name if (element.traitSeparateFromObject != null) => element.traitSeparateFromObject
+      case _ => element.className
+    }
+    
+    canonicalClassName(model,name,element)
+  }
+  
   /**
    * Creates a hierarchical CanonicalName for a class
    */
-  def canonicalClassName(model: Model, element: Element): String = {
+  def canonicalClassName(model:Model, basename: String, element: Element): String = {
+
 
     var name = element.className match {
       case null => element.name
       case _ => element.className
     }
+
     model.splitName(name) match {
       case (sNs, sName) ⇒ name = sName
     }
@@ -185,9 +203,9 @@ class ScalaProducer extends ModelProducer {
                 case None =>
             }*/
 
-      // Class Name
+      // Class Name: Use Canonical Function, with our class name as base
       //-----------------
-      var className = canonicalClassName(model, element)
+      var className = canonicalClassName(model, element.className,element)
 
       /*// enumeration and name "Value" are incompatible
       val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
@@ -252,7 +270,17 @@ import scala.language.implicitConversions
         classOrTrait = "trait"
       }
 
-      out << s"""$classOrTrait ${className} extends ${element.classType} $traits {
+      // ClassType : 
+      //   - The set classtype
+      //   - If imported, create classType from source
+      //------------------
+      var classType = element.importSource match {
+        case null => element.classType
+        case source => canonicalClassName(model, source)
+
+      }
+
+      out << s"""$classOrTrait ${className} extends $classType $traits {
             """
 
       //-- Enumeration
@@ -326,7 +354,7 @@ import scala.language.implicitConversions
               case defaultValue => s"""${attribute.classType}.convertFromString("$defaultValue")"""
             }
 
-            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
+            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = $defaultValue
                         """
             out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
                         """
@@ -356,16 +384,19 @@ import scala.language.implicitConversions
         }
 
         // ResolvedType if imported of not
+        // !! If the Element has a different class name and target object, use the target object!
         //-----------------
         var resolvedType = element.imported.data.booleanValue() match {
-          case true => model.splitName(element.classType.toString)._2
-
+          
+          case true if (element.importSource==null)=> 
+            model.splitName(element.classType.toString)._2
+            
+         case true if (element.importSource!=null)=> 
+           
+            s"$targetPackage.${canonicalClassName(model, element.importSource)}"
+           
           // Resolved Type is in the targetpackage, and is the canonical name of the subelement
-          case false =>
-
-            //s"$targetPackage.${resolvedName._2}"
-
-            s"$targetPackage.${canonicalClassName(model, element)}"
+          case _ => s"$targetPackage.${canonicalClassName(model, element)}"
 
         }
         // Element definition
@@ -388,11 +419,21 @@ import scala.language.implicitConversions
             out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
                         """
 
+<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
             // setter
+=======
+            // Automatic Element creation: Yes per default only if the element has children it self
+            var getterContent = element.elements.size match {
+              case 0 => s"__${cleanName(resolvedName._2)}"
+              case _ => s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+            }
+
+>>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
             /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
                         """*/
+<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
             // getter
             out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)}
            """
@@ -406,6 +447,10 @@ import scala.language.implicitConversions
            }
                       
            """
+=======
+            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = $getterContent
+                        """
+>>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
         }
       }
 
@@ -415,17 +460,17 @@ import scala.language.implicitConversions
 
       // Object Singleton Definition
       //-----------------------------
-      out << s"object ${className} {"
-      out << ""
-      out.indent
-
-      //-- Add Simple constructor factory if type is not abstract
-      //----------------
       if (!element.isTrait) {
-        out << s"def apply() = new $className"
-        out << ""
-      }
 
+        var objectName = element.traitSeparateFromObject match {
+          case null => className
+          case targetName => targetName
+        }
+        out << s"object ${objectName} {"
+        out << ""
+        out.indent
+
+<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
       //-- Add URL constructor factory if type is not abstract
       //----------------
 
@@ -435,10 +480,28 @@ import scala.language.implicitConversions
 
         //-- Add From URL Factory
         out << s"""
+=======
+        //-- Add Simple constructor factory if type is not abstract
+        //----------------
+        if (!element.isTrait) {
+          out << s"def apply() = new $objectName"
+          out << ""
+        }
+
+        //-- Add URL constructor factory if type is not abstract
+        //----------------
+
+        //-- Add An Automatic conversion from base type if it is a base type
+        //---------------
+        if (!element.isTrait || element.traitSeparateFromObject != null) {
+
+          //-- Add From URL Factory
+          out << s"""
+>>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
 def apply(url : java.net.URL) = {
   
   // Instanciate
-  var res = new $className
+  var res = new $objectName
   
   // Set Stax Parser and streamIn
   var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(url)
@@ -451,8 +514,13 @@ def apply(url : java.net.URL) = {
 }
 
 """
+<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
         //-- Add From String factory
         out << s"""
+=======
+          //-- Add From String factory
+          out << s"""
+>>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
 def apply(xml : String) = {
   
   // Instanciate
@@ -468,53 +536,63 @@ def apply(xml : String) = {
   
 }
 """
-      }
-      try {
+        }
+        try {
 
-        val typesMap = Map(
+          val typesMap = Map(
 
-          classOf[XSDStringBuffer] -> "String",
-          classOf[CDataBuffer] -> "String",
-          classOf[IntegerBuffer] -> "Int",
-          classOf[DoubleBuffer] -> "Double",
-          classOf[BooleanBuffer] -> "Boolean")
+            classOf[XSDStringBuffer] -> "String",
+            classOf[CDataBuffer] -> "String",
+            classOf[IntegerBuffer] -> "Int",
+            classOf[DoubleBuffer] -> "Double",
+            classOf[BooleanBuffer] -> "Boolean")
 
-        var classType = Thread.currentThread.getContextClassLoader().loadClass(element.classType.toString)
-        classOf[AbstractDataBuffer[_]].isAssignableFrom(classType) match {
+          var classType = Thread.currentThread.getContextClassLoader().loadClass(element.classType.toString)
+          classOf[AbstractDataBuffer[_]].isAssignableFrom(classType) match {
 
-          //-- Add Conversion from base data type
-          case true ⇒
+            //-- Add Conversion from base data type
+            case true ⇒
 
-            var baseDataType = typesMap.collectFirst {
-              case (implClass, baseType) if (implClass.isAssignableFrom(classType)) ⇒ baseType
-            } match {
+              var baseDataType = typesMap.collectFirst {
+                case (implClass, baseType) if (implClass.isAssignableFrom(classType)) ⇒ baseType
+              } match {
 
-              // Found base type for this Base data type
-              case Some(baseType) ⇒
+                // Found base type for this Base data type
+                case Some(baseType) ⇒
 
+<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
                 out << s"implicit def convertFromBaseDataType(data: $baseType) : $className =  { var res = new $className ; res.data = data; res; } "
 
                 // Convert from string does not make sense for String type
                 if (baseType != "String")
                   out << s"implicit def convertFromString(data: String) : $className =  { var res = new $className ; res.dataFromString(data); res; } "
+=======
+                  out << s"implicit def convertFromBaseDataType(data: $baseType) : $objectName =  { var res = new $objectName ; res.data = data; res; } "
+>>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
 
-              // Not found, just ouput a warning comment
-              case None ⇒
+                  // Convert from string does not make sense for String type
+                  if (baseType != "String")
+                    out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.dataFromString(data); res; } "
 
-                out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
+                // Not found, just ouput a warning comment
+                case None ⇒
 
-            }
+                  out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
 
-          case false ⇒
+              }
+
+            case false ⇒
+          }
+
+        } catch {
+          case e: Throwable ⇒
         }
 
-      } catch {
-        case e: Throwable ⇒
-      }
+        //-- EOF Object
+        out.outdent
+        out << "}"
 
-      //-- EOF Object
-      out.outdent
-      out << "}"
+      }
 
       // Output Sub Elements
       //---------------------
