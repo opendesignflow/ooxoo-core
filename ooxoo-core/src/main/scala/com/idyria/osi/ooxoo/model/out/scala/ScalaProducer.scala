@@ -106,10 +106,7 @@ class ScalaProducer extends ModelProducer {
   def canonicalClassName(model:Model, basename: String, element: Element): String = {
 
 
-    var name = element.className match {
-      case null => element.name
-      case _ => element.className
-    }
+    var name = basename
 
     model.splitName(name) match {
       case (sNs, sName) ⇒ name = sName
@@ -419,38 +416,22 @@ import scala.language.implicitConversions
             out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
                         """
 
-<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
-            // setter
-=======
+
             // Automatic Element creation: Yes per default only if the element has children it self
             var getterContent = element.elements.size match {
               case 0 => s"__${cleanName(resolvedName._2)}"
-              case _ => s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+              case _ => s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
             }
 
->>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
+
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
             /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
                         """*/
-<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
-            // getter
-            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)}
-           """
 
-            // getter with creator
-            out << s""" def ${cleanName(resolvedName._2)}(create:Boolean) : $resolvedType = ${cleanName(resolvedName._2)} match {
-             case null if (create) => 
-               this.${cleanName(resolvedName._2)} = new $resolvedType()
-               this.${cleanName(resolvedName._2)}
-             case _ => this.${cleanName(resolvedName._2)}
-           }
-                      
-           """
-=======
             out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = $getterContent
                         """
->>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
+
         }
       }
 
@@ -470,17 +451,7 @@ import scala.language.implicitConversions
         out << ""
         out.indent
 
-<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
-      //-- Add URL constructor factory if type is not abstract
-      //----------------
 
-      //-- Add An Automatic conversion from base type if it is a base type
-      //---------------
-      if (!element.isTrait) {
-
-        //-- Add From URL Factory
-        out << s"""
-=======
         //-- Add Simple constructor factory if type is not abstract
         //----------------
         if (!element.isTrait) {
@@ -497,7 +468,6 @@ import scala.language.implicitConversions
 
           //-- Add From URL Factory
           out << s"""
->>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
 def apply(url : java.net.URL) = {
   
   // Instanciate
@@ -514,13 +484,10 @@ def apply(url : java.net.URL) = {
 }
 
 """
-<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
-        //-- Add From String factory
-        out << s"""
-=======
+
           //-- Add From String factory
           out << s"""
->>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
+
 def apply(xml : String) = {
   
   // Instanciate
@@ -559,16 +526,6 @@ def apply(xml : String) = {
 
                 // Found base type for this Base data type
                 case Some(baseType) ⇒
-
-<<<<<<< HEAD:ooxoo-core/src/main/scala/com.idyria.osi.ooxoo.model.out.scala/ScalaProducer.scala
-                out << s"implicit def convertFromBaseDataType(data: $baseType) : $className =  { var res = new $className ; res.data = data; res; } "
-
-                // Convert from string does not make sense for String type
-                if (baseType != "String")
-                  out << s"implicit def convertFromString(data: String) : $className =  { var res = new $className ; res.dataFromString(data); res; } "
-=======
-                  out << s"implicit def convertFromBaseDataType(data: $baseType) : $objectName =  { var res = new $objectName ; res.data = data; res; } "
->>>>>>> origin/master:ooxoo-core/src/main/scala/com/idyria/osi/ooxoo/model/out/scala/ScalaProducer.scala
 
                   // Convert from string does not make sense for String type
                   if (baseType != "String")
