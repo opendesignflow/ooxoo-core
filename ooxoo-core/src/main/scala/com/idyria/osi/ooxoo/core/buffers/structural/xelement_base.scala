@@ -51,7 +51,8 @@ object xelement_base {
      // }
 
      // println("Superclass: "+baseClass.getSuperclass())
-      var firstName = baseClass.getSimpleName
+     //println(s"CL: "+baseClass.getSimpleName);
+      var firstName = baseClass.getSimpleName.replaceAll("\\$.*", "")
       var cl : Class[_] = baseClass
       do {
 
