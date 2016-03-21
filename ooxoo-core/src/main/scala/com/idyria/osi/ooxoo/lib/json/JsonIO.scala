@@ -282,7 +282,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       //---------------
       case (false, false, null, value) if (du.attribute != null) =>
 
-        output.println(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\", """)
+        output.println(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\",""")
 
       // Value only
       //-------------------
@@ -305,7 +305,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
   def finish: String = {
 
     // Resolve the wrongly defined ,} sequences, and remove the last ,
-    outputArray.toString().replace(",\n}", "\n}").replace("\n", "").dropRight(1)
+    outputArray.toString().replace(",\n}", "\n}").replace(",\r\n}", "\r\n}").replace(",}", "}").replace("\n", "").replace("\r\n", "").trim.dropRight(1)
     //outputArray.toString().replace(",\n}", "\n}").dropRight(2)
   }
 
