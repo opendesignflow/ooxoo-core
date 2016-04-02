@@ -137,22 +137,24 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         case null ⇒ this.eventWriter.writeStartElement(du.element.name)
         case _    ⇒ this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
       }
-
-      //-- Close already if non hierarchical and set the value if some
-      if (!du.getHierarchical) {
-        // println(s"Stax: Closing already!")
-
-        //-- With text content
+      
+       //-- With text content
         (du.value, du("cdata")) match {
           case (null, _)           ⇒
           case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
           case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
         }
 
+      //-- Close already if non hierarchical and set the value if some
+      if (!du.getHierarchical) {
+        // println(s"Stax: Closing already!")
+
         this.eventWriter.writeEndElement()
 
       }
 
+      
+      
     } //-- Output Attribute
     //----------------------------
     else if (du.attribute != null) {

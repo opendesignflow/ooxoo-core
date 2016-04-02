@@ -26,6 +26,7 @@ import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
+import com.idyria.osi.tea.logging.TeaLogging
 
 /**
  * Just a type marker
@@ -372,7 +373,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       //-------------------------
       case (true, false, element, null) ⇒
 
-        // println(s"-- Element: $element // ${du.attribute} // ${du.value}")
+         logFine[VerticalBuffer](s"-- Element: $element // ${du.element.name} // ${du.value}")
 
         // Proceed to element
         //-----------------------
@@ -487,16 +488,16 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    * Get instance of a buffer set on the field that matches the provided Qname
    * @return None if nothing was found
    */
-  private def getElementField(name: QName): Option[Buffer] = {
+  def getElementField(name: QName): Option[Buffer] = {
 
-    //logFine[VerticalBuffer]("*Looking for field for element: /"+name.getLocalPart()+"/")
+    logFine[VerticalBuffer]("*Looking for field for element: /"+name.getLocalPart()+"/")
 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     this.getAnnotatedFields(this, classOf[xelement]).filter {
       a ⇒
         var xelt = xelement_base(a)
-        //logFine[VerticalBuffer]("xelement annotation name:/"+xelt.name+"/");
+        logFine[VerticalBuffer]("xelement annotation name:/"+xelt.name+"/");
         xelt != null && (name.getLocalPart().equals(xelt.name) || name.getLocalPart().equals(a.getName()))
     } match {
 

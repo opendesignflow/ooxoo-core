@@ -99,6 +99,7 @@ class XList[T <: Buffer](
               du.element = new xelement_base
               du.element.name = content.asInstanceOf[AnyElementBuffer].name
               du.element.ns = content.asInstanceOf[AnyElementBuffer].ns
+              du.value = content.asInstanceOf[AnyElementBuffer].text
               du.hierarchical = true
 
               //println("Element will be: "+du.element.name )
@@ -115,6 +116,7 @@ class XList[T <: Buffer](
               du.attribute = new xattribute_base
               du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
               du.attribute.ns = content.asInstanceOf[AnyAttributeBuffer].ns
+              du.value = content.asInstanceOf[AnyAttributeBuffer].text
               du.hierarchical = false
 
               content.streamOut(du)

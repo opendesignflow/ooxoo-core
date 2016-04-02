@@ -35,7 +35,7 @@ trait AnyBufferTrait extends Buffer {
 }
 
 @any
-class AnyElementBuffer extends ElementBuffer with AnyBufferTrait {
+class AnyElementBuffer  extends ElementBuffer with AnyBufferTrait {
 
     @any 
     var content = AnyXList()
@@ -49,6 +49,15 @@ class AnyElementBuffer extends ElementBuffer with AnyBufferTrait {
       
       super.streamIn(du)
     }
+   
+  /*  override def streamOut(du:DataUnit) = {
+     // println(s"Streamout AnyElement with $name , $text, and $du")
+      if (text!=null && du!=null) {
+        du.value = text
+        //println(s"Adding value to hierarchical: ${du.hierarchical} -> ${du.element}")
+      }
+      super.streamOut(du)
+    }*/
 
 }
 
