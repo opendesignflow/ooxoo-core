@@ -147,9 +147,11 @@ class StreamOutTest extends FunSuite {
 
     // Results
     //---------------
-
+   
     assert(outStream.toByteArray().length > 0, "Data must not be empty")
 
+    
+    
     println("Result: " + new String(outStream.toByteArray()))
 
     assert(root.getNextBuffer == null, "IO Buffer must have dissappeard")
@@ -178,6 +180,9 @@ class StreamOutTest extends FunSuite {
     elt.streamOut()
     
     println("Result: " + new String(outStream.toByteArray()))
+    
+    assert(outStream.toByteArray().length > 0, "Data must not be empty")
+    assert(new String(outStream.toByteArray()).matches(".*<ElementSimpleDataType .+</ElementSimpleDataType>"))
 
   }
 

@@ -64,7 +64,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
   //-----------------------
 
   var indenting = false
-  
+
   var namespacePrefixesMap = Map[String, String]()
 
   /**
@@ -92,7 +92,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
         this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String, String]]
       case Some(mapObject) ⇒
-      case None            ⇒
+      case None ⇒
     }
 
     // Write
@@ -105,21 +105,17 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       this.output = new ByteArrayOutputStream()
 
     }
-    
+
     //-- Create Event Writer
     if (this.eventWriter == null) {
 
       var of = XMLOutputFactory.newInstance()
       of.setProperty("javax.xml.stream.isRepairingNamespaces", true);
 
-
-
-
       this.eventWriter = this.indenting match {
         case true => new IndentingXMLStreamWriter(of.createXMLStreamWriter(this.output));
-        case false =>   of.createXMLStreamWriter(this.output)
+        case false => of.createXMLStreamWriter(this.output)
       }
-     
 
       // Begin document
       this.eventWriter.writeStartDocument()
@@ -131,35 +127,33 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
     //-------------------------
     if (du.element != null) {
 
-     // println(s"Stax: Start Element ${du.element.name}")
+      //println(s"Stax: Start Element ${du.element.name}")
       du.element.ns match {
-        case ""   ⇒ this.eventWriter.writeStartElement(du.element.name)
+        case "" ⇒ this.eventWriter.writeStartElement(du.element.name)
         case null ⇒ this.eventWriter.writeStartElement(du.element.name)
-        case _    ⇒ this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
+        case _ ⇒ this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
       }
-      
-       //-- With text content
-        (du.value, du("cdata")) match {
-          case (null, _)           ⇒
-          case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
-          case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
-        }
 
       //-- Close already if non hierarchical and set the value if some
       if (!du.getHierarchical) {
-        // println(s"Stax: Closing already!")
+        //  println(s"Stax: Closing already!")
+
+        //-- With text content
+        (du.value, du("cdata")) match {
+          case (null, _) ⇒
+          case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
+          case (value, _) ⇒ this.eventWriter.writeCharacters(du.value)
+        }
 
         this.eventWriter.writeEndElement()
 
       }
 
-      
-      
     } //-- Output Attribute
     //----------------------------
     else if (du.attribute != null) {
 
-      //println("Stax: attribute " + du.attribute)
+      // println("Stax: attribute " + du.attribute)
 
       // try {
       du.attribute.ns match {
@@ -185,9 +179,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       // If some data are provided with the close, then write them
       //-------------------
       (du.value, du("cdata")) match {
-        case (null, _)           ⇒
+        case (null, _) ⇒
         case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
-        case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
+        case (value, _) ⇒ this.eventWriter.writeCharacters(du.value)
       }
 
       //println("StaxIO Closing")
@@ -201,9 +195,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
     else if (du.value != null) {
 
       (du.value, du("cdata")) match {
-        case (null, _)           ⇒
+        case (null, _) ⇒
         case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
-        case (value, _)          ⇒ this.eventWriter.writeCharacters(du.value)
+        case (value, _) ⇒ this.eventWriter.writeCharacters(du.value)
       }
 
     }
@@ -251,7 +245,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         //-- NS
         reader.getNamespaceURI() match {
           case ns if (ns != null && ns != "") ⇒ du.element.ns = ns
-          case _                              ⇒
+          case _ ⇒
         }
 
         //-- Text value
@@ -284,7 +278,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       //---------------
       else if (reader.isEndElement()) {
 
-         logInfo("Sending End element for: "+reader.getName())
+        logInfo("Sending End element for: " + reader.getName())
 
         // Just send an empty data unit with hiearchical = false
         var closeDU = new DataUnit
@@ -332,7 +326,7 @@ object StAXIOBuffer {
     new StAXIOBuffer(new StringReader(str))
 
   }
-  
+
   def apply(url: URL) = {
 
     new StAXIOBuffer(url)
@@ -347,19 +341,19 @@ object StAXIOBuffer {
     b.output = out
     b
   }
-  
+
   /**
    * Streams out an ElementBuffer to a string
    */
-  def apply(in: ElementBuffer,indenting : Boolean = false) : String = {
-    
+  def apply(in: ElementBuffer, indenting: Boolean = false): String = {
+
     var io = new StAXIOBuffer
     io.indenting = indenting
     in.appendBuffer(io)
     in.streamOut()
-    
+
     return new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray())
-    
+
   }
-  
+
 }

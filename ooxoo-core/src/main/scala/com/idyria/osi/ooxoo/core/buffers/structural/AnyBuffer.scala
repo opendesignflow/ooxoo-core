@@ -31,7 +31,8 @@ trait AnyBufferTrait extends Buffer {
     
     var ns : String = null
     
-    var text : String = null
+    @xcontent
+    var text : XSDStringBuffer = null
 }
 
 @any
