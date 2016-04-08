@@ -75,6 +75,7 @@ class ScalaProducer extends ModelProducer {
   def makePlural(name: String): String = {
 
     name match {
+      case name if(name.length()==1) => name
       case name if (name.matches(".*s")) => name
       case _ => English.plural(name)
     }
