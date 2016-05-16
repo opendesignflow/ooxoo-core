@@ -43,8 +43,11 @@ class AnyElementBuffer  extends ElementBuffer with AnyBufferTrait {
     
     override def streamIn(du:DataUnit) = {
       this.lockIO
-      if (du!=null && du.value!=null) {
-        this.text = du.value
+      if (du!=null && du.value!=null && du.element==null) {
+       // println(s"Importing Data inside AnyElement: "+this.name+"-> "+du.value)
+        
+       // this.text = du.value
+        //du.value=null
       }
       this.unlockIO
       

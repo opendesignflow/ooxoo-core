@@ -211,6 +211,7 @@ class JSONTest extends FunSuite with BeforeAndAfter {
     //--------------------
 
     // Top
+    println(s"Testing on "+top.simpleElement.hashCode()+" -> "+top.simpleElement.toString)
     assertResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(top.simpleElement.toString)
 
     assertResult("AttributeValue")(top.attr1.toString)

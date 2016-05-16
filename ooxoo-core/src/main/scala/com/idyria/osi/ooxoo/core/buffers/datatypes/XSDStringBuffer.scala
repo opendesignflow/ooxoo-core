@@ -36,7 +36,7 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
     this();
     str match {
       case null =>
-      case s => dataFromString(s)
+      case s => this.data = dataFromString(s)
     }
 
   }
@@ -50,8 +50,15 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
    * Set provided string to actual data
    */
   def dataFromString(str: String): String = str match {
-    case null => ""
-    case s => this.data = str.trim; data
+    case null => null
+    case s if (data==null) => 
+      //this.data = str.trim; 
+      //data
+       str.trim
+    case s => 
+      this.data + s.trim
+
+      //data
   }
 
   override def toString: String = {

@@ -80,6 +80,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
   }*/
 
+  var currenText = ""
+  
   /**
    * Writes the data unit to the output stream, then pass it on
    */
@@ -141,12 +143,17 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         //-- With text content
         (du.value, du("cdata")) match {
           case (null, _) ⇒
-          case (value, Some(true)) ⇒ this.eventWriter.writeCData(du.value)
-          case (value, _) ⇒ this.eventWriter.writeCharacters(du.value)
+          case (value, Some(true)) ⇒ 
+            this.eventWriter.writeCData(du.value)
+           
+          case (value, _) ⇒
+            //this.eventWriter.writeCharacters(du.value.toCharArray(),currenText.length(),du.value.length)
+            //currenText = du.value
+            this.eventWriter.writeCharacters(du.value)
         }
 
         this.eventWriter.writeEndElement()
-
+        //currenText = ""
       }
 
     } //-- Output Attribute
@@ -250,7 +257,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
         //-- Text value
         if (reader.hasText()) {
-          du.value = reader.getText()
+          //du.value = reader.getText()
         }
 
         //-- send

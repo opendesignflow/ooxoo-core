@@ -308,7 +308,8 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           //-- Call Import data unit if we are a databuffer
           //---------------
-          case (_, db: AbstractDataBuffer[_]) ⇒ db.importDataUnit(du)
+          case (_, db: AbstractDataBuffer[_]) ⇒
+            //db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
@@ -383,7 +384,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
           //-----------------------------
           case Some(buffer) ⇒
 
-            logFine[VerticalBuffer](s"Found element Buffer to pass in value: ${du.value}")
+            logFine[VerticalBuffer](s"Found element Buffer to pass in value: ${du.value} , actual is: ${buffer}")
 
             //   println(s"Got an XML element for subfield: ${du.element.name}, stack size is now: ${stackSize}");
 
@@ -399,7 +400,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
            buffer.appendBuffer(this.getIOChain.get.cloneIO);
             buffer <= du
 
-            logFine[VerticalBuffer](s"-------> ${buffer}")
+            logFine[VerticalBuffer](s"-------> on ${buffer.hashCode()} ${buffer}")
 
           // Nothing -> Can we stream into any ?
           //---------------

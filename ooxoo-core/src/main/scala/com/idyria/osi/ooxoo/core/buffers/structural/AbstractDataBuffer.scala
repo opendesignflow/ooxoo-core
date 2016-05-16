@@ -114,8 +114,11 @@ abstract class AbstractDataBuffer[DT](
    */
   override def importDataUnit(du: DataUnit): Unit = {
   
-    var res = this.dataFromString(du.value)
-    this.data = res
+   this.dataFromString(du.value) match {
+     case null => 
+     case res =>  this.data = res
+   }
+   
 
   }
 
