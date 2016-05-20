@@ -262,9 +262,17 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         
         // Value
         //---------------
-        
+        value match {
+          case null => output.print(s"""""""")
+          case v => output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
+        }
         //output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
-        output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
+       /* try {
+          output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
+        } catch {
+          case e : Throwable => 
+            println(s"JSION Encode fail: "+value)
+        }*/
         
         // Close : Close last multiple or just a ,
         //----------------
