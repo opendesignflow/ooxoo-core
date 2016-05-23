@@ -118,7 +118,15 @@ object XSDStringBuffer {
 
 class CDataBuffer extends XSDStringBuffer {
 
-  def this(str: String) = { this(); dataFromString(str) }
+  def this(str: String) = { 
+    this(); 
+    str match {
+      case null =>
+      case s => 
+        this.data = dataFromString(s)
+    }
+    
+ }
 
   /**
    * Override streamout to add cdata parameter to data unit

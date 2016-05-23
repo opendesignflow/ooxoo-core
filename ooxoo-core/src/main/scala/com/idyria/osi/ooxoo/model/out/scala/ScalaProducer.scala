@@ -75,7 +75,7 @@ class ScalaProducer extends ModelProducer {
   def makePlural(name: String): String = {
 
     name match {
-      case name if(name.length()==1) => name
+      case name if (name.length() == 1) => name
       case name if (name.matches(".*s")) => name
       case _ => English.plural(name)
     }
@@ -89,23 +89,21 @@ class ScalaProducer extends ModelProducer {
     }*/
   }
 
-  
   def canonicalClassName(model: Model, element: Element): String = {
-    
+
     var name: String = element.className match {
-      case null => element.name
       case name if (element.traitSeparateFromObject != null) => element.traitSeparateFromObject
+      case null => element.name
       case _ => element.className
     }
-    
-    canonicalClassName(model,name,element)
+
+    canonicalClassName(model, name, element)
   }
-  
+
   /**
    * Creates a hierarchical CanonicalName for a class
    */
-  def canonicalClassName(model:Model, basename: String, element: Element): String = {
-
+  def canonicalClassName(model: Model, basename: String, element: Element): String = {
 
     var name = basename
 
@@ -203,7 +201,7 @@ class ScalaProducer extends ModelProducer {
 
       // Class Name: Use Canonical Function, with our class name as base
       //-----------------
-      var className = canonicalClassName(model, element.className,element)
+      var className = canonicalClassName(model, element.className, element)
 
       /*// enumeration and name "Value" are incompatible
       val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
@@ -346,20 +344,21 @@ import scala.language.implicitConversions
           //-------------------
           case _ ⇒
 
-            // Default value
-            var defaultValue = attribute.default match {
-              case null => "null"
-              case defaultValue => s"""${attribute.classType}.convertFromString("$defaultValue")"""
-            }
 
-            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = $defaultValue
+            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
                         """
+          
             out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
                         """
-            /*out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}();__${cleanName(resolvedName._2)} case v => v }
-                        """*/
-            out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
+       
+             attribute.default match {
+              case null => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
                         """
+              case defaultValue => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}.convertFromString("${defaultValue}");__${cleanName(resolvedName._2)} case v => v }
+                        """
+
+            }
+            
         }
 
       }
@@ -385,14 +384,14 @@ import scala.language.implicitConversions
         // !! If the Element has a different class name and target object, use the target object!
         //-----------------
         var resolvedType = element.imported.data.booleanValue() match {
-          
-          case true if (element.importSource==null)=> 
+
+          case true if (element.importSource == null) =>
             model.splitName(element.classType.toString)._2
-            
-         case true if (element.importSource!=null)=> 
-           
+
+          case true if (element.importSource != null) =>
+
             s"$targetPackage.${canonicalClassName(model, element.importSource)}"
-           
+
           // Resolved Type is in the targetpackage, and is the canonical name of the subelement
           case _ => s"$targetPackage.${canonicalClassName(model, element)}"
 
@@ -411,19 +410,23 @@ import scala.language.implicitConversions
             // Default value
             var defaultValue = element.default match {
               case null => "null"
-              case defaultValue => s"""${resolvedType}.convertFromString("$defaultValue")"""
+              case defaultValue =>
+
+                s"""${resolvedType}.convertFromString("$defaultValue")"""
             }
 
-            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
-                        """
-
+            /*out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
+                        """*/
+            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
+              """
 
             // Automatic Element creation: Yes per default only if the element has children it self
+            // Or The default value was set 
             var getterContent = element.elements.size match {
+              case _ if (element.default != null) => s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
               case 0 => s"__${cleanName(resolvedName._2)}"
               case _ => s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
             }
-
 
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
@@ -451,7 +454,6 @@ import scala.language.implicitConversions
         out << s"object ${objectName} {"
         out << ""
         out.indent
-
 
         //-- Add Simple constructor factory if type is not abstract
         //----------------
