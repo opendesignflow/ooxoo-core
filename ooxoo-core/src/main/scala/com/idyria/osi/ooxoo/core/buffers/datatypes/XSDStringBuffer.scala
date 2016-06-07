@@ -52,10 +52,22 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
   def dataFromString(str: String): String = str match {
     case null => null
     case s if (data==null) => 
+      //println(s"Data from strng with: "+str)
+      /*try {
+        throw new RuntimeException("test")
+      }catch {
+        case e: Throwable => e.printStackTrace(System.out)
+      }*/
       //this.data = str.trim; 
       //data
        str.trim
     case s => 
+     /* println(s"Data from strng with: "+str)
+       try {
+        throw new RuntimeException("test")
+      }catch {
+        case e: Throwable =>  e.printStackTrace(System.out)
+      }*/
       this.data + s.trim
 
       //data

@@ -475,8 +475,15 @@ class Element(
   /**
    * transforms this element in a trait, change its name, but use original name as class instantiation
    */
-  def makeTraitAndUseCustomImplementation = {
+  def makeTraitAndUseCustomImplementation : Unit = {
     this.traitSeparateFromObject = this.className
+    this.makeTrait(true)
+  }
+  /**
+   * transforms this element in a trait, change its name, but use original name as class instantiation
+   */
+  def makeTraitAndUseCustomImplementation(targetClassName:String) : Unit = {
+    this.traitSeparateFromObject = targetClassName
     this.makeTrait(true)
   }
 

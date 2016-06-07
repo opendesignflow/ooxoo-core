@@ -75,6 +75,11 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
   class IsWordElementWrapper(var left: Element) {
 
+    // Init -> Make trait if name ends with Trait
+    if (left.name.endsWith("Trait")) {
+      left.isTrait = true
+    }
+    
     def multiple(typeStr: String) = {
 
       @->("element.start", left)

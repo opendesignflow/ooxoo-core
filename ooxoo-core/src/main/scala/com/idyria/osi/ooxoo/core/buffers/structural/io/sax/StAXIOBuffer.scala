@@ -296,7 +296,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       //-------------------
       else if (reader.isCharacters()) {
 
-        //println("Sending characters: "+reader.getText())
+       // println("Sending characters: "+reader.getText())
 
         // Send a value only event
         var du = new DataUnit

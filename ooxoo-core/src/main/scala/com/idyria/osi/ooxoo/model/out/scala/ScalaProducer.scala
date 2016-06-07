@@ -92,7 +92,9 @@ class ScalaProducer extends ModelProducer {
   def canonicalClassName(model: Model, element: Element): String = {
 
     var name: String = element.className match {
-      case name if (element.traitSeparateFromObject != null) => element.traitSeparateFromObject
+      case name if (element.traitSeparateFromObject != null) =>
+        println(s"Element has a separate class definitnion: " + element.traitSeparateFromObject)
+        element.traitSeparateFromObject
       case null => element.name
       case _ => element.className
     }
@@ -105,37 +107,45 @@ class ScalaProducer extends ModelProducer {
    */
   def canonicalClassName(model: Model, basename: String, element: Element): String = {
 
-    var name = basename
+    // Name: If canonical, return as is, otherwise merge with parent
+    //------------
+    basename.contains(".") match {
+      case true =>
+        basename
+      case false =>
 
-    model.splitName(name) match {
-      case (sNs, sName) ⇒ name = sName
+        var name = basename
+
+        model.splitName(name) match {
+          case (sNs, sName) ⇒ name = sName
+        }
+
+        // enumeration and name "Value" are incompatible
+        val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
+        var className = (element.classType, name.toString) match {
+          case (enumerationBufferClass, "Value") => "_Value"
+          case _ => name
+        }
+
+        // Merge ClassName with its parents
+        // If element is its own parent (recursion), then start on parent
+        var current = element.parent match {
+          case p if (p != null && p.name.toString == element.name.toString) => p
+          case _ => element
+        }
+        var parentNames = ""
+        while (current.parent != null) {
+
+          var currentName = current.parent.className match {
+            case null => current.parent.name
+            case _ => current.parent.className
+          }
+          parentNames = s"${model.splitName(currentName.toString)._2}$parentNames"
+          current = current.parent
+        }
+
+        s"$targetPackage.$parentNames$className"
     }
-
-    // enumeration and name "Value" are incompatible
-    val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
-    var className = (element.classType, name.toString) match {
-      case (enumerationBufferClass, "Value") => "_Value"
-      case _ => name
-    }
-
-    // Merge ClassName with its parents
-    // If element is its own parent (recursion), then start on parent
-    var current = element.parent match {
-      case p if (p != null && p.name.toString == element.name.toString) => p
-      case _ => element
-    }
-    var parentNames = ""
-    while (current.parent != null) {
-
-      var currentName = current.parent.className match {
-        case null => current.parent.name
-        case _ => current.parent.className
-      }
-      parentNames = s"${model.splitName(currentName.toString)._2}$parentNames"
-      current = current.parent
-    }
-
-    s"$parentNames$className"
 
   }
 
@@ -177,8 +187,11 @@ class ScalaProducer extends ModelProducer {
     //-- Convert Target  Package to Folder path and create as well
     var targetPackagePath = this.targetPackage.replace(".", "/")
 
+    println(s"Number of elemetns: " + model.topElements.size)
+
     def writeElement(element: Element): Unit = {
 
+      
       // If Element is an instance of another element, oder is imported don't write out
       //------------
       if (element.instanceOfElement != null || element.imported.data == true) {
@@ -201,7 +214,13 @@ class ScalaProducer extends ModelProducer {
 
       // Class Name: Use Canonical Function, with our class name as base
       //-----------------
-      var className = canonicalClassName(model, element.className, element)
+      /*var className = canonicalClassName(model, element.className, element) match {
+        case name if (name.contains(".")) =>
+          var split = name.split(".")
+          split(split.size)
+        case name => name
+      }*/
+      var className = canonicalClassName(model, element.className, element).split("\\.").last
 
       /*// enumeration and name "Value" are incompatible
       val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
@@ -344,21 +363,20 @@ import scala.language.implicitConversions
           //-------------------
           case _ ⇒
 
-
             out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
                         """
-          
+
             out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
                         """
-       
-             attribute.default match {
+
+            attribute.default match {
               case null => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
                         """
               case defaultValue => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}.convertFromString("${defaultValue}");__${cleanName(resolvedName._2)} case v => v }
                         """
 
             }
-            
+
         }
 
       }
@@ -390,10 +408,10 @@ import scala.language.implicitConversions
 
           case true if (element.importSource != null) =>
 
-            s"$targetPackage.${canonicalClassName(model, element.importSource)}"
+            s"${canonicalClassName(model, element.importSource)}"
 
           // Resolved Type is in the targetpackage, and is the canonical name of the subelement
-          case _ => s"$targetPackage.${canonicalClassName(model, element)}"
+          case _ => s"${canonicalClassName(model, element)}"
 
         }
         // Element definition
@@ -423,9 +441,17 @@ import scala.language.implicitConversions
             // Automatic Element creation: Yes per default only if the element has children it self
             // Or The default value was set 
             var getterContent = element.elements.size match {
-              case _ if (element.default != null) => s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
-              case 0 => s"__${cleanName(resolvedName._2)}"
-              case _ => s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+              case _ if (element.default != null) => 
+                s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
+              
+              case _ if(element.traits.find(t => t.toString==classOf[AnyContent].getCanonicalName).isDefined) => 
+                s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+              
+              case size if(size>0) => 
+                 s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+              
+              case 0 => 
+                s"__${cleanName(resolvedName._2)}"
             }
 
             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
@@ -531,8 +557,8 @@ def apply(xml : String) = {
                 case Some(baseType) ⇒
 
                   // Convert from string does not make sense for String type
-                  if (baseType != "String")
-                    out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.dataFromString(data); res; } "
+                  //if (baseType != "String")
+                  out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.data = res.dataFromString(data); res; } "
 
                 // Not found, just ouput a warning comment
                 case None ⇒
@@ -562,7 +588,13 @@ def apply(xml : String) = {
 
     // Start on top elements
     //----------------------------
-    model.topElements.foreach { writeElement(_) }
+    try {
+      model.topElements.foreach { elt =>
+        writeElement(elt)
+      }
+    } catch {
+      case e: Throwable => e.printStackTrace()
+    }
 
     // Try to copy source File to output if available
     //-----------------

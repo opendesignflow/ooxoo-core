@@ -42,7 +42,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class XList[T <: Buffer](
 
-    val createBuffer: DataUnit ⇒ T) extends   ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
+    val createBuffer: DataUnit ⇒ T) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
   var currentBuffer: Buffer = null
 
@@ -52,21 +52,28 @@ class XList[T <: Buffer](
       case false => false
     }
   }*/
-  
+
   // Create
   //----------------
-  def add : T = {
+  def add: T = {
     val res = createBuffer(null)
     this += res
     res
   }
-  
+
   // Accessors
   //----------------
-  def get(index:Int) : Option[T] = {
+  def get(index: Int): Option[T] = {
     Some(this(index))
   }
-  
+
+  def getAllOfType[CT <: Buffer](implicit tag: ClassTag[CT]): List[CT] = {
+
+    this.collect {
+      case x if (tag.runtimeClass.isInstance(x)) => x.asInstanceOf[CT]
+    }.toList
+  }
+
   override def streamOut(du: DataUnit) = {
 
     //println(s"Streamout in XList for ${size} elements")
@@ -103,7 +110,7 @@ class XList[T <: Buffer](
               du.hierarchical = true
 
               //println("Element will be: "+du.element.name )
-              
+
               content.streamOut(du)
 
               // Reset
@@ -116,7 +123,7 @@ class XList[T <: Buffer](
               du.attribute = new xattribute_base
               du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
               du.attribute.ns = content.asInstanceOf[AnyAttributeBuffer].ns
-             // du.value = content.asInstanceOf[AnyAttributeBuffer].text
+              // du.value = content.asInstanceOf[AnyAttributeBuffer].text
               du.hierarchical = false
 
               content.streamOut(du)
@@ -135,7 +142,7 @@ class XList[T <: Buffer](
               //-- If this is not a vertical buffer, it must never be hirarchical
               content match {
                 case e: VerticalBuffer ⇒ du.hierarchical = true
-                case _                 ⇒ du.hierarchical = false
+                case _ ⇒ du.hierarchical = false
               }
 
               content.streamOut(du)
@@ -180,10 +187,10 @@ class XList[T <: Buffer](
 
         //println("Calling streamout on element: " + value.hashCode())
         buffer.appendBuffer(ioChain)
-        
+
       case None ⇒
     }
-    
+
     buffer <= du
 
     /*logFine(s"IN LIST streamIn...............: ${du.element}");
@@ -266,10 +273,10 @@ class XList[T <: Buffer](
 }
 object XList {
 
-  def apply[T <: Buffer](implicit tag:ClassTag[T]) : XList[T] = {
-    return new XList[T]( du => tag.runtimeClass.newInstance().asInstanceOf[T])
+  def apply[T <: Buffer](implicit tag: ClassTag[T]): XList[T] = {
+    return new XList[T](du => tag.runtimeClass.newInstance().asInstanceOf[T])
   }
-  
+
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */

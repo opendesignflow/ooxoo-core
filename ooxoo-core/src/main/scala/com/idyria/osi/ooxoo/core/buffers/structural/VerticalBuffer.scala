@@ -27,6 +27,7 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
 import com.idyria.osi.tea.logging.TeaLogging
+import com.idyria.osi.tea.listeners.ListeningSupport
 
 /**
  * Just a type marker
@@ -269,6 +270,10 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         this.inHierarchy = false
         this.cleanIOChain
 
+        if (classOf[ListeningSupport].isInstance(this)) {
+          this.asInstanceOf[ListeningSupport].@->("streamIn.close")
+        }
+        
       // Element
       //---------------
 
@@ -346,7 +351,8 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           //-- Call Import data unit if we are a databuffer
           //---------------
-          case db: AbstractDataBuffer[_] ⇒ db.importDataUnit(du)
+          case db: AbstractDataBuffer[_] => 
+            //db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
