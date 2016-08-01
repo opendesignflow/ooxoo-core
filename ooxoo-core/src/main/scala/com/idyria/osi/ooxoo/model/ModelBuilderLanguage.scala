@@ -354,6 +354,15 @@ trait ModelBuilderLanguage extends ListeningSupport {
       left.default = right
       this
     }
+    
+    /**
+     * Set documentation on element
+     */
+    def withDocumentation(str: String): IsWordAttributeWrapper = {
+
+      left.description = str
+      this
+    }
   }
 
   class AttributeWordAttributeWrapper(var left: Attribute) {
