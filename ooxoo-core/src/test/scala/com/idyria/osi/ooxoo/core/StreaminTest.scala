@@ -119,11 +119,11 @@ class StreaminTest extends FunSuite with  Matchers {
 
      //-- Check attributes
      //----------------------------
-     root.attr1 should not be === (null)
+     root.attr1 should not be (null)
      root.attr1.toString should equal("attr")
 
-     root.attr2 should not be === (null)
-     root.attr2.toString should be === ("attr2")
+     root.attr2 should not be(null)
+     root.attr2.toString should be ("attr2")
 
 
      //-- Check sub elements
@@ -175,7 +175,7 @@ class StreaminTest extends FunSuite with  Matchers {
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
     }
@@ -213,7 +213,7 @@ class StreaminTest extends FunSuite with  Matchers {
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
     }
@@ -338,15 +338,15 @@ class StreaminTest extends FunSuite with  Matchers {
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
         //-- Check sub
         //----------------------
-        root.subElements.size should be === (1)
+        root.subElements.size should be (1)
         root.subElements.head.name.toString should equal("hello2")
 
-        /*root.secondSubElements.size should be === (1)
+        /*root.secondSubElements.size should be (1)
         root.secondSubElements.head.name.toString should equal("hello3")*/
     }
 
