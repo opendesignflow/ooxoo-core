@@ -23,12 +23,12 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import java.io.StringReader
 import java.io.StringWriter
-import org.scalatest._
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
+
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 
-import org.scalatest.matchers.ShouldMatchers
 
 
 @xelement(name="Group")
@@ -43,7 +43,7 @@ class TestGroup extends ElementBuffer {
 
 }
 
-class SubLevelTest extends FunSuite with ShouldMatchers  {
+class SubLevelTest extends FunSuite   with  Matchers  {
 
     
 

@@ -32,7 +32,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import org.scalatest.matchers.ShouldMatchers
+
 
 
 import com.idyria.osi.ooxoo.core.utils._
@@ -43,8 +43,8 @@ import com.idyria.osi.ooxoo.core.utils._
  * @author rleys
  *
  */
-class AnnotationsTest extends FunSuite with ShouldMatchers with GivenWhenThen {
-
+class AnnotationsTest extends FunSuite  with GivenWhenThen {
+  
     @xelement
     class TopClass {
 

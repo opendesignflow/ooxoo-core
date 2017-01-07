@@ -34,13 +34,14 @@ import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
+
 
 /**
  * @author rleys
  *
  */
-class StreaminTest extends FunSuite with ShouldMatchers{
+class StreaminTest extends FunSuite with  Matchers {
 
 
   @xelement

@@ -25,8 +25,9 @@ import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.project.MavenProject
 
+/*
 import org.apache.maven.reporting.MavenReport
-import org.apache.maven.reporting.MavenReportException
+import org.apache.maven.reporting.MavenReportException*/
 
 import org.apache.maven.plugins.annotations._
 
@@ -37,12 +38,16 @@ import com.idyria.osi.ooxoo.model.writers._
 import java.io._
 import scala.io.Source
 
+import org.scala_tools.maven.mojo.annotations._
+
 /**
  * Generate sources from model, and copy model also to output
  *
  */
-@Mojo(name = "generate-sources")
-class GenerateSourcesMojo extends AbstractMojo with MavenReport {
+//@Mojo(name = "generate-sources")
+@goal("ooxoo")
+@phase("generate-sources")
+class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @Parameter(defaultValue = "${project}")
   var project: MavenProject = null
@@ -244,9 +249,9 @@ class GenerateSourcesMojo extends AbstractMojo with MavenReport {
     defferedReporting.size > 0
   }
 
-  def generate(sink: org.codehaus.doxia.sink.Sink, locale: java.util.Locale): Unit = {
+ /* def generate(sink: org.codehaus.doxia.sink.Sink, locale: java.util.Locale): Unit = {
 
-  }
+  }*/
   def getCategoryName(): String = {
     "OOXOO"
   }
