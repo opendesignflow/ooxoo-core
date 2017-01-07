@@ -234,7 +234,7 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
     // Add All Target Folder generated sources as compile unit
     //-------------------
     if (outputBaseFolder.exists) {
-      outputBaseFolder.listFiles.filter(_.isDirectory).foreach(f => this.project.addCompileSourceRoot(f.getAbsolutePath))
+      //outputBaseFolder.listFiles.filter(_.isDirectory).foreach(f => this.project.addCompileSourceRoot(f.getAbsolutePath))
     }
 
   }
