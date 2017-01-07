@@ -47,12 +47,12 @@
 		            </goals>
 		          </execution>
 		          <!-- if you want to generate help goal -->
-		          <execution>
+			  <!-- <execution>
 		            <id>help-goal</id>
 		            <goals>
 		              <goal>helpmojo</goal>
 		            </goals>
-		          </execution>
+			  </execution> -->
 		        </executions>
 	      	</plugin>
 	      	<plugin>
