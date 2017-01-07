@@ -45,7 +45,7 @@ import org.scala_tools.maven.mojo.annotations._
  *
  */
 //@Mojo(name = "generate-sources")
-@goal("ooxoo")
+@goal("generate-sources")
 @phase("generate-sources")
 class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
