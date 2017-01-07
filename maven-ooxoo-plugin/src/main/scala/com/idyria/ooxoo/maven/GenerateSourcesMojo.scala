@@ -214,7 +214,7 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
                   // Add Target Folder to compile source if existing
                   //-----------------
                   if (outputFolder.exists) {
-                    this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+                    //this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
                   }
               }
 
