@@ -3,7 +3,6 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 import org.scalatest.BeforeAndAfterEach
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
 import org.scalatest.GivenWhenThen
-import org.scalatest.matchers.ShouldMatchers
 import com.idyria.osi.tea.listeners.ListeningSupport
 import org.scalatest.FeatureSpec
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit

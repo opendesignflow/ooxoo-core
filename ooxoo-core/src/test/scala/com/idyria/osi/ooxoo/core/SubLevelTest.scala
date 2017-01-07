@@ -23,12 +23,12 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import java.io.StringReader
 import java.io.StringWriter
-import org.scalatest._
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
+
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 
-import org.scalatest.matchers.ShouldMatchers
 
 
 @xelement(name="Group")
@@ -43,7 +43,7 @@ class TestGroup extends ElementBuffer {
 
 }
 
-class SubLevelTest extends FunSuite with ShouldMatchers  {
+class SubLevelTest extends FunSuite   with  Matchers  {
 
     
 
@@ -90,14 +90,14 @@ class SubLevelTest extends FunSuite with ShouldMatchers  {
         //------------------
 
         //-- Top has 4 groups
-        root.groups.size should be === (4)
+        root.groups.size should be (4)
 
         //-- Number 2 has 3 Subgroups
-        root.groups.get(1).get.groups.size should be === (3)
+        root.groups.get(1).get.groups.size should be (3)
 
         //-- Number 4 has one subgroup which has 3 subgroups in turn
-        root.groups.get(3).get.groups.size should be === (1)
-        root.groups.get(3).get.groups.head.groups.size should be === (3)
+        root.groups.get(3).get.groups.size should be (1)
+        root.groups.get(3).get.groups.head.groups.size should be (3)
 
         //expectResut(4)(root.groups.size)
 

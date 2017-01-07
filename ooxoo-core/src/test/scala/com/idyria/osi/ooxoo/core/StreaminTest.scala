@@ -34,13 +34,14 @@ import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
+
 
 /**
  * @author rleys
  *
  */
-class StreaminTest extends FunSuite with ShouldMatchers{
+class StreaminTest extends FunSuite with  Matchers {
 
 
   @xelement
@@ -118,11 +119,11 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
      //-- Check attributes
      //----------------------------
-     root.attr1 should not be === (null)
+     root.attr1 should not be (null)
      root.attr1.toString should equal("attr")
 
-     root.attr2 should not be === (null)
-     root.attr2.toString should be === ("attr2")
+     root.attr2 should not be(null)
+     root.attr2.toString should be ("attr2")
 
 
      //-- Check sub elements
@@ -174,7 +175,7 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
     }
@@ -212,7 +213,7 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
     }
@@ -337,15 +338,15 @@ class StreaminTest extends FunSuite with ShouldMatchers{
 
         //-- Check attributes
         //----------------------------
-        root.name should not be === (null)
+        root.name should not be (null)
         root.name.toString should equal("hello")
 
         //-- Check sub
         //----------------------
-        root.subElements.size should be === (1)
+        root.subElements.size should be (1)
         root.subElements.head.name.toString should equal("hello2")
 
-        /*root.secondSubElements.size should be === (1)
+        /*root.secondSubElements.size should be (1)
         root.secondSubElements.head.name.toString should equal("hello3")*/
     }
 

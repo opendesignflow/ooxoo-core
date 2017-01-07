@@ -7,9 +7,9 @@
 	<packaging>maven-plugin</packaging>
 
 	<parent>
-		<groupId>com.idyria.osi.ooxoo</groupId>
+		<groupId>org.odfi.ooxoo</groupId>
 		<artifactId>ooxoo-all</artifactId>
-	        <version>3.1.2</version>
+	        <version>3.2.0</version>
 		<relativePath>..</relativePath>
 	</parent>
  
@@ -22,20 +22,17 @@
         </site>
     </distributionManagement>-->
 	
-	<properties>
-		<scala.mojo.version>0.5.1-SNAPSHOT</scala.mojo.version>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-plugin-plugin</artifactId>
-		        <version>3.2</version>
+		        <version>3.3</version>
 		        <dependencies>
 					<dependency>
 						<groupId>com.jsuereth</groupId>
-						<artifactId>scala-mojo-support_2.11</artifactId>
-						<version>0.5.1.osi</version>
+						<artifactId>scala-mojo-support_2.12</artifactId>
+						<version>0.5.2.odfi-SNAPSHOT</version>
 					</dependency>
 				</dependencies>
 		        <configuration>
@@ -119,8 +116,8 @@
 	    </dependency>
 	    <dependency>
 			<groupId>com.jsuereth</groupId>
-			<artifactId>scala-mojo-support_2.11</artifactId>
-			<version>0.5.1.osi</version>
+			<artifactId>scala-mojo-support_2.12</artifactId>
+			<version>0.5.2.odfi-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

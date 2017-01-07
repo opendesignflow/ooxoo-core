@@ -15,12 +15,13 @@ node {
 
   stage('Test') {
     sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore test"
-    //junit '**/target/surefire-reports/TEST-*.xml'
+    junit '**/target/surefire-reports/TEST-*.xml'
   }
 
-  stage('Package') {
-      sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore package"
-      step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+  stage('Deploy') {
+      sh "${mvnHome}/bin/mvn -B -DskipTests=true deploy"
+      step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/target/*.jar', fingerprint: true])
+      step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
   }
 
 
