@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.odfi.ooxoo</groupId>
 		<artifactId>ooxoo-all</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.1</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>ooxoo-core</artifactId>
@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.odfi</groupId>
 			<artifactId>tea</artifactId>
-			<version>3.2.2-SNAPSHOT</version>
+			<version>3.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
