@@ -27,7 +27,7 @@
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-plugin-plugin</artifactId>
-		        <version>3.3</version>
+		        <version>3.5</version>
 		        <dependencies>
 					<dependency>
 						<groupId>com.jsuereth</groupId>
@@ -97,16 +97,16 @@
 		<dependency>
 	      <groupId>org.apache.maven</groupId>
 	      <artifactId>maven-plugin-api</artifactId>
-	      <version>3.1.0</version>
+	      <version>3.3.9</version>
 	    </dependency>
 	    <!-- dependencies to annotations -->
 	    <dependency>
 	      <groupId>org.apache.maven.plugin-tools</groupId>
 	      <artifactId>maven-plugin-annotations</artifactId>
-	      <version>3.2</version>
+	      <version>3.5</version>
 	      <!-- annotations are not needed for plugin execution so you can remove this dependency
 	           for execution with using provided scope -->
-	      <!-- <scope>provided</scope> -->
+	       <!--<scope>provided</scope>-->
 	    </dependency>
 	    <!-- generated help mojo has a dependency to plexus-utils -->
 	    <dependency>
