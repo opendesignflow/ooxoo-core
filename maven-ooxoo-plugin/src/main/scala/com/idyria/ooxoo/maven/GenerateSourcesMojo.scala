@@ -45,12 +45,13 @@ import org.scala_tools.maven.mojo.annotations._
  *
  */
 //@Mojo(name = "generate-sources")
-@goal("generate-sources")
-@phase("generate-sources")
+//@goal("generate-sources")
+//@phase("generate-sources")
+@Mojo(name = "generate-sources")
 class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @Parameter(defaultValue = "${project}")
-  var project: MavenProject = null
+  var project: MavenProject = _
 
   @Parameter(property = "ooxoo.force", defaultValue = "false")
   var force: Boolean = false
@@ -68,7 +69,7 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @throws(classOf[MojoExecutionException])
   override def execute() {
-    getLog().info("Looking for xmodels to generate");
+    getLog().info("Looking for xmodels to generate with project: "+project);
 
     
     statusFolder.mkdirs()
