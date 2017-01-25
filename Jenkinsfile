@@ -29,28 +29,26 @@ node {
     // Trigger sub builds on dev
     if (env.BRANCH_NAME == 'dev') {
 
-      // Trigger sub builds on dev
-      if (env.BRANCH_NAME == 'dev') {
+      def stepsForParallel = [:]
 
-        def stepsForParallel = [:]
+      ['../ooxoo-db/dev','../vui2/dev'].each {
 
-        ['../ooxoo-db/dev','../vui2/dev'].each {
-
-            stepsForParallel[it] =  {
-              node {
-                stage("Downstream for "+it) {
-                  build job: it
-                }
+          stepsForParallel[it] =  {
+            node {
+              stage("Downstream for "+it) {
+                build job: it
               }
             }
-        }
+          }
+      }
 
-        parallel stepsForParallel
+      parallel stepsForParallel
 
-        /*stage("Downstream") {
-          build job: '../ooxoo-db/dev'
-          build job: '../vui2/dev'
-        }*/
+      /*stage("Downstream") {
+        build job: '../ooxoo-db/dev'
+        build job: '../vui2/dev'
+      }*/
+      
     }
 
   } else {
