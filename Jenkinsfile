@@ -1,3 +1,11 @@
+
+// Take the string and echo it.
+def transformIntoStep(jobFullName) {
+    return {
+       build job: jobFullName
+    }
+}
+
 // OOXOO
 node {
  
@@ -47,12 +55,7 @@ node {
 
       parallel stepsForParallel
 
-      // Take the string and echo it.
-      def transformIntoStep(jobFullName) {
-          return {
-             build jobFullName
-          }
-      }
+      
 
       /*stage("Downstream") {
         build job: '../ooxoo-db/dev'
