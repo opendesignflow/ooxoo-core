@@ -35,11 +35,11 @@ node {
       for (x in downstreams) {
         def ds = x 
         stepsForParallel[ds] =  {
-            node {
+            //node {
               stage("Downstream for "+ds) {
                 build job: ds
               }
-            }
+            //}
           }
       }
       
