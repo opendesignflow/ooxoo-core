@@ -29,18 +29,20 @@ node {
     // Trigger sub builds on dev
     if (env.BRANCH_NAME == 'dev') {
 
+
+      def downstreams = ['../ooxoo-db/dev','../vui2/dev']
       def stepsForParallel = [:]
-
-      ['../ooxoo-db/dev','../vui2/dev'].each {
-
-          stepsForParallel[it] =  {
+      for (x in downstreams) {
+        def ds = x 
+        stepsForParallel[ds] =  {
             node {
-              stage("Downstream for "+it) {
-                build job: it
+              stage("Downstream for "+ds) {
+                build job: ds
               }
             }
           }
       }
+      
 
       parallel stepsForParallel
 
