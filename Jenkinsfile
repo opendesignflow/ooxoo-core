@@ -34,17 +34,25 @@ node {
       def stepsForParallel = [:]
       for (x in downstreams) {
         def ds = x 
-        stepsForParallel[ds] =  {
+        stepsForParallel[ds] = transformIntoStep(ds) 
+        /*{
             //node {
               stage("Downstream for "+ds) {
                 build job: ds
               }
             //}
-          }
+          }*/
       }
       
 
       parallel stepsForParallel
+
+      // Take the string and echo it.
+      def transformIntoStep(jobFullName) {
+          return {
+             build jobFullName
+          }
+      }
 
       /*stage("Downstream") {
         build job: '../ooxoo-db/dev'
