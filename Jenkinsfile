@@ -1,8 +1,8 @@
 
-// Take the string and echo it.
+// Start Build Step function
 def transformIntoStep(jobFullName) {
     return {
-       build job: jobFullName
+       build job: jobFullName , wait: false, propagate: false
     }
 }
 
@@ -38,33 +38,19 @@ node {
     if (env.BRANCH_NAME == 'dev') {
       stage('Downstream') {
 
-        def downstreams = ['../ooxoo-db/dev','../vui2/dev']
+        def downstreams = ['../ooxoo-db/dev','../vui2/dev','../wsb-core/dev']
         def stepsForParallel = [:]
         for (x in downstreams) {
           def ds = x 
           stepsForParallel[ds] = transformIntoStep(ds) 
-          /*{
-              //node {
-                stage("Downstream for "+ds) {
-                  build job: ds
-                }
-              //}
-            }*/
         }
-        
-
+      
         parallel stepsForParallel
 
       }
 
-      
-
-      /*stage("Downstream") {
-        build job: '../ooxoo-db/dev'
-        build job: '../vui2/dev'
-      }*/
-      
     }
+    // EOF Downstream
 
   } else {
     
