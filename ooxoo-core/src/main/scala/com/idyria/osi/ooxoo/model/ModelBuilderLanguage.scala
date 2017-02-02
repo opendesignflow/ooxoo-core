@@ -49,6 +49,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("integer" -> classOf[IntegerBuffer]),
     ("long" -> classOf[LongBuffer]),
     ("float" -> classOf[FloatBuffer]),
+    ("double" -> classOf[DoubleBuffer]),
     ("datetime" -> classOf[DateTimeBuffer]),
     ("time" -> classOf[DateTimeBuffer]),
     ("date" -> classOf[DateTimeBuffer]),
@@ -84,7 +85,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       @->("element.start", left)
 
-      left.classType = getType(typeStr.toLowerCase()).getCanonicalName()
+      left.classType = getType(typeStr.trim().toLowerCase()).getCanonicalName()
       left.maxOccurs = 10
 
       @->("element.end", left)
@@ -141,7 +142,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
           @->("element.start", left)
 
-          left.classType = getType(right.toLowerCase()).getCanonicalName
+          left.classType = getType(right.trim().toLowerCase()).getCanonicalName
 
           @->("element.end", left)
 
@@ -167,7 +168,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       right.contains(".") match {
         case true => left.classType = right
-        case false => left.classType = getType(right.toLowerCase()).getCanonicalName()
+        case false => left.classType = getType(right.trim().toLowerCase()).getCanonicalName()
       }
 
       @->("element.end", left)
@@ -239,7 +240,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       @->("element.start", left)
 
-      left.classType = getType(right.toLowerCase()).getCanonicalName
+      left.classType = getType(right.trim().toLowerCase()).getCanonicalName
 
       @->("element.end", left)
 
@@ -293,7 +294,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       // Search for type in internal map
       //--------------------------
-      left.classType = getType(right.toLowerCase()).getCanonicalName
+      left.classType = getType(right.trim().toLowerCase()).getCanonicalName
 
       this
 
@@ -384,7 +385,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
 
       // Search for type in internal map
       //--------------------------
-      left.classType = getType(right.toLowerCase()).getCanonicalName
+      left.classType = getType(right.trim().toLowerCase()).getCanonicalName
 
     }
 

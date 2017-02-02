@@ -22,10 +22,6 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
-import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
 
@@ -42,10 +38,9 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
  * @author rleys
  *
  */
-abstract class AbstractDataBuffer[DT](
-    // Variable for local Data
-    @BeanProperty() var data: DT = null) extends BaseBufferTrait with TLogSource {
+abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
 
+  var data: DT = _
   def dataToString: String
   def dataFromString(str: String): DT
 
@@ -222,3 +217,5 @@ object AbstractDataBuffer {
   }
   
 }
+
+
