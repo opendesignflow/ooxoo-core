@@ -26,14 +26,14 @@ import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import scala.language.implicitConversions
 
 /**
- * Buffer to represent an Integer
+ * Buffer to represent an Int
  *
  */
-class IntegerBuffer extends AbstractDataBuffer[Integer] with Comparable[Int] {
+class IntegerBuffer extends AbstractDataBuffer[Int] with Comparable[Int] {
 
   this.data = 0
   
-  def dataFromString(str: String): Integer = {
+  def dataFromString(str: String): Int = {
     this.data = Integer.decode(str)
     this.data
   }
@@ -52,7 +52,7 @@ object IntegerBuffer {
 
   def apply() = new IntegerBuffer
 
-  def apply(value: Integer) = {
+  def apply(value: Int) = {
     var res = new IntegerBuffer
     res.data = value
     res
@@ -64,10 +64,7 @@ object IntegerBuffer {
     b.dataFromString(str)
     b
   }
-
-  implicit def convertIntegerToIntegerBuffer(value: Integer): IntegerBuffer = IntegerBuffer(value)
-  implicit def convertIntegerBufferToInteger(buffer: IntegerBuffer): Integer = buffer.data
-
+  
   implicit def convertIntToIntegerBuffer(value: Int): IntegerBuffer = IntegerBuffer(value)
   implicit def convertIntegerBufferToInt(buffer: IntegerBuffer): Int = buffer.data
 
@@ -77,11 +74,11 @@ object IntegerBuffer {
  * Buffer to represent a Long
  *
  */
-class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java.lang.Long] {
+class LongBuffer extends AbstractDataBuffer[Long] with Comparable[Long] {
 
   this.data = 0
   
-  def dataFromString(str: String): java.lang.Long = {
+  def dataFromString(str: String): Long = {
     
     str.trim match {
       case "" =>
@@ -98,7 +95,7 @@ class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java
 
   def equals(comp: LongBuffer): Boolean = this.data == comp.data
 
-  def compareTo(comp: java.lang.Long): Int = this.data.compareTo(comp)
+  def compareTo(comp: Long): Int = this.data.compareTo(comp)
 
   def +(add: Long): Long = this.data + add
 }
@@ -106,12 +103,6 @@ class LongBuffer extends AbstractDataBuffer[java.lang.Long] with Comparable[java
 object LongBuffer {
 
   def apply() = new LongBuffer
-
-  def apply(value: java.lang.Long) = {
-    var res = new LongBuffer
-    res.data = value
-    res
-  }
 
   def apply(value: Long) = {
     var res = new LongBuffer
@@ -126,11 +117,8 @@ object LongBuffer {
     b
   }
 
-  implicit def convertLongToLongBuffer(value: java.lang.Long): LongBuffer = LongBuffer(value)
-  implicit def convertLongBufferToLong(buffer: LongBuffer): java.lang.Long = buffer.data
-
-  implicit def convertLong2ToLongBuffer(value: Long): LongBuffer = LongBuffer(value)
-  implicit def convertLongBufferToLong2(buffer: LongBuffer): Long = buffer.data
+  implicit def convertLongToLongBuffer(value: Long): LongBuffer = LongBuffer(value)
+  implicit def convertLongBufferToLong(buffer: LongBuffer): Long = buffer.data
   
   
 }
@@ -139,11 +127,11 @@ object LongBuffer {
  * Buffer to represent a Double
  *
  */
-class DoubleBuffer extends AbstractDataBuffer[java.lang.Double] with Comparable[java.lang.Double] {
+class DoubleBuffer extends AbstractDataBuffer[Double] with Comparable[Double] {
 
   this.data = 0.0
   
-  def dataFromString(str: String): java.lang.Double = {
+  def dataFromString(str: String): Double = {
     this.data = java.lang.Double.parseDouble(str)
     this.data
   }
@@ -154,7 +142,7 @@ class DoubleBuffer extends AbstractDataBuffer[java.lang.Double] with Comparable[
 
   def equals(comp: DoubleBuffer): Boolean = this.data == comp.data
 
-  def compareTo(comp: java.lang.Double): Int = this.data.compareTo(comp)
+  def compareTo(comp: Double): Int = this.data.compareTo(comp)
 
 }
 
@@ -175,8 +163,8 @@ object DoubleBuffer {
     b
   }
 
-  implicit def convertDoubleToDoubleBuffer(value: java.lang.Double): DoubleBuffer = DoubleBuffer(value)
-  implicit def convertDoubleBufferToDouble(buffer: DoubleBuffer): java.lang.Double = buffer.data
+  implicit def convertDoubleToDoubleBuffer(value: Double): DoubleBuffer = DoubleBuffer(value)
+  implicit def convertDoubleBufferToDouble(buffer: DoubleBuffer): Double = buffer.data
 
 }
 
@@ -184,11 +172,11 @@ object DoubleBuffer {
  * Buffer to represent a Float
  *
  */
-class FloatBuffer extends AbstractDataBuffer[java.lang.Float] with Comparable[java.lang.Float] {
+class FloatBuffer extends AbstractDataBuffer[Float] with Comparable[Float] {
 
   this.data = 0.0f
   
-  def dataFromString(str: String): java.lang.Float = {
+  def dataFromString(str: String): Float = {
     this.data = java.lang.Float.parseFloat(str)
     this.data
   }
@@ -199,7 +187,7 @@ class FloatBuffer extends AbstractDataBuffer[java.lang.Float] with Comparable[ja
 
   def equals(comp: FloatBuffer): Boolean = this.data == comp.data
 
-  def compareTo(comp: java.lang.Float): Int = this.data.compareTo(comp)
+  def compareTo(comp: Float): Int = this.data.compareTo(comp)
 
 }
 
@@ -207,7 +195,7 @@ object FloatBuffer {
 
   def apply() = new FloatBuffer
 
-  def apply(value: java.lang.Float) = {
+  def apply(value: Float) = {
     var res = new FloatBuffer
     res.data = value
     res
@@ -220,9 +208,8 @@ object FloatBuffer {
     b
   }
   
-  implicit def convertFloatToFloatBuffer(value: java.lang.Float): FloatBuffer = FloatBuffer(value)
   implicit def convertFloatToFloatBuffer(value: Float): FloatBuffer = FloatBuffer(value)
-  implicit def convertFloatBufferToFloat(buffer: FloatBuffer): java.lang.Float = buffer.data
-  implicit def convertFloatBufferToScalaFloat(buffer: FloatBuffer): Float = buffer.data
+  implicit def convertFloatBufferToFloat(buffer: FloatBuffer): Float = buffer.data
+
 
 }
