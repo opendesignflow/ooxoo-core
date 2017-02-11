@@ -7,6 +7,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import java.io.PrintStream
 import java.net.URL
 import java.io.ByteArrayOutputStream
+import com.idyria.osi.tea.files.FileWatcherAdvanced
 
 /**
  * @author zm4632
@@ -14,6 +15,21 @@ import java.io.ByteArrayOutputStream
 trait STAXSyncTrait extends ElementBuffer {
   
   var staxPreviousFile : Option[File] = None
+  var staxFileWatcher : Option[FileWatcherAdvanced] = None
+  
+  
+  def onFileReload(listener:Any)(cl: File => Any) = (staxFileWatcher,staxPreviousFile) match {
+    case (None,_) => throw new IllegalArgumentException("Cannot watch file reload without a defined file watcher")
+    case (_,None) => throw new IllegalArgumentException("Cannot watch file reload without a defined file")
+    case (watcher,file) => 
+      
+      watcher.get.onFileChange(listener, file.get) {
+        cl(_)
+      }
+      
+      
+  }
+  
   def toFile(f: File) = {
 
     // Create 
