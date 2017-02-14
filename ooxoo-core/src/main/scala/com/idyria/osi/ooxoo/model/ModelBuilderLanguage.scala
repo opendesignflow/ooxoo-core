@@ -59,7 +59,13 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("uri" -> classOf[URIBuffer]),
     ("url" -> classOf[URIBuffer]),
 
+    ("binary" -> classOf[BinaryBuffer]),
+    ("doublebinary" -> classOf[DoubleBinaryBuffer]),
+    ("intbinary" -> classOf[IntBinaryBuffer]),
+    
     ("map" -> classOf[StringMapBuffer]))
+    
+    
 
   def getType(str: String): Class[_ <: Buffer] = {
 
