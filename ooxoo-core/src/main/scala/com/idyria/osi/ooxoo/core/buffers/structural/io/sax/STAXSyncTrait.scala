@@ -8,6 +8,9 @@ import java.io.PrintStream
 import java.net.URL
 import java.io.ByteArrayOutputStream
 import com.idyria.osi.tea.files.FileWatcherAdvanced
+import java.io.OutputStream
+import java.io.InputStream
+import java.io.FileInputStream
 
 /**
  * @author zm4632
@@ -30,16 +33,27 @@ trait STAXSyncTrait extends ElementBuffer {
       
   }
   
+  
+  def toOutputStream(os:OutputStream) = {
+
+    var res = StAXIOBuffer(this, true)
+
+    var out = new PrintStream(os)
+    out.append(res)
+    out.close()
+    
+    this
+  }
+  
   def toFile(f: File) = {
 
     // Create 
     f.getAbsoluteFile.getParentFile.mkdirs()
     
-    var res = StAXIOBuffer(this, true)
-
-    var out = new PrintStream(new FileOutputStream(f))
-    out.append(res)
-    out.close()
+    var fos =  new FileOutputStream(f)
+    toOutputStream(fos)
+    
+    staxPreviousFile = Some(f)
     
     this
   }
@@ -54,11 +68,23 @@ trait STAXSyncTrait extends ElementBuffer {
     this
   }
   
-  def fromFile(url: File) = {
+  def fromInputStream(is:InputStream) = {
     
-    this.fromURL(url.toURI().toURL)
+    var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(is)
+    this.appendBuffer(io)
+    io.streamIn
+    is.close
     
-    this.staxPreviousFile = Some(url)
+    this
+    
+  }
+  
+  def fromFile(f: File) = {
+    
+    this.fromInputStream(new FileInputStream(f))
+    
+    
+    this.staxPreviousFile = Some(f)
   }
   
   def resyncToFile = staxPreviousFile match {

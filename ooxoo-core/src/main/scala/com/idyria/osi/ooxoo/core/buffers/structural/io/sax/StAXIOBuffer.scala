@@ -339,6 +339,10 @@ object StAXIOBuffer {
     new StAXIOBuffer(url)
 
   }
+  
+  def apply(in:InputStream) = {
+     new StAXIOBuffer(new InputStreamReader(in))
+  }
 
   /**
    * Creates a StaxIOBuffer with a specific data output stream
