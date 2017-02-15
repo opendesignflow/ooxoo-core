@@ -85,6 +85,8 @@ trait STAXSyncTrait extends ElementBuffer {
     
     
     this.staxPreviousFile = Some(f)
+    
+    this
   }
   
   def resyncToFile = staxPreviousFile match {
