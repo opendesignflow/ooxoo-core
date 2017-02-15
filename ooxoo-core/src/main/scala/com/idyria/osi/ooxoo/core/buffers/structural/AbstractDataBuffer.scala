@@ -58,7 +58,12 @@ abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
     this.data = data
 
     // Propagate
-    this.push
+    this.nextBuffer match {
+      case null => 
+      case other => 
+        this.push
+    }
+    
 
   }
 
