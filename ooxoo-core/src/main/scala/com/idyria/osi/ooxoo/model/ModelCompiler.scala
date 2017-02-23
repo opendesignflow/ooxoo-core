@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
- 
+
 package com.idyria.osi.ooxoo.model
 
 import java.io._
@@ -62,16 +62,23 @@ object ModelCompiler {
   var bootclasspath2 = List[String]()
 
   //--- Scala Compiler and library
-  val compilerPath = java.lang.Class.forName("scala.tools.nsc.Interpreter").getProtectionDomain.getCodeSource.getLocation
-  val libPath = java.lang.Class.forName("scala.Some").getProtectionDomain.getCodeSource.getLocation
-
-  println("Updated code")
-  val runtimeObject = java.lang.Class.forName("scala.runtime.RichInt").getProtectionDomain.getCodeSource.getLocation
+  try {
+    val compilerPath = java.lang.Class.forName("scala.tools.nsc.Interpreter").getProtectionDomain.getCodeSource.getLocation
+    val libPath = java.lang.Class.forName("scala.Some").getProtectionDomain.getCodeSource.getLocation
+   
+    
+    val runtimeObject = java.lang.Class.forName("scala.runtime.RichInt").getProtectionDomain.getCodeSource.getLocation
+    
+    bootclasspath = compilerPath :: libPath :: runtimeObject :: bootclasspath
+ } catch {
+    case e: Throwable =>
+ }
 
   //-- Mex
   val mexPath = java.lang.Class.forName("com.idyria.osi.ooxoo.model.ModelCompiler").getProtectionDomain.getCodeSource.getLocation
 
-  bootclasspath = compilerPath :: libPath :: mexPath :: runtimeObject :: bootclasspath
+    bootclasspath =  mexPath :: bootclasspath
+ 
 
   //-- If Classloader is an URL classLoader, add all its urls to the compiler
   //println("Classloader type: "+getClass().getClassLoader())
@@ -98,7 +105,8 @@ object ModelCompiler {
     error => println(error)
   })
   settings2.usejavacp.value = true
-  settings2.bootclasspath.value = (bootclasspath mkString java.io.File.pathSeparator) + ";" + (bootclasspath2 mkString java.io.File.pathSeparator)
+  settings2.classpath.value = (bootclasspath mkString java.io.File.pathSeparator) + java.io.File.pathSeparator + (bootclasspath2 mkString java.io.File.pathSeparator)
+  settings2.bootclasspath.value = (bootclasspath mkString java.io.File.pathSeparator) + java.io.File.pathSeparator + (bootclasspath2 mkString java.io.File.pathSeparator)
 
   //-- Show some infos
   //println("compilerPath=" + compilerPath);
@@ -107,17 +115,21 @@ object ModelCompiler {
   // Create Compiler
   //---------------------
   var interpreterOutput = new StringWriter
-  val imain = new IMain(settings2, new PrintWriter(interpreterOutput))
+  var imain = new IMain(settings2, new PrintWriter(interpreterOutput))
 
   // Compilation result
 
+  def resetCompiler = {
+    imain = new IMain(settings2, new PrintWriter(interpreterOutput))
+  }
+  
   /**
    * Binds a named variable to a value for the model compiler
    */
   def bind(name: String, value: Any) = {
 
     imain.bind(name, value)
-   // imain.
+    // imain.
   }
 
   /**
@@ -136,7 +148,9 @@ object ModelCompiler {
     var (modelName, wrappedModel) = """\s*package\s+(.+)\s*""".r.findFirstMatchIn(inputModel) match {
 
       //-- If there is a package info, the code must be compilable, and we have to use the package as name basis for the object
-      case Some(p) => (p.group(1), inputModel)
+      case Some(p) => 
+       // println("Returning input model")
+        (p.group(1), inputModel)
 
       //-- No package definition, we can wrap the code and add some imports, and the package name stays empty
       case None =>
@@ -157,10 +171,11 @@ $inputModel
         throw new RuntimeException(s"Could not determine object name of model: $inputModel")
     }
 
-    println("")
+   // println("")
 
     // Compile
     //--------------
+    //println("Compiling: "+wrappedModel)
     imain.compileString(wrappedModel) match {
 
       // OK -> Return Model
@@ -168,7 +183,7 @@ $inputModel
 
         var modelInfos = new ModelInfos(modelName)
 
-        println("Compiled Model2: " + modelInfos.name)
+        //println("Compiled Model2: " + modelInfos.name)
 
         //  imain.allDefSymbols
 
@@ -188,11 +203,11 @@ $inputModel
         //----------------
         // Interpret
         imain.interpret(s"modelInfos.producers=${modelInfos.name}.producers") match {
-          case IR.Error => 
-            
-            println(s"Compilation error: ${interpreterOutput.toString()}")
+          case IR.Error =>
+
+            //println(s"Compilation error: ${interpreterOutput.toString()}")
             throw new RuntimeException(s"Could not interpret content: ${interpreterOutput.toString()}")
-          case _        =>
+          case _ =>
         }
 
         imain.interpret(s"${modelInfos.name}.sourceFile = file")
