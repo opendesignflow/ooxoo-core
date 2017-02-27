@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.odfi</groupId>
         <artifactId>superpom-scala</artifactId>
-        <version>2.12.1.r3</version>
+        <version>2.12.1.r7</version>
     </parent>
 
     <!-- Site Distribution -->
@@ -22,12 +22,7 @@
         <url>http://github.com/richnou/ooxoo-core</url>
       <tag>HEAD</tag>
     </scm>
-     <distributionManagement>
-        <site>
-          <id>idyria.central</id>
-          <url>scpexe://wurst.idyria.com/access/osi/com.idyria.osi.ooxoo/ooxoo-all/${project.version}/maven-site/</url>
-        </site>
-    </distributionManagement>
+
 
     <!-- Site -->
     <!-- #### -->
