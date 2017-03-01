@@ -80,11 +80,8 @@ trait STAXSyncTrait extends ElementBuffer {
 
   def toOutputStream(os: OutputStream) = {
 
-    var res = StAXIOBuffer(this, true)
+    var bytesWritten = StAXIOBuffer.writeToOutputStream(this,os, true)
 
-    var out = new PrintStream(os)
-    out.append(res)
-    out.close()
 
     this
   }

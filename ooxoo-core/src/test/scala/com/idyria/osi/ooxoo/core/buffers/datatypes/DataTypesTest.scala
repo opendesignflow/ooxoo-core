@@ -174,16 +174,14 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
     // Streamout
     //-----------------
     var outStream = new ByteArrayOutputStream
-    var io = StAXIOBuffer(outStream)
-    container.appendBuffer(io)
-    container.streamOut()
+    StAXIOBuffer.writeToOutputStream(container, outStream)
 
     println("Result: " + new String(outStream.toByteArray()))
 
     // Streamin
     //-----------------
     var reread = new MapContainer
-    io = new StAXIOBuffer(new ByteArrayInputStream(outStream.toByteArray()))
+    var io = new StAXIOBuffer(new ByteArrayInputStream(outStream.toByteArray()))
     reread.appendBuffer(io)
     io.streamIn
 
@@ -294,16 +292,14 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
     // Streamout
     //-----------------
     var outStream = new ByteArrayOutputStream
-    var io = StAXIOBuffer(outStream)
-    container.appendBuffer(io)
-    container.streamOut()
+    StAXIOBuffer.writeToOutputStream(container, outStream)
 
     println("Result: " + new String(outStream.toByteArray()))
 
     // Streamin
     //-----------------
     container = new EnumContainer
-    io = StAXIOBuffer("""<?xml version="1.0" ?><EnumContainer  attr="C" attr2="closed"><TestEnum>C</TestEnum></EnumContainer>""")
+    var io = StAXIOBuffer("""<?xml version="1.0" ?><EnumContainer  attr="C" attr2="closed"><TestEnum>C</TestEnum></EnumContainer>""")
     container.appendBuffer(io)
     io.streamIn
 

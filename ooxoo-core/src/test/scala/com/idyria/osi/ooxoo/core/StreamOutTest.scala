@@ -67,8 +67,7 @@ class StreamOutTest extends FunSuite {
     var attr1: XSDStringBuffer = "Default Value"
 
   }
-  
-  
+
   @xelement
   class LazyValTestRoot extends ElementBuffer {
 
@@ -85,27 +84,21 @@ class StreamOutTest extends FunSuite {
     var subStringMultiple: XList[XSDStringBuffer] = XList[XSDStringBuffer] { new XSDStringBuffer }
 
     @xelement
-    lazy val c : TestRootSub = new TestRootSub
+    lazy val c: TestRootSub = new TestRootSub
 
-    @xelement(name="TestRootSubD")
-    lazy val d : TestRootSub = new TestRootSub
-
+    @xelement(name = "TestRootSubD")
+    lazy val d: TestRootSub = new TestRootSub
 
   }
-  
 
   test("Stream out with lazy val") {
-    
+
     var root = new LazyValTestRoot
     root.c
-    
+
     //-- Add IO
     var outStream = new ByteArrayOutputStream
-    var io = StAXIOBuffer(outStream)
-    root.appendBuffer(io)
-
-    //-- Streamout
-    root.streamOut()
+    StAXIOBuffer.writeToOutputStream(root, outStream)
 
     // Results
     //---------------
@@ -113,9 +106,9 @@ class StreamOutTest extends FunSuite {
     assert(outStream.toByteArray().length > 0, "Data must not be empty")
 
     println("Result: " + new String(outStream.toByteArray()))
-    
+
   }
-  
+
   test("Stream out a simple element") {
 
     //-- Instanciate Root
@@ -139,19 +132,13 @@ class StreamOutTest extends FunSuite {
 
     //-- Add IO
     var outStream = new ByteArrayOutputStream
-    var io = StAXIOBuffer(outStream)
-    root.appendBuffer(io)
-
-    //-- Streamout
-    root.streamOut()
+    StAXIOBuffer.writeToOutputStream(root, outStream)
 
     // Results
     //---------------
-   
+
     assert(outStream.toByteArray().length > 0, "Data must not be empty")
 
-    
-    
     println("Result: " + new String(outStream.toByteArray()))
 
     assert(root.getNextBuffer == null, "IO Buffer must have dissappeard")
@@ -174,13 +161,10 @@ class StreamOutTest extends FunSuite {
 
     // Streamout
     var outStream = new ByteArrayOutputStream
-    var io = StAXIOBuffer(outStream)
-    elt.appendBuffer(io)
-    
-    elt.streamOut()
-    
+    StAXIOBuffer.writeToOutputStream(elt, outStream)
+
     println("Result: " + new String(outStream.toByteArray()))
-    
+
     assert(outStream.toByteArray().length > 0, "Data must not be empty")
     assert(new String(outStream.toByteArray()).matches(".*<ElementSimpleDataType .+</ElementSimpleDataType>"))
 
