@@ -11,99 +11,150 @@ import com.idyria.osi.tea.files.FileWatcherAdvanced
 import java.io.OutputStream
 import java.io.InputStream
 import java.io.FileInputStream
+import java.lang.ref.WeakReference
 
 /**
  * @author zm4632
  */
 trait STAXSyncTrait extends ElementBuffer {
+
+  var staxPreviousFile: Option[File] = None
+  var __staxFileWatcher: Option[FileWatcherAdvanced] = None
+  var staxWatchListeners = Map[WeakReference[Any], (File => Any)]()
   
-  var staxPreviousFile : Option[File] = None
-  var staxFileWatcher : Option[FileWatcherAdvanced] = None
-  
-  
-  def onFileReload(listener:Any)(cl: File => Any) = (staxFileWatcher,staxPreviousFile) match {
-    case (None,_) => throw new IllegalArgumentException("Cannot watch file reload without a defined file watcher")
-    case (_,None) => throw new IllegalArgumentException("Cannot watch file reload without a defined file")
-    case (watcher,file) => 
-      
-      watcher.get.onFileChange(listener, file.get) {
-        cl(_)
-      }
-      
-      
+  def staxFileWatcher_=(w: FileWatcherAdvanced) = {
+    this.__staxFileWatcher = Some(w)
+
+    staxTryWatchStart
   }
+  def staxFileWatcher = __staxFileWatcher
   
-  
-  def toOutputStream(os:OutputStream) = {
+  def staxTryWatchStart = (__staxFileWatcher, staxPreviousFile) match {
+    case (None, _) =>
+    case (_, None) =>
+    case (Some(watcher), Some(file)) if (watcher.isMonitoredBy(this, file)) =>
+    case (Some(watcher), Some(file)) =>
+
+      // Monitor
+      watcher.onFileChange(this, file) {
+        f =>
+          staxIgnoreNextReload match {
+            case false => 
+              
+              // Call all listeners, and clean weak ones
+              staxWatchListeners.foreach {
+                case (ref,cl) if (ref.get()==null) => 
+                  staxWatchListeners = staxWatchListeners - ref
+                case (ref,cl) => 
+                  cl(f)
+              }
+            case true => 
+              staxIgnoreNextReload = false
+              null
+          }
+      }
+
+  }
+
+  var staxIgnoreNextReload = false
+
+  /**
+   * Used to know which objets are listening for reload on this file, to ignore their run in case of local write out
+   */
+  //var staxLocalListeners = List[WeakReference[Any]]()
+
+  def onFileReload(listener: Any)(cl: File => Any) = (__staxFileWatcher, staxPreviousFile) match {
+    case (None, _) => throw new IllegalArgumentException("Cannot watch file reload without a defined file watcher")
+    case (_, None) => throw new IllegalArgumentException("Cannot watch file reload without a defined file")
+    case (watcher, file) =>
+
+      //staxLocalListeners = staxLocalListeners :+ new WeakReference(listener)
+      watcher.get.onFileChange(listener, file.get) {
+        staxIgnoreNextReload match {
+          case false => cl(_)
+          case true => null
+        }
+      }
+
+  }
+
+  def toOutputStream(os: OutputStream) = {
 
     var res = StAXIOBuffer(this, true)
 
     var out = new PrintStream(os)
     out.append(res)
     out.close()
-    
+
     this
   }
-  
+
   def toFile(f: File) = {
 
     // Create 
     f.getAbsoluteFile.getParentFile.mkdirs()
-    
-    var fos =  new FileOutputStream(f)
+
+    // Ignore next reload
+    this.__staxFileWatcher match {
+      case Some(watcher) =>
+        staxIgnoreNextReload = true
+      case None =>
+    }
+    // Write out
+    var fos = new FileOutputStream(f)
     toOutputStream(fos)
-    
+
     staxPreviousFile = Some(f)
-    
+    staxTryWatchStart
+
     this
   }
 
   def fromURL(url: URL) = {
-    
+
     // Set Stax Parser and streamIn
     var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(url)
     this.appendBuffer(io)
     io.streamIn
-    
+
     this
   }
-  
-  def fromInputStream(is:InputStream) = {
-    
+
+  def fromInputStream(is: InputStream) = {
+
     var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(is)
     this.appendBuffer(io)
     io.streamIn
     is.close
-    
+
     this
-    
+
   }
-  
+
   def fromFile(f: File) = {
-    
+
     this.fromInputStream(new FileInputStream(f))
-    
-    
+
     this.staxPreviousFile = Some(f)
-    
+
     this
   }
-  
+
   def resyncToFile = staxPreviousFile match {
     case Some(file) => this.toFile(file)
     case None => throw new IllegalAccessException(s"Cannot Resync Class ${getClass.getCanonicalName} to file because none has been set. Use the fromFile method first to set the source file")
   }
-  
-  def toXMLString : String = {
+
+  def toXMLString: String = {
     var res = StAXIOBuffer(this, true)
 
     var bout = new ByteArrayOutputStream()
     var out = new PrintStream(bout)
     out.append(res)
     out.close()
-   
+
     new String(bout.toByteArray())
-    
+
   }
 
 }
