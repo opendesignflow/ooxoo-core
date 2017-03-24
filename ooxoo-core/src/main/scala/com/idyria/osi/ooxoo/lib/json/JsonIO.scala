@@ -193,15 +193,15 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         value match {
           
           // Not value and multiple, open Multiple Hierarchy
-          case null if (isMultiple && isFirst) => output.println(s"[{")
+          case null if (isMultiple && isFirst) => output.print(s"[{")
           
           // Not value: Open hierarchy
           case null =>
-            output.println(s"{")
+            output.print(s"{")
             
            // Value: Set value to element
           case v =>
-            output.println(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
+            output.print(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
 
             // Ignore next close, because this output does not need a normal close
             ignoreClose = true
@@ -227,8 +227,8 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 	        
 	        //-- Close: Add multiple close if multiple and last
 	        (isMultiple,isLast) match {
-	          case (true,true) => output.println(s"""}],""")
-	          case _ => output.println(s"""},""")
+	          case (true,true) => output.print(s"""}],""")
+	          case _ => output.print(s"""},""")
 	        }
             
             
@@ -279,10 +279,10 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         (isMultiple,isLast) match {
           
           // Last
-          case (true,true) => output.println(s"""],""")
+          case (true,true) => output.print(s"""],""")
           
           // Otherwise normal ,
-          case _ => output.println(s""",""")
+          case _ => output.print(s""",""")
         }
         //ignoreClose = true
 
@@ -290,13 +290,13 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       //---------------
       case (false, false, null, value) if (du.attribute != null) =>
 
-        output.println(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\",""")
+        output.print(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\",""")
 
       // Value only
       //-------------------
       case (false, false, null, value) =>
 
-        output.println(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
+        output.print(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
         ignoreClose = true
 
       case (close, hier, element, value) =>
@@ -313,7 +313,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
   def finish: String = {
 
     // Resolve the wrongly defined ,} sequences, and remove the last ,
-    outputArray.toString().replace(",\n}", "\n}").replace(",\r\n}", "\r\n}").replace(",}", "}").replace("\n", "").replace("\r\n", "").trim.dropRight(1)
+    outputArray.toString().replace(",}", "}").trim.dropRight(1)
     //outputArray.toString().replace(",\n}", "\n}").dropRight(2)
   }
 
