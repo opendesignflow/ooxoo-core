@@ -21,14 +21,14 @@ trait STAXSyncTrait extends ElementBuffer {
   var staxPreviousFile: Option[File] = None
   var __staxFileWatcher: Option[FileWatcherAdvanced] = None
   var staxWatchListeners = Map[WeakReference[Any], (File => Any)]()
-  
+
   def staxFileWatcher_=(w: FileWatcherAdvanced) = {
     this.__staxFileWatcher = Some(w)
 
     staxTryWatchStart
   }
   def staxFileWatcher = __staxFileWatcher
-  
+
   def staxTryWatchStart = (__staxFileWatcher, staxPreviousFile) match {
     case (None, _) =>
     case (_, None) =>
@@ -39,16 +39,16 @@ trait STAXSyncTrait extends ElementBuffer {
       watcher.onFileChange(this, file) {
         f =>
           staxIgnoreNextReload match {
-            case false => 
-              
+            case false =>
+
               // Call all listeners, and clean weak ones
               staxWatchListeners.foreach {
-                case (ref,cl) if (ref.get()==null) => 
+                case (ref, cl) if (ref.get() == null) =>
                   staxWatchListeners = staxWatchListeners - ref
-                case (ref,cl) => 
+                case (ref, cl) =>
                   cl(f)
               }
-            case true => 
+            case true =>
               staxIgnoreNextReload = false
               null
           }
@@ -80,31 +80,32 @@ trait STAXSyncTrait extends ElementBuffer {
 
   def toOutputStream(os: OutputStream) = {
 
-    var bytesWritten = StAXIOBuffer.writeToOutputStream(this,os, true)
-
+    var bytesWritten = StAXIOBuffer.writeToOutputStream(this, os, true)
 
     this
   }
 
   def toFile(f: File) = {
 
-    // Create 
-    f.getAbsoluteFile.getParentFile.mkdirs()
+    this.synchronized {
+      // Create 
+      f.getAbsoluteFile.getParentFile.mkdirs()
 
-    // Ignore next reload
-    this.__staxFileWatcher match {
-      case Some(watcher) =>
-        staxIgnoreNextReload = true
-      case None =>
+      // Ignore next reload
+      this.__staxFileWatcher match {
+        case Some(watcher) =>
+          staxIgnoreNextReload = true
+        case None =>
+      }
+      // Write out
+      var fos = new FileOutputStream(f)
+      toOutputStream(fos)
+
+      staxPreviousFile = Some(f)
+      staxTryWatchStart
+
+      this
     }
-    // Write out
-    var fos = new FileOutputStream(f)
-    toOutputStream(fos)
-
-    staxPreviousFile = Some(f)
-    staxTryWatchStart
-
-    this
   }
 
   def fromURL(url: URL) = {
@@ -130,8 +131,13 @@ trait STAXSyncTrait extends ElementBuffer {
 
   def fromFile(f: File) = {
 
-    this.fromInputStream(new FileInputStream(f))
+    try {
+      this.fromInputStream(new FileInputStream(f))
+    } catch {
+      case e: Throwable =>
+        e.printStackTrace()
 
+    }
     this.staxPreviousFile = Some(f)
 
     this

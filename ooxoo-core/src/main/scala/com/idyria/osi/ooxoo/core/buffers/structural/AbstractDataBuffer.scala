@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,7 +24,8 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import scala.beans.BeanProperty
 import com.idyria.osi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
-
+import com.idyria.osi.tea.listeners.ListeningSupport
+import scala.reflect.ClassTag
 
 /**
  *
@@ -38,13 +39,25 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
  * @author rleys
  *
  */
-abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
+abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLogSource with ListeningSupport {
 
   var data: DT = _
   def dataToString: String
   def dataFromString(str: String): DT
 
   type dataType = DT
+
+  // Value Update
+  //----------
+  def onDataUpdate(cl:  => Unit) = {
+    //println(s"Registering data update on: "+hashCode())
+    this.on("data.update")(cl)
+  }
+
+  def triggerDataUpdate = {
+    //println(s"triggering data update on: "+hashCode())
+    this.@->("data.update")
+  }
 
   // Data Set
   //------------------
@@ -56,32 +69,33 @@ abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
 
     // Set
     this.data = data
-
-    // Propagate
-    this.nextBuffer match {
-      case null => 
-      case other => 
-        this.push
+    try {
+      triggerDataUpdate
+    } finally {
+      // Propagate
+      this.nextBuffer match {
+        case null =>
+        case other =>
+          this.push
+      }
     }
-    
 
   }
 
   // Push/Pull
   //-----------------
-  override def pushRight(du:DataUnit) = {
-      importDataUnit(du)
-      super.pushRight(du)
-      
+  override def pushRight(du: DataUnit) = {
+    importDataUnit(du)
+    super.pushRight(du)
+
   }
-  
-  override def pushLeft(du:DataUnit) = {
-      importDataUnit(du)
-      super.pushLeft(du)
-      
+
+  override def pushLeft(du: DataUnit) = {
+    importDataUnit(du)
+    super.pushLeft(du)
+
   }
-  
-  
+
   // Data Unit
   //---------------------
 
@@ -113,12 +127,11 @@ abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
    * Create data unit using string conversion
    */
   override def importDataUnit(du: DataUnit): Unit = {
-  
-   this.dataFromString(du.value) match {
-     case null => 
-     case res =>  this.data = res
-   }
-   
+
+    this.dataFromString(du.value) match {
+      case null =>
+      case res => this.data = res
+    }
 
   }
 
@@ -166,17 +179,16 @@ abstract class AbstractDataBuffer[DT] extends BaseBufferTrait with TLogSource {
       xelement_base(this) match {
 
         //-- Element, don't eat if an attribute
-        case elt if(elt!=null && du.attribute!=null) =>  
-          
+        case elt if (elt != null && du.attribute != null) =>
+
         //-- Eat
-        case _ => 
+        case _ =>
           this.importDataUnit(du)
-          //this.set(this.dataFromString(du.value))
+        //this.set(this.dataFromString(du.value))
       }
 
       //println("Importing data: "+du.value)
 
-     
     }
 
     // If we have a hierarchy close data unit -> remove end IO buffer because we are done here
@@ -208,19 +220,18 @@ object AbstractDataBuffer {
 
   // def convertFromStringToAnyDataBuffer[T <: AbstractDataBuffer[_]](str: String) : T
 
-  def baseTypesToBuffer(cl:Class[_]) : AbstractDataBuffer[_] = {
-    
-   
+  def baseTypesToBuffer(cl: Class[_]): AbstractDataBuffer[_] = {
+
     cl match {
-      case long if (classOf[scala.Long] == long) =>  new LongBuffer
-      case long if (classOf[Long] == long) =>  new LongBuffer
-      case long if (classOf[Long].isAssignableFrom(long)) =>  new LongBuffer
-      case long if (cl.getCanonicalName()=="scala.Long") =>  new LongBuffer
-      case _                                     => throw new RuntimeException("Cannot Prepare Data buffer for type: " + cl.getCanonicalName())
+      case long if (classOf[scala.Long] == long) => new LongBuffer
+      case long if (classOf[Long] == long) => new LongBuffer
+      case long if (classOf[Long].isAssignableFrom(long)) => new LongBuffer
+      case long if (cl.getCanonicalName() == "scala.Long") => new LongBuffer
+      case _ => throw new RuntimeException("Cannot Prepare Data buffer for type: " + cl.getCanonicalName())
     }
-    
+
   }
-  
+
 }
 
 
