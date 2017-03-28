@@ -335,7 +335,7 @@ object JsonIO {
     //io.indenting = indenting
     in.appendBuffer(io)
     in.streamOut()
-   
+    in.cleanIOChain
     
     return io.finish
     
