@@ -26,6 +26,8 @@ import scala.language.implicitConversions
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.tea.listeners.ListeningSupport
+import com.idyria.osi.ooxoo.core.buffers.datatypes.hash.SHA256StringBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 
 /**
  * This trait contains all the language Wrappers and Conversions used in Model Builder.
@@ -42,8 +44,9 @@ trait ModelBuilderLanguage extends ListeningSupport {
   var typesMap = Map[String, Class[_ <: Buffer]](
       
     ("string" -> classOf[XSDStringBuffer]), 
+    ("sha256string" -> classOf[SHA256StringBuffer]),
     ("htmlstring" -> classOf[HTMLStringBuffer]),
-    
+    ("uuid" -> classOf[UUIDBuffer]),
     ("cdata" -> classOf[CDataBuffer]),
     ("int" -> classOf[IntegerBuffer]),
     ("integer" -> classOf[IntegerBuffer]),

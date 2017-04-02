@@ -69,11 +69,10 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         case Some(top) =>
           elt.parent = top;
 
-
           top.elements += elt
 
         case None if (topElements.contains(elt)) => topElements += elt
-        case None                                => topElements += elt
+        case None => topElements += elt
       }
 
       // Stack element
@@ -99,7 +98,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.classType = classType
-      case None          => throw new RuntimeException("Cannot call classType() outside of an element")
+      case None => throw new RuntimeException("Cannot call classType() outside of an element")
     }
 
   }
@@ -146,7 +145,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
         var newElement = new Element(element.name)
         newElement.classType = element.name
         newElement.importSource = element
-        newElement.imported  =true
+        newElement.imported = true
 
         this.@->("element.start", newElement)
         this.@->("element.end", newElement)
@@ -162,55 +161,62 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
    * Set class type of current element to the one matching a standard type
    */
   def ofType(str: String): Unit = {
-    
+
     str.contains(".") match {
       case true => classType(str)
       case false => classType(getType(str.toLowerCase()).getCanonicalName())
     }
-    
-    
-  } 
 
-  def withTrait(traitType: String)  : Unit = {
+  }
+
+  def withTrait(traitType: String): Unit = {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType
-      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
   }
-  
-   def withTrait(traitClass: Class[ _ <: Buffer])  : Unit = {
-     withTrait(traitClass.getCanonicalName)
+
+  def withTrait(traitClass: Class[_ <: Buffer]): Unit = {
+    withTrait(traitClass.getCanonicalName)
   }
 
-  def withTrait(traitType: Element) : Unit = {
+  def withTrait(traitType: Element): Unit = {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType.name
-      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
   }
-  
-  def isTrait   : Unit = {
+
+  def isTrait: Unit = {
     isTrait(false)
   }
-  def isTrait(changeName : Boolean = false) : Unit = {
+  def isTrait(changeName: Boolean = false): Unit = {
 
     elementsStack.headOption match {
-      case Some(element) => 
+      case Some(element) =>
         element.makeTrait(changeName)
-      case None          => throw new RuntimeException("Cannot call isTrait() outside of an element")
+      case None => throw new RuntimeException("Cannot call isTrait() outside of an element")
     }
 
+  }
+
+  def makeTraitAndUseCustomImplementation = {
+    elementsStack.headOption match {
+      case Some(element) =>
+        element.makeTraitAndUseCustomImplementation
+      case None => throw new RuntimeException("Cannot call makeTraitAndUseCustomImplementation() outside of an element")
+    }
   }
 
   def any = {
 
     elementsStack.headOption match {
       case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
-      case None          => throw new RuntimeException("Cannot call any() outside of an element")
+      case None => throw new RuntimeException("Cannot call any() outside of an element")
     }
 
   }
@@ -338,7 +344,7 @@ trait Common {
 
   @xattribute(name = "className")
   var className: XSDStringBuffer = null
-  
+
   @xelement(name = "Description")
   var description: XSDStringBuffer = null
 
@@ -355,9 +361,9 @@ trait Common {
    * An Imported element is not written to output, its classType is just used as is
    */
   var imported: BooleanBuffer = false
-  
-   @xattribute(name = "default")
-  var default : XSDStringBuffer = null
+
+  @xattribute(name = "default")
+  var default: XSDStringBuffer = null
 
   @xelement(name = "EnumerationValues")
   var enumerationValues = XList { new XSDStringBuffer }
@@ -395,12 +401,10 @@ class Element(
   @xelement(name = "Trait")
   var traits = XList { new XSDStringBuffer }
 
-  
-
   // Import Relation
   //-----------------
-  var importSource : Element = null
-  
+  var importSource: Element = null
+
   // Related Type
   //------------------
 
@@ -444,45 +448,45 @@ class Element(
 
   // Sub Elements
   //-------------------
-  
+
   // Body 
   //---------------------
   //var body : String = ""
   //var bodyContent
-  
+
   // Trait Support
   //--------------------
-  
+
   @xattribute(name = "isTrait")
   var isTrait: BooleanBuffer = false
-  
+
   /**
    * This value requests that the trait be produced, with a different name than the specified element
    * The final object however has a different name
    */
-  var traitSeparateFromObject : String = null
-  
+  var traitSeparateFromObject: String = null
+
   /**
    * Set to trait and change name
    */
-  def makeTrait(changeName : Boolean = false) = {
+  def makeTrait(changeName: Boolean = false) = {
     this.isTrait = true
     if (changeName && !this.className.endsWith("Trait")) {
-      this.className = this.className+"Trait"
+      this.className = this.className + "Trait"
     }
   }
-  
+
   /**
    * transforms this element in a trait, change its name, but use original name as class instantiation
    */
-  def makeTraitAndUseCustomImplementation : Unit = {
+  def makeTraitAndUseCustomImplementation: Unit = {
     this.traitSeparateFromObject = this.className
     this.makeTrait(true)
   }
   /**
    * transforms this element in a trait, change its name, but use original name as class instantiation
    */
-  def makeTraitAndUseCustomImplementation(targetClassName:String) : Unit = {
+  def makeTraitAndUseCustomImplementation(targetClassName: String): Unit = {
     this.traitSeparateFromObject = targetClassName
     this.makeTrait(true)
   }
