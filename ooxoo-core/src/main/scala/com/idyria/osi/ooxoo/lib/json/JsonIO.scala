@@ -201,7 +201,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
             
            // Value: Set value to element
           case v =>
-            output.print(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
+            output.print(s"""\"${value}\",""")
 
             // Ignore next close, because this output does not need a normal close
             ignoreClose = true
@@ -264,7 +264,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         //---------------
         value match {
           case null => output.print(s"""""""")
-          case v => output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
+          case v => output.print(s""""${value}"""")
         }
         //output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
        /* try {
@@ -290,13 +290,13 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       //---------------
       case (false, false, null, value) if (du.attribute != null) =>
 
-        output.print(s""""_a_${du.attribute.name}": \"${URLEncoder.encode(value, "UTF8")}\",""")
+        output.print(s""""_a_${du.attribute.name}": \"${value}\",""")
 
       // Value only
       //-------------------
       case (false, false, null, value) =>
 
-        output.print(s"""\"${URLEncoder.encode(value, "UTF8")}\",""")
+        output.print(s"""\"${value}\",""")
         ignoreClose = true
 
       case (close, hier, element, value) =>
