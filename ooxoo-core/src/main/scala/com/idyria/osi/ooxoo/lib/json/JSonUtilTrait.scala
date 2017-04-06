@@ -2,6 +2,7 @@ package com.idyria.osi.ooxoo.lib.json
 
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import java.io.CharArrayWriter
+import java.io.StringReader
 
 trait JSonUtilTrait extends ElementBuffer {
   
@@ -19,5 +20,17 @@ trait JSonUtilTrait extends ElementBuffer {
 
     
     
+  }
+  
+  def fromJSONString(str:String) = {
+    
+    var io = new JsonIO(stringInput = new StringReader(str))
+    
+    this.appendBuffer(io)
+    io.streamIn
+    
+    this.cleanIOChain
+    
+    this
   }
 }
