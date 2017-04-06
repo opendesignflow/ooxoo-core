@@ -71,7 +71,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
       var fl = r._2 match {
         case Some(l) => l.flatten
-        case None    => List()
+        case None => List()
       }
 
       //du :: ( r.2.flatten.flatten )
@@ -79,6 +79,30 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       List()
 
       du :: (fl :+ DataUnit.closeHierarchy)
+  }
+
+  def booleanValue: Parser[List[DataUnit]] = "\"" ~> ("""[\w @]+""".r) ~ ("\"" ~ ":" ~> ("true" | "false")) ^^ {
+    r =>
+      logFine(s"Matched Boolean Value: " + r)
+      var du = new DataUnit
+      r._1 match {
+        // Attribute
+        case name if (name.startsWith("_@")) =>
+          du.attribute = new xattribute_base
+          du.attribute.name = name.drop(2)
+          du.value = r._2
+
+          List(du)
+        case name =>
+
+          du.element = new xelement_base
+          du.element.name = r._1
+          du.hierarchical = true
+          du.value = r._2
+
+          List(du, DataUnit.closeHierarchy)
+
+      }
   }
 
   def simpleValue: Parser[List[DataUnit]] = "\"" ~> ("""[\w @]+""".r) ~ ("\"" ~ ":" ~> ("\"" ~> ("""[^" ]+""".r) <~ "\"")) ^^ {
@@ -174,32 +198,29 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
         //println(s"Open")
 
-       
-
         // Detect multiple elements presence using IO chain stack
         //-------------------
-        var (isMultiple,isFirst) = this.previousStack.headOption match {
-          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].head == this.firstBuffer)
-          case _ => (false,false)
+        var (isMultiple, isFirst) = this.previousStack.headOption match {
+          case Some(p) if (p.isInstanceOf[XList[_]]) => (true, p.asInstanceOf[XList[_]].head == this.firstBuffer)
+          case _ => (false, false)
         }
-        
+
         //-- Name output, don't output if multiple and not first
-        (isMultiple,isFirst) match {
-          case (true,false) => 
+        (isMultiple, isFirst) match {
+          case (true, false) =>
           case _ => output.print(s""""${element.name}":""")
         }
-         
-        
+
         value match {
-          
+
           // Not value and multiple, open Multiple Hierarchy
           case null if (isMultiple && isFirst) => output.print(s"[{")
-          
+
           // Not value: Open hierarchy
           case null =>
             output.print(s"{")
-            
-           // Value: Set value to element
+
+          // Value: Set value to element
           case v =>
             output.print(s"""\"${value}\",""")
 
@@ -207,59 +228,54 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
             ignoreClose = true
         }
 
-        
-
       // Close
       //-------------
       case (true, _, _, _) =>
 
         //   println(s"Close")
         ignoreClose match {
-          case true  => ignoreClose = false
-          case false => 
-            
+          case true => ignoreClose = false
+          case false =>
+
             // Detect multiple elements presence using IO chain stack
-	        //-------------------
-	        var (isMultiple,isLast) = this.previousStack.headOption match {
-	          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].last == this.firstBuffer)
-	          case _ => (false,false)
-	        }
-	        
-	        //-- Close: Add multiple close if multiple and last
-	        (isMultiple,isLast) match {
-	          case (true,true) => output.print(s"""}],""")
-	          case _ => output.print(s"""},""")
-	        }
-            
-            
+            //-------------------
+            var (isMultiple, isLast) = this.previousStack.headOption match {
+              case Some(p) if (p.isInstanceOf[XList[_]]) => (true, p.asInstanceOf[XList[_]].last == this.firstBuffer)
+              case _ => (false, false)
+            }
+
+            //-- Close: Add multiple close if multiple and last
+            (isMultiple, isLast) match {
+              case (true, true) => output.print(s"""}],""")
+              case _ => output.print(s"""},""")
+            }
+
         }
 
       // Single element with value
       //--------------------------------
       case (false, false, element, value) if (element != null) =>
-      
-        
+
         // Detect multiple elements presence using IO chain stack
         //-------------------
-        var (isMultiple,isFirst,isLast) = this.previousStack.headOption match {
-          case Some(p) if (p.isInstanceOf[XList[_]]) => (true,p.asInstanceOf[XList[_]].head == this.firstBuffer,p.asInstanceOf[XList[_]].last == this.firstBuffer)
-          case _ => (false,false,false)
+        var (isMultiple, isFirst, isLast) = this.previousStack.headOption match {
+          case Some(p) if (p.isInstanceOf[XList[_]]) => (true, p.asInstanceOf[XList[_]].head == this.firstBuffer, p.asInstanceOf[XList[_]].last == this.firstBuffer)
+          case _ => (false, false, false)
         }
-        
+
         //-- Name output: Normal, multiple first, or multiple last
         //-----------
-        (isMultiple,isFirst) match {
-          
+        (isMultiple, isFirst) match {
+
           // Multiple first
-          case (true,true) => output.print(s""""${element.name}":[""")
-          	
-            
-            // Multiple not first: none
-          case (true,false) => 
-            // Normal
+          case (true, true) => output.print(s""""${element.name}":[""")
+
+          // Multiple not first: none
+          case (true, false) =>
+          // Normal
           case _ => output.print(s""""${element.name}":""")
         }
-        
+
         // Value
         //---------------
         value match {
@@ -267,24 +283,24 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
           case v => output.print(s""""${value}"""")
         }
         //output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
-       /* try {
+        /* try {
           output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
         } catch {
           case e : Throwable => 
             println(s"JSION Encode fail: "+value)
         }*/
-        
+
         // Close : Close last multiple or just a ,
         //----------------
-        (isMultiple,isLast) match {
-          
+        (isMultiple, isLast) match {
+
           // Last
-          case (true,true) => output.print(s"""],""")
-          
+          case (true, true) => output.print(s"""],""")
+
           // Otherwise normal ,
           case _ => output.print(s""",""")
         }
-        //ignoreClose = true
+      //ignoreClose = true
 
       // Attribute
       //---------------
@@ -323,22 +339,21 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
 }
 
-
 object JsonIO {
-  
+
   /**
    * Streams out an ElementBuffer to a string
    */
-  def apply(in: ElementBuffer,indenting : Boolean = false) : String = {
-    
+  def apply(in: ElementBuffer, indenting: Boolean = false): String = {
+
     var io = new JsonIO(outputArray = new CharArrayWriter)
     //io.indenting = indenting
     in.appendBuffer(io)
     in.streamOut()
     in.cleanIOChain
-    
+
     return io.finish
-    
+
   }
-  
+
 }
