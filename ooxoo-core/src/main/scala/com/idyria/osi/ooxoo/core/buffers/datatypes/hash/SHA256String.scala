@@ -12,6 +12,7 @@ class SHA256StringBuffer extends XSDStringBuffer {
   }
   
   override def equals(comp:String) = {
+    this.data == comp ||
     this.data == HashUtils.hashBytesAsBase64(comp.getBytes, "SHA-256")
   }
 }
