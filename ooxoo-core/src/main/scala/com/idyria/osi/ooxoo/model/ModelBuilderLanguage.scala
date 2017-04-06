@@ -28,6 +28,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.tea.listeners.ListeningSupport
 import com.idyria.osi.ooxoo.core.buffers.datatypes.hash.SHA256StringBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.fs.FileBuffer
 
 /**
  * This trait contains all the language Wrappers and Conversions used in Model Builder.
@@ -44,10 +45,14 @@ trait ModelBuilderLanguage extends ListeningSupport {
   var typesMap = Map[String, Class[_ <: Buffer]](
       
     ("string" -> classOf[XSDStringBuffer]), 
+    ("cdata" -> classOf[CDataBuffer]),
+    
     ("sha256string" -> classOf[SHA256StringBuffer]),
     ("htmlstring" -> classOf[HTMLStringBuffer]),
     ("uuid" -> classOf[UUIDBuffer]),
-    ("cdata" -> classOf[CDataBuffer]),
+    
+    ("file" -> classOf[FileBuffer]),
+    
     ("int" -> classOf[IntegerBuffer]),
     ("integer" -> classOf[IntegerBuffer]),
     ("long" -> classOf[LongBuffer]),

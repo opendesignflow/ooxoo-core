@@ -178,7 +178,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
   }
 
-  def withTrait(traitClass: Class[_ <: Buffer]): Unit = {
+  def withTrait(traitClass: Class[_]): Unit = {
     withTrait(traitClass.getCanonicalName)
   }
 
