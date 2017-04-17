@@ -74,6 +74,18 @@ class XList[T <: Buffer](
     }.toList
   }
 
+  def ensureElement[CT <: T](implicit tag: ClassTag[CT]): CT = {
+    this.find {
+      elt => tag.runtimeClass.isInstance(elt)
+    } match {
+      case Some(elt) => elt.asInstanceOf[CT]
+      case None => 
+        val n =  tag.runtimeClass.newInstance().asInstanceOf[CT]
+        this += n 
+        n
+    }
+  }
+  
   override def streamOut(du: DataUnit) = {
 
     //println(s"Streamout in XList for ${size} elements")
