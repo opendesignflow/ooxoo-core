@@ -168,6 +168,13 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     }
 
   }
+  
+  def ofType(baseType: Element): Unit = {
+
+    ofType(baseType.name)
+    
+
+  }
 
   def withTrait(traitType: String): Unit = {
 
