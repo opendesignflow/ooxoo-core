@@ -71,172 +71,181 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
   override def execute() {
     getLog().info("Looking for xmodels to generate with project: "+project);
 
-    
-    statusFolder.mkdirs()
-    /*Thread.currentThread.getContextClassLoader match {
-            case urlCl : java.net.URLClassLoader => 
+    sourceFolder.exists() match {
+      case true => 
 
-                urlCl.getURLs.foreach {
+        statusFolder.mkdirs()
+        /*Thread.currentThread.getContextClassLoader match {
+                case urlCl : java.net.URLClassLoader => 
 
-                    u => println("Available in classLoader: "+u)
-                }
+                    urlCl.getURLs.foreach {
 
-            case _ => 
-        }*/
+                        u => println("Available in classLoader: "+u)
+                    }
 
-    var xModelFiles = List[File]()
+                case _ => 
+            }*/
 
-    //-- Map to store instances of producers, for reuse purpose
-    var producers = Map[Class[_ <: ModelProducer], ModelProducer]()
+        var xModelFiles = List[File]()
 
-    // Search in models folder
-    //---------------
-    if (modelsFolder.exists) {
+        //-- Map to store instances of producers, for reuse purpose
+        var producers = Map[Class[_ <: ModelProducer], ModelProducer]()
 
-      //-- Search the xmodels
-      //---------------------------------
+        // Search in models folder
+        //---------------
+        if (modelsFolder.exists) {
 
-      var xmodelsFiles = modelsFolder.listFiles(new FilenameFilter() {
+          //-- Search the xmodels
+          //---------------------------------
 
-        def accept(dir: File, name: String): Boolean = {
-          name.matches(".*\\.xmodel")
+          var xmodelsFiles = modelsFolder.listFiles(new FilenameFilter() {
+
+            def accept(dir: File, name: String): Boolean = {
+              name.matches(".*\\.xmodel")
+            }
+
+          })
+          xModelFiles = xModelFiles ::: xmodelsFiles.toList
         }
 
-      })
-      xModelFiles = xModelFiles ::: xmodelsFiles.toList
-    }
+        //-- Search in source package
+        //--------------
+        java.nio.file.Files.walkFileTree(sourceFolder.toPath, new java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
 
-    //-- Search in source package
-    //--------------
-    java.nio.file.Files.walkFileTree(sourceFolder.toPath, new java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
+          override def visitFile(file: java.nio.file.Path, attributes: java.nio.file.attribute.BasicFileAttributes) = {
 
-      override def visitFile(file: java.nio.file.Path, attributes: java.nio.file.attribute.BasicFileAttributes) = {
-
-        // Only Retain files ending with .xmodel.scala
-        file.toString.endsWith(".xmodel.scala") match {
-          case true =>
-
-            xModelFiles = xModelFiles :+ file.toFile
-
-          case false =>
-        }
-
-        java.nio.file.FileVisitResult.CONTINUE
-
-      }
-    })
-
-    //-- Process all models
-    //--  - First Filter the on that don't have to be regenerated
-    //--  - Then Produce
-    //------------------
-
-    force match {
-      case true => getLog().info("Forcing regeneration ofr models");
-      case false =>
-
-    }
-
-    xModelFiles.filter {
-      f =>
-        force match {
-          case true => true
-          case false =>
-            // Get or set a timestamp file to detect if model file changed since last run
-            //-------------------
-
-            //-- Set timestamps. If modified is greater than the last timestamp -> regenerate
-            var lastTimeStamp: Long = 0
-            var lastModified = f.lastModified
-
-            statusFolder.mkdirs
-            var timestampFile = new File(statusFolder, s"${f.getName}.ts")
-            timestampFile.exists match {
+            // Only Retain files ending with .xmodel.scala
+            file.toString.endsWith(".xmodel.scala") match {
               case true =>
-                lastTimeStamp = java.lang.Long.parseLong(Source.fromFile(timestampFile).mkString)
+
+                xModelFiles = xModelFiles :+ file.toFile
+
               case false =>
             }
 
-            // Write Actual timestamp
-            //-------------
-            //java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
-
-            lastModified > lastTimeStamp
-        }
-
-    }.foreach {
-      f =>
-        getLog().info("(Re)generating model: " + f);
-
-        // Get Model as String
-        //--------------------------
-        var source = Source.fromFile(f)
-        var content = source.mkString
-
-        // Compile to get annotated producers
-        //---------------------
-        var modelInfos = ModelCompiler.compile(f)
-
-        // Produce for all defined producers
-        //---------------
-        if (modelInfos.producers != null && modelInfos.producers.value() != null) {
-          modelInfos.producers.value().foreach {
-            producerAnnotation =>
-
-              // Get Producer
-              //---------
-              var producer = producers.get(producerAnnotation.value) match {
-                case Some(producer) =>
-                  producer
-                case None =>
-                  var producer = producerAnnotation.value.newInstance
-                  producers = producers + (producerAnnotation.value -> producer)
-                  producer
-              }
-
-              // Produce or produce later
-              //----------
-              producer.outputType match {
-
-                // Report, so save and generate when reports are generated
-                case outputType if (outputType.startsWith("report.")) =>
-
-                // Produce now as sources
-                case _ =>
-
-                  // Prepare Output
-                  //--------------
-                  var outputFolder = new File(outputBaseFolder, producer.outputType)
-                  outputFolder.mkdirs()
-                  var out = new FileWriters(outputFolder)
-
-                  ModelCompiler.produce(modelInfos, producer, out)
-
-                  // Add Target Folder to compile source if existing
-                  //-----------------
-                  if (outputFolder.exists) {
-                    //this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
-                  }
-              }
+            java.nio.file.FileVisitResult.CONTINUE
 
           }
-          // EOF Foreach producers
+        })
+
+        //-- Process all models
+        //--  - First Filter the on that don't have to be regenerated
+        //--  - Then Produce
+        //------------------
+
+        force match {
+          case true => getLog().info("Forcing regeneration ofr models");
+          case false =>
+
         }
-        // EOF Something to produce
 
-        // Write Actual timestamp
-        //-------------
-        var timestampFile = new File(statusFolder, s"${f.getName}.ts")
-        java.nio.file.Files.write(timestampFile.toPath, new String(s"${System.currentTimeMillis}").getBytes)
+        xModelFiles.filter {
+          f =>
+            force match {
+              case true => true
+              case false =>
+                // Get or set a timestamp file to detect if model file changed since last run
+                //-------------------
 
+                //-- Set timestamps. If modified is greater than the last timestamp -> regenerate
+                var lastTimeStamp: Long = 0
+                var lastModified = f.lastModified
+
+                statusFolder.mkdirs
+                var timestampFile = new File(statusFolder, s"${f.getName}.ts")
+                timestampFile.exists match {
+                  case true =>
+                    lastTimeStamp = java.lang.Long.parseLong(Source.fromFile(timestampFile).mkString)
+                  case false =>
+                }
+
+                // Write Actual timestamp
+                //-------------
+                //java.nio.file.Files.write(timestampFile.toPath,new String(s"${System.currentTimeMillis}").getBytes)
+
+                lastModified > lastTimeStamp
+            }
+
+        }.foreach {
+          f =>
+            getLog().info("(Re)generating model: " + f);
+
+            // Get Model as String
+            //--------------------------
+            var source = Source.fromFile(f)
+            var content = source.mkString
+
+            // Compile to get annotated producers
+            //---------------------
+            var modelInfos = ModelCompiler.compile(f)
+
+            // Produce for all defined producers
+            //---------------
+            if (modelInfos.producers != null && modelInfos.producers.value() != null) {
+              modelInfos.producers.value().foreach {
+                producerAnnotation =>
+
+                  // Get Producer
+                  //---------
+                  var producer = producers.get(producerAnnotation.value) match {
+                    case Some(producer) =>
+                      producer
+                    case None =>
+                      var producer = producerAnnotation.value.newInstance
+                      producers = producers + (producerAnnotation.value -> producer)
+                      producer
+                  }
+
+                  // Produce or produce later
+                  //----------
+                  producer.outputType match {
+
+                    // Report, so save and generate when reports are generated
+                    case outputType if (outputType.startsWith("report.")) =>
+
+                    // Produce now as sources
+                    case _ =>
+
+                      // Prepare Output
+                      //--------------
+                      var outputFolder = new File(outputBaseFolder, producer.outputType)
+                      outputFolder.mkdirs()
+                      var out = new FileWriters(outputFolder)
+
+                      ModelCompiler.produce(modelInfos, producer, out)
+
+                      // Add Target Folder to compile source if existing
+                      //-----------------
+                      if (outputFolder.exists) {
+                        //this.project.addCompileSourceRoot(outputFolder.getAbsolutePath);
+                      }
+                  }
+
+              }
+              // EOF Foreach producers
+            }
+            // EOF Something to produce
+
+            // Write Actual timestamp
+            //-------------
+            var timestampFile = new File(statusFolder, s"${f.getName}.ts")
+            java.nio.file.Files.write(timestampFile.toPath, new String(s"${System.currentTimeMillis}").getBytes)
+
+        }
+        // EOF Xfiles loop
+
+        // Add All Target Folder generated sources as compile unit
+        //-------------------
+        if (outputBaseFolder.exists) {
+          //outputBaseFolder.listFiles.filter(_.isDirectory).foreach(f => this.project.addCompileSourceRoot(f.getAbsolutePath))
+        }
+
+      case false => 
+
+        getLog().info("Source Folder does not exist: "+sourceFolder);
     }
-    // EOF Xfiles loop
-
-    // Add All Target Folder generated sources as compile unit
-    //-------------------
-    if (outputBaseFolder.exists) {
-      //outputBaseFolder.listFiles.filter(_.isDirectory).foreach(f => this.project.addCompileSourceRoot(f.getAbsolutePath))
-    }
+    
+    
 
   }
 

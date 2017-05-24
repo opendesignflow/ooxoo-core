@@ -57,6 +57,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
   //-----------------------
 
   var output: OutputStream = null
+  
+  var outputBytesWritten = 0
 
   var eventWriter: XMLStreamWriter = null
 
@@ -122,6 +124,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       // Begin document
       this.eventWriter.writeStartDocument()
       documentElement = true
+
 
     }
 
@@ -339,14 +342,27 @@ object StAXIOBuffer {
     new StAXIOBuffer(url)
 
   }
+  
+  def apply(in:InputStream) = {
+     new StAXIOBuffer(new InputStreamReader(in))
+  }
 
   /**
-   * Creates a StaxIOBuffer with a specific data output stream
+   * Streams out to a buffer
    */
-  def apply(out: OutputStream) = {
-    var b = new StAXIOBuffer
-    b.output = out
-    b
+  def writeToOutputStream(in: ElementBuffer,out: OutputStream, indenting: Boolean = false) = {
+    
+    var io = new StAXIOBuffer
+    io.indenting = indenting
+    io.output = out
+    in.appendBuffer(io)
+    in.streamOut()
+    io
+    
+    io.outputBytesWritten
+    
+    
+    
   }
 
   /**

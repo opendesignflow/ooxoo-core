@@ -33,12 +33,18 @@ trait ElementBuffer extends VerticalBuffer  {
 
     // Get Element annotation
     //------------------
-    var element = xelement_base(this)
-    if (element==null) {
+    var element = xelement_base(this) match {
+      case null =>
+       
+        var xe = new xelement_base(getClass.getSimpleName.replace("$",""))
+        xe
+      case other => other
+    }
+    /*if (element==null) {
       throw new IllegalArgumentException(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
     	logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
 
-    }
+    }*/
 
     if (element.name==null || element.name=="") {
       throw new IllegalArgumentException(s"xelement annotation on ElementBuffer ${getClass().getCanonicalName()} did not reutnr any name")
@@ -62,15 +68,22 @@ trait ElementBuffer extends VerticalBuffer  {
    // println("Entered Streamout of ElementBuffer")
     
     // Get Element annotation
+    // Only Set this element name if data unit is not already set
     //------------------
-    var element = xelement_base(this)
-    if (element==null) {
+    du.element match {
+      case null => 
+        var element = xelement_base(this)
+        du.element = element
+      case other => 
+    }
+    
+    /*if (element==null) {
       //throw new IllegalArgumentException(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
     //	logFine(s"Could not find xelement annotation on ElementBuffer ${getClass().getCanonicalName()}")
 
     } else {
-      du.element = element
-    }
+      
+    }*/
 
    // if (element.name==null || element.name=="") {
      // throw new IllegalArgumentException(s"xelement annotation on ElementBuffer ${getClass().getCanonicalName()} did not reutnr any name")

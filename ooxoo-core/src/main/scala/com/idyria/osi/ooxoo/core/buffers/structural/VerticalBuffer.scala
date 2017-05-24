@@ -77,7 +77,8 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Normal streamOut (will output this element name and such)
     //----------
-    //println("Entered Streamout of Vertical Buffer: " + this.hashCode() + " io: "+this.getIOChain)
+    //println("Entered Streamout of Vertical Buffer: " + getClass.getSimpleName + " io: "+this.getIOChain)
+    //println("Name will be: "+du.element.name)
     super.streamOut(du)
 
     // Attributes
@@ -147,13 +148,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         this.getIOChain match {
           case Some(ioChain) ⇒
 
-            //println("Calling streamout on element: " + value.hashCode())
+            //println("- Calling streamout on element: " + value.getClass.getSimpleName)
 
             value.appendBuffer(ioChain)
             value streamOut {
               du ⇒
 
                 var element = xelement_base(f)
+                //println("Data unit is ofr element: "+element.name)
                 du.element = element
                 du
 

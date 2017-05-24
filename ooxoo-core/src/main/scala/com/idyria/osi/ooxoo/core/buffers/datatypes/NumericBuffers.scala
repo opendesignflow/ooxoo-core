@@ -38,7 +38,7 @@ class IntegerBuffer extends AbstractDataBuffer[Int] with Comparable[Int] {
     this.data
   }
 
-  def dataToString: String = if (data != null) this.data.toString() else "No value"
+  def dataToString: String =  data.toString
 
   override def toString: String = this.dataToString
 
@@ -89,7 +89,7 @@ class LongBuffer extends AbstractDataBuffer[Long] with Comparable[Long] {
     return this.data
   }
 
-  def dataToString: String = if (data != null) this.data.toString() else null
+  def dataToString: String =  data.toString
 
   override def toString: String = this.dataToString
 
@@ -136,7 +136,7 @@ class DoubleBuffer extends AbstractDataBuffer[Double] with Comparable[Double] {
     this.data
   }
 
-  def dataToString: String = if (data != null) this.data.toString() else null
+  def dataToString: String = data.toString
 
   override def toString: String = this.dataToString
 
@@ -181,7 +181,7 @@ class FloatBuffer extends AbstractDataBuffer[Float] with Comparable[Float] {
     this.data
   }
 
-  def dataToString: String = if (data != null) this.data.toString() else null
+  def dataToString: String =  data.toString
 
   override def toString: String = this.dataToString
 

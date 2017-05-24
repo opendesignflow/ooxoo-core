@@ -64,7 +64,10 @@ class XList[T <: Buffer](
   // Accessors
   //----------------
   def get(index: Int): Option[T] = {
-    Some(this(index))
+    if (index < 0 || index >= size) {
+      None
+    } else
+      Some(this(index))
   }
 
   def getAllOfType[CT <: Buffer](implicit tag: ClassTag[CT]): List[CT] = {
@@ -72,6 +75,18 @@ class XList[T <: Buffer](
     this.collect {
       case x if (tag.runtimeClass.isInstance(x)) => x.asInstanceOf[CT]
     }.toList
+  }
+
+  def ensureElement[CT <: T](implicit tag: ClassTag[CT]): CT = {
+    this.find {
+      elt => tag.runtimeClass.isInstance(elt)
+    } match {
+      case Some(elt) => elt.asInstanceOf[CT]
+      case None =>
+        val n = tag.runtimeClass.newInstance().asInstanceOf[CT]
+        this += n
+        n
+    }
   }
 
   override def streamOut(du: DataUnit) = {
@@ -132,9 +147,30 @@ class XList[T <: Buffer](
               du.attribute = null
               du.hierarchical = false
 
+            //--Element Buffer not annotated
+            case null if (content.isInstanceOf[ElementBuffer]) =>
+
+              du.element = new xelement_base
+              du.element.name = content.getClass.getSimpleName.split("\\$") match {
+                case splitted if (splitted.size > 1) => splitted.last
+                case other                           => other.head.replace("$", "")
+              }
+
+              //du.value = content.asInstanceOf[AnyElementBuffer].text
+              du.hierarchical = true
+
+              //println("Element will be: "+du.element.name )
+
+              content.streamOut(du)
+
+              // Reset
+              du.element = null
+              du.hierarchical = false
+              
             //-- Error because only Any* Objects are allowed not to be annotated
-            case null ⇒ throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
-            case annot ⇒
+            case null =>
+              throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
+            case annot =>
 
               // Set element annotation and hierarchical to open element
               du.element = annot
@@ -142,7 +178,7 @@ class XList[T <: Buffer](
               //-- If this is not a vertical buffer, it must never be hirarchical
               content match {
                 case e: VerticalBuffer ⇒ du.hierarchical = true
-                case _ ⇒ du.hierarchical = false
+                case _                 ⇒ du.hierarchical = false
               }
 
               content.streamOut(du)

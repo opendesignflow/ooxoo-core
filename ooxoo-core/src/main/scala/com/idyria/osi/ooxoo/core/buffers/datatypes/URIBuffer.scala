@@ -1,16 +1,3 @@
-package com.idyria.osi.ooxoo.core.buffers.datatypes
-
-import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import java.net.URI
-import scala.language.implicitConversions
-
-
-class URIBuffer extends AbstractDataBuffer[URI] {
-  
-  // Constructors
-  //-------------------
-  
-  def this(str: String) = { this();
 
 /*
  * #%L
@@ -33,56 +20,71 @@ class URIBuffer extends AbstractDataBuffer[URI] {
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-dataFromString(str) }
+package com.idyria.osi.ooxoo.core.buffers.datatypes
 
-  def this(uri:URI) = {
+import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
+import java.net.URI
+import scala.language.implicitConversions
+
+class URIBuffer extends AbstractDataBuffer[URI] {
+
+  // Constructors
+  //-------------------
+
+  def this(str: String) = {
+    this();
+
+    dataFromString(str)
+  }
+
+  def this(uri: URI) = {
     this()
     this.data = uri
   }
-  
+
   def dataToString: String = {
-    this.data.toASCIIString()
-    
+    this.data.toString()
+
   }
 
   /**
    * Set provided string to actual data
    */
-  def dataFromString(str: String): URI =  {this.data = URI.create(str);data}
-
+  def dataFromString(str: String): URI = { this.data = URI.create(str); data }
 
   override def toString: String = {
-    if (this.data==null)
+    if (this.data == null)
       super.toString
-    this.data.toASCIIString()
+    this.data.toString()
 
   }
 
   def equals(comp: URIBuffer): Boolean = {
     //println("Called equals to xsdstringbuffer")
-    this.data.equals(comp.data) 
+    this.data.equals(comp.data)
   }
-  
- 
+
   def equals(comp: URI): Boolean = {
-    
+
     //println("Called equals to String")
     this.data.equals(comp)
   }
 
-  def compareTo(comp:URI) : Int = {
-    
+  def compareTo(comp: URI): Int = {
+
     //println("Called compare to to xsdstringbuffer")
-     this.data.compareTo(comp)
+    this.data.compareTo(comp)
   }
-  
+
 }
 
 object URIBuffer {
-  
+
   def apply() = new URIBuffer
-  
-  implicit def convertFromStringToURIBuffer(str:String) : URIBuffer = new URIBuffer(str)
-  implicit def convertFromURItoURIBuffer(uri: URI) : URIBuffer = new URIBuffer(uri)
-  
+
+  implicit def convertFromStringToURIBuffer(str: String): URIBuffer = new URIBuffer(str)
+   implicit def convertFromURIBufferToString(uri: URIBuffer): String = uri.dataToString
+  implicit def convertFromURItoURIBuffer(uri: URI): URIBuffer = new URIBuffer(uri)
+  implicit def convertFromURItBufferoURI(uri: URIBuffer): URI = uri.data
+
 }

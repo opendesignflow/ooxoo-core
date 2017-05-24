@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.odfi.ooxoo</groupId>
 		<artifactId>ooxoo-all</artifactId>
-		<version>3.2.2</version>
+		<version>3.2.3</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>ooxoo-core</artifactId>
@@ -66,21 +66,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>org.scalatest</groupId> -->
-			<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <argLine>-oF</argLine> -->
-			<!-- </configuration> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <id>test</id> -->
-			<!-- <goals> -->
-			<!-- <goal>test</goal> -->
-			<!-- </goals> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 		</plugins>
 	</build>
 
@@ -88,7 +73,7 @@
 		<dependency>
 			<groupId>org.odfi</groupId>
 			<artifactId>tea</artifactId>
-			<version>3.2.2</version>
+			<version>3.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
