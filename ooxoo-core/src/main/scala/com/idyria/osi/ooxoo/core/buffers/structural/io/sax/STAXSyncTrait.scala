@@ -72,7 +72,7 @@ trait STAXSyncTrait extends ElementBuffer {
       watcher.get.onFileChange(listener, file.get) {
         staxIgnoreNextReload match {
           case false => cl(_)
-          case true => null
+          case true  => null
         }
       }
 
@@ -85,11 +85,16 @@ trait STAXSyncTrait extends ElementBuffer {
     this
   }
 
+  /**
+   * Parent of File is created by default
+   * Pleae check for validity before calling this method to ensure no useless folders are created
+   */
   def toFile(f: File) = {
 
     this.synchronized {
-      // Create 
-      f.getAbsoluteFile.getParentFile.mkdirs()
+      
+      val sourceFile = f.getCanonicalFile
+      sourceFile.getParentFile.mkdirs()
 
       // Ignore next reload
       this.__staxFileWatcher match {
@@ -98,10 +103,10 @@ trait STAXSyncTrait extends ElementBuffer {
         case None =>
       }
       // Write out
-      var fos = new FileOutputStream(f)
+      var fos = new FileOutputStream(sourceFile)
       toOutputStream(fos)
 
-      staxPreviousFile = Some(f)
+      staxPreviousFile = Some(sourceFile)
       staxTryWatchStart
 
       this
@@ -129,23 +134,33 @@ trait STAXSyncTrait extends ElementBuffer {
 
   }
 
+  /**
+   * Parent of File is created by default
+   * Pleae check for validity before calling this method to ensure no useless folders are created
+   */
   def fromFile(f: File) = {
 
+    val sourceFile = f.getCanonicalFile
+    sourceFile.getParentFile.mkdirs()
     try {
-      this.fromInputStream(new FileInputStream(f))
+      sourceFile.exists() match {
+        case true  => this.fromInputStream(new FileInputStream(f))
+        case false =>
+      }
+
     } catch {
       case e: Throwable =>
         e.printStackTrace()
 
     }
-    this.staxPreviousFile = Some(f)
+    this.staxPreviousFile = Some(sourceFile)
 
     this
   }
 
   def resyncToFile = staxPreviousFile match {
     case Some(file) => this.toFile(file)
-    case None => throw new IllegalAccessException(s"Cannot Resync Class ${getClass.getCanonicalName} to file because none has been set. Use the fromFile method first to set the source file")
+    case None       => throw new IllegalAccessException(s"Cannot Resync Class ${getClass.getCanonicalName} to file because none has been set. Use the fromFile method first to set the source file")
   }
 
   def toXMLString: String = {
