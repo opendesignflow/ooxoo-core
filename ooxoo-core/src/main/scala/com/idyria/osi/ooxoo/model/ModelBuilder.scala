@@ -218,6 +218,15 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
       case None => throw new RuntimeException("Cannot call makeTraitAndUseCustomImplementation() outside of an element")
     }
   }
+  
+  def makeTraitAndUseSameNameImplementation = {
+    elementsStack.headOption match {
+      case Some(element) =>
+        element.makeTraitAndUseCustomImplementation
+        element.staticClassName = true
+      case None => throw new RuntimeException("Cannot call makeTraitAndUseCustomImplementation() outside of an element")
+    }
+  }
 
   def any = {
 
@@ -472,6 +481,11 @@ class Element(
    * The final object however has a different name
    */
   var traitSeparateFromObject: String = null
+  
+  /**
+   * If set, generator should not change the name in any way
+   */
+  var staticClassName  = false
 
   /**
    * Set to trait and change name

@@ -93,13 +93,15 @@ class ScalaProducer extends ModelProducer {
 
     var name: String = element.className match {
       case name if (element.traitSeparateFromObject != null) =>
-        println(s"Element has a separate class definitnion: " + element.traitSeparateFromObject)
+        //println(s"Element has a separate class definitnion: " + element.traitSeparateFromObject)
         element.traitSeparateFromObject
       case null => element.name
       case _ => element.className
     }
 
-    canonicalClassName(model, name, element)
+    val r = canonicalClassName(model, name, element)
+    //println("Resolved: "+r)
+    r
   }
 
   /**
@@ -111,6 +113,8 @@ class ScalaProducer extends ModelProducer {
     //------------
     basename.contains(".") match {
       case true =>
+        basename
+      case false if (element.staticClassName == true) => 
         basename
       case false =>
 
@@ -183,11 +187,16 @@ class ScalaProducer extends ModelProducer {
       case Some(p) ⇒ p
       case None ⇒ model.getClass().getPackage().getName()
     }
-
+    
+    
+    
     //-- Convert Target  Package to Folder path and create as well
     var targetPackagePath = this.targetPackage.replace(".", "/")
 
-    println(s"Number of elemetns: " + model.topElements.size)
+    //-- Clean output
+    out.cleanOutput(targetPackagePath)
+    
+    //println(s"Number of elemetns: " + model.topElements.size)
 
     def writeElement(element: Element): Unit = {
 
@@ -203,23 +212,13 @@ class ScalaProducer extends ModelProducer {
       var namespace = ""
       var name = element.name
       model.splitName(element.name) match {
-        case (sNs, sName) ⇒ namespace = sNs; name = sName
+        case (sNs, sName) => 
+          namespace = sNs; 
+          name = sName
       }
-      /*model.namespace(element.name) match {
-                case Some(foundNamespace) => 
-                    namespace = foundNamespace
-                    name = element.name.split(":")(1)
-                case None =>
-            }*/
-
+   
       // Class Name: Use Canonical Function, with our class name as base
       //-----------------
-      /*var className = canonicalClassName(model, element.className, element) match {
-        case name if (name.contains(".")) =>
-          var split = name.split(".")
-          split(split.size)
-        case name => name
-      }*/
       var className = canonicalClassName(model, element.className, element).split("\\.").last
 
       /*// enumeration and name "Value" are incompatible

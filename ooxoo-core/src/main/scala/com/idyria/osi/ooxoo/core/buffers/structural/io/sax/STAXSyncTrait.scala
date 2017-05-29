@@ -164,7 +164,7 @@ trait STAXSyncTrait extends ElementBuffer {
   }
 
   def toXMLString: String = {
-    var res = StAXIOBuffer(this, true)
+    var res = StAXIOBuffer(this, indenting = true)
 
     var bout = new ByteArrayOutputStream()
     var out = new PrintStream(bout)

@@ -30,6 +30,10 @@ class PrintStreamWriter( var out : PrintStream ) extends Writer {
 
     var filesWritten = List[String]()
 
+    def cleanOutput(path:String) = {
+      
+    }
+    
     /**
         Also saves the path of written file for the fileWritten
     */

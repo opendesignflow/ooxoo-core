@@ -40,6 +40,21 @@ import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 
 class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
 
+  /**
+   * Prefix attribute name with _a_ to avoid conflicts with elements
+   * To be enabled case by case
+   */
+  var safeAttributes = false
+  
+  // Utils
+  //------------
+  def cleanAttributeName(name:String) = safeAttributes match {
+    case false => name
+    case true => "_a_"+name
+  }
+  
+  // Language
+  //---------------
   def top = "{" ~> jsonHierarchy <~ "}" ^^ {
 
     r =>
@@ -177,6 +192,8 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
   }
 
+  // Stream out
+  //--------------------
   var ignoreClose = false
   var output: PrintWriter = null
 
@@ -282,13 +299,6 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
           case null => output.print(s"""""""")
           case v => output.print(s""""${value}"""")
         }
-        //output.println(s""""${element.name}":"${URLEncoder.encode(value, "UTF8")}",""")
-        /* try {
-          output.print(s""""${URLEncoder.encode(value, "UTF8")}"""")
-        } catch {
-          case e : Throwable => 
-            println(s"JSION Encode fail: "+value)
-        }*/
 
         // Close : Close last multiple or just a ,
         //----------------
@@ -300,13 +310,13 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
           // Otherwise normal ,
           case _ => output.print(s""",""")
         }
-      //ignoreClose = true
+
 
       // Attribute
       //---------------
       case (false, false, null, value) if (du.attribute != null) =>
 
-        output.print(s""""_a_${du.attribute.name}": \"${value}\",""")
+        output.print(s""""${cleanAttributeName(du.attribute.name)}": \"${value}\",""")
 
       // Value only
       //-------------------

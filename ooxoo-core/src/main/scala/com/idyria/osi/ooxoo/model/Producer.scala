@@ -61,6 +61,8 @@ trait Writer {
     // Output
     //------------
 
+    def cleanOutput(path:String)
+    
     /**
         Opens a file at provided path
     */

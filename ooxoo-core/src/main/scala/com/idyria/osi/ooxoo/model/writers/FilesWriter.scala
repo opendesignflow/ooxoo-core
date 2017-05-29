@@ -24,6 +24,7 @@ package com.idyria.osi.ooxoo.model.writers
 
 import com.idyria.osi.ooxoo.model._
 import java.io._
+import com.idyria.osi.tea.file.DirectoryUtilities
 
 /**
 
@@ -35,7 +36,10 @@ class FileWriters(
     var baseFolder : File
 
     ) extends PrintStreamWriter (null) {
-
+    
+    override def cleanOutput(path:String) = {
+      DirectoryUtilities.deleteDirectoryContent(new File(baseFolder,path))
+    }
 
     override def file(path: String) = {
 
