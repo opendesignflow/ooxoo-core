@@ -2,21 +2,20 @@
  * #%L
  * Core runtime for OOXOO
  * %%
- * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * Copyright (C) 2006 - 2017 Open Design Flow
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
@@ -97,7 +96,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     try {
       this.getAnnotatedFields(this, classOf[xattribute]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
-        f ⇒
+        f ?
 
           // println(s"Streamout for attribute "+f.getName)
           try {
@@ -107,30 +106,30 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             //-- streamOut
             this.getIOChain match {
-              case Some(ioChain) ⇒
+              case Some(ioChain) ?
 
                 //println("Calling streamout on attribute: " + value.hashCode())
 
                 value.appendBuffer(ioChain)
                 value.streamOut {
 
-                  du ⇒
+                  du ?
                     var attribute = xattribute_base(f)
                     du.attribute = attribute
                     du
 
                 }
-              case None ⇒
+              case None ?
             }
 
             //value.lastBuffer.remove
 
           } catch {
-            case e: Throwable ⇒ throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}", e)
+            case e: Throwable ? throw new RuntimeException(s"An error occured while streamOut of attribute ${f.getName} in class ${getClass.getCanonicalName}", e)
           }
       }
     } catch {
-      case e: Throwable ⇒
+      case e: Throwable ?
 
         e.printStackTrace()
 
@@ -139,20 +138,20 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     // Sub Elements
     //-------------------
     this.getAnnotatedFields(this, classOf[xelement]).filter(ScalaReflectUtils.getFieldValue(this, _) != null).foreach {
-      f ⇒
+      f ?
 
         //-- Get value
         var value = this.getFieldValue(this, f).asInstanceOf[Buffer]
 
         //-- streamOut
         this.getIOChain match {
-          case Some(ioChain) ⇒
+          case Some(ioChain) ?
 
             //println("- Calling streamout on element: " + value.getClass.getSimpleName)
 
             value.appendBuffer(ioChain)
             value streamOut {
-              du ⇒
+              du ?
 
                 var element = xelement_base(f)
                 //println("Data unit is ofr element: "+element.name)
@@ -160,7 +159,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
                 du
 
             }
-          case None ⇒
+          case None ?
         }
 
       //-- streamOut
@@ -176,7 +175,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     //-----------------
     this.getAnnotatedFields(this, classOf[any]).filter(this.getFieldValue(this, _) != null).foreach {
 
-      f ⇒
+      f ?
 
         // println(s"Streamout for any field in ${getClass}")
 
@@ -185,13 +184,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
         //-- streamOut
         this.getIOChain match {
-          case Some(ioChain) ⇒
+          case Some(ioChain) ?
 
             //println("Calling streamout on element: " + value.hashCode())
 
             value.appendBuffer(ioChain)
             value.streamOut
-          case None ⇒
+          case None ?
         }
 
       //value.lastBuffer.remove
@@ -202,7 +201,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     //---------------
     this.getAnnotatedFields(this, classOf[xcontent]).filter(this.getFieldValue(this, _) != null).foreach {
 
-      f ⇒
+      f ?
 
         // println(s"Streamout for xcontent field in ${getClass}")
 
@@ -211,13 +210,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
         //-- streamOut
         this.getIOChain match {
-          case Some(ioChain) ⇒
+          case Some(ioChain) ?
 
             //println("Calling streamout on element: " + value.hashCode())
 
             value.appendBuffer(ioChain)
             value.streamOut
-          case None ⇒
+          case None ?
         }
 
       //value.lastBuffer.remove
@@ -264,7 +263,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     (this.inHierarchy, du.isHierarchyClose, du.element, du.attribute) match {
 
       // Hierarchy Close
-      case (_, true, _, _) ⇒
+      case (_, true, _, _) ?
 
         // println("--- End of "+getClass.getSimpleName())
         logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) -- End of " + getClass.getSimpleName())
@@ -283,12 +282,12 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       //--------------------
 
       // Don't check top element on any class
-      case (false, false, element, null) if (this.getClass.isAnnotationPresent(classOf[any])) ⇒ this.inHierarchy = true;
+      case (false, false, element, null) if (this.getClass.isAnnotationPresent(classOf[any])) ? this.inHierarchy = true;
 
 
 
       // Top Element
-      case (false, false, element, null) if (!this.getClass.isAnnotationPresent(classOf[any])) ⇒
+      case (false, false, element, null) if (!this.getClass.isAnnotationPresent(classOf[any])) ?
 
         // Verify the element matches the expected top one
         //---------------
@@ -315,16 +314,16 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           //-- Call Import data unit if we are a databuffer
           //---------------
-          case (_, db: AbstractDataBuffer[_]) ⇒
+          case (_, db: AbstractDataBuffer[_]) ?
             //db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
-          case (_, _) ⇒
+          case (_, _) ?
 
             //logFine[VerticalBuffer]("Trying to set ")
             (this.getXContentField, this.getIOChain) match {
-              case (Some(content), Some(ios)) ⇒
+              case (Some(content), Some(ios)) ?
               
                 content.appendBuffer(ios.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
@@ -332,7 +331,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
               	
                 content <= du
                 
-              case _ ⇒
+              case _ ?
             }
 
         }
@@ -343,7 +342,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       //-- Some Value
       //---------------------
-      case (true, false, null, null) if (du.value != null) ⇒
+      case (true, false, null, null) if (du.value != null) ?
 
         logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) -- Found du with only value:  ${du.value} ")
 
@@ -358,10 +357,10 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
-          case _ ⇒
+          case _ ?
 
             (this.getXContentField, this.getIOChain) match {
-              case (Some(content), Some(ios)) ⇒
+              case (Some(content), Some(ios)) ?
 
                 logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) ---- Passing to xcontent:  ${du.value} ")
 
@@ -372,7 +371,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
               //-- Close content buffer because it is only a value
 
-              case _ ⇒
+              case _ ?
             }
 
         }
@@ -380,7 +379,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       //-- Some Element
       //-------------------------
-      case (true, false, element, null) ⇒
+      case (true, false, element, null) ?
 
          logFine[VerticalBuffer](s"-- Element: $element // ${du.element.name} // ${du.value}")
 
@@ -390,7 +389,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           // Found A Buffer Matching
           //-----------------------------
-          case Some(buffer) ⇒
+          case Some(buffer) ?
 
             logFine[VerticalBuffer](s"Found element Buffer to pass in value: ${du.value} , actual is: ${buffer}")
 
@@ -412,13 +411,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           // Nothing -> Can we stream into any ?
           //---------------
-          case None ⇒
+          case None ?
 
             this.getAnyField match {
 
               // Any
               //------------
-              case Some(any) ⇒
+              case Some(any) ?
 
                 // Clone this IO to the buffer
                 //--------------
@@ -429,7 +428,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
                 any <= du
 
               // Nothing, need to ignore element, use AnyElement for that
-              case None ⇒
+              case None ?
 
                 var any = new AnyElementBuffer
 
@@ -448,14 +447,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       // Attribute
       //-------------
-      case (true, false, null, attribute) ⇒
+      case (true, false, null, attribute) ?
 
         logFine[VerticalBuffer](s"-- Attribute: ${attribute.name} , value: ${du.value} ")
 
         this.getAttributeField(du.attribute.name) match {
 
           // Normal Streamin
-          case Some(buffer) ⇒
+          case Some(buffer) ?
 
             // println(s"Found attribute Buffer to pass in value: ${du.value}")
 
@@ -470,22 +469,22 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             logFine[VerticalBuffer](s"-------> Send attribute to ${buffer.getClass()}")
 
           // Try Nay
-          case None ⇒
+          case None ?
 
             this.getAnyField match {
 
               // Any
-              case Some(any) ⇒
+              case Some(any) ?
 
                 // Stream in DU to element
                 any <= du
 
-              case None ⇒
+              case None ?
                 logFine[VerticalBuffer]("---> No field instance returned for attribute <---")
             }
         }
 
-      case m ⇒ throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
+      case m ? throw new RuntimeException(s"DU input on element: ${getClass.getSimpleName} at the wrong moment: $m")
     }
 
     // Call parent
@@ -504,14 +503,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     this.getAnnotatedFields(this, classOf[xelement]).filter {
-      a ⇒
+      a ?
         var xelt = xelement_base(a)
         logFine[VerticalBuffer]("xelement annotation name:/"+xelt.name+"/");
         xelt != null && (name.getLocalPart().equals(xelt.name) || name.getLocalPart().equals(a.getName()))
     } match {
 
       // If there is one, get existing value of instanciate
-      case x if (!x.isEmpty) ⇒
+      case x if (!x.isEmpty) ?
 
         // Get Value
         var fieldValue: Buffer = this.getFieldValue(this, x.head)
@@ -519,7 +518,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
           fieldValue = this.instanciateFieldValue(this, x.head)
         return Option(fieldValue)
 
-      case _ ⇒
+      case _ ?
     }
 
     return None
@@ -536,7 +535,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
     // Get all xattribute fields, instanciate annotation and filter out the non matching names
     this.getAnnotatedFields(this, classOf[xattribute]).filter {
-      f ⇒
+      f ?
         var xattr = xattribute_base(f);
         //        	logFine[VerticalBuffer]("Found field with xattribute annotation, and name:"+xattr.name)
         xattr != null && name.getLocalPart().equals(xattr.name)
@@ -545,7 +544,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       // If there is one, get existing value of instanciate
       //-------------
-      case x if (!x.isEmpty) ⇒
+      case x if (!x.isEmpty) ?
 
         var targetField = x.head
 
@@ -567,7 +566,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         return Option(fieldValue)
 
       // NOthing -> Ignore
-      case _ ⇒ return None
+      case _ ? return None
 
     }
     //return None
@@ -578,7 +577,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    */
   protected def getAnyField: Option[Buffer] = this.getAnnotatedFields(this, classOf[any]).headOption match {
 
-    case Some(field) ⇒
+    case Some(field) ?
 
       // Get Value
       var fieldValue: Buffer = this.getFieldValue(this, field)
@@ -593,7 +592,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       // Return
       return Option(fieldValue)
-    case None ⇒ None
+    case None ? None
 
   }
 
@@ -602,7 +601,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    */
   protected def getXContentField: Option[Buffer] = this.getAnnotatedFields(this, classOf[xcontent]).headOption match {
 
-    case Some(field) ⇒
+    case Some(field) ?
 
       // Get Value
       var fieldValue: Buffer = this.getFieldValue(this, field)
@@ -617,7 +616,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       // Return
       return Option(fieldValue)
-    case None ⇒ None
+    case None ? None
 
   }
 

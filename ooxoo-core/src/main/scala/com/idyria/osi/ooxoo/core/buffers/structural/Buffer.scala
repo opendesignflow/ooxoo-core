@@ -2,21 +2,20 @@
  * #%L
  * Core runtime for OOXOO
  * %%
- * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * Copyright (C) 2006 - 2017 Open Design Flow
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 /**
@@ -91,7 +90,7 @@ trait Buffer {
    * Pushs a data unit created locally out to the next buffer chain
    * The provided closure is called on the locally created dataunit for injection purpose
    */
-  def streamOut(cl: DataUnit ⇒ DataUnit): Unit = streamOut(cl(createDataUnit))
+  def streamOut(cl: DataUnit ? DataUnit): Unit = streamOut(cl(createDataUnit))
 
   /**
    * Streamin without dataUnit is used if element is supposed to produce input DataUnits.
@@ -220,7 +219,7 @@ trait Buffer {
 
     var buffers = Set[Buffer](this)
     this.foreachNextBuffer {
-      b ⇒
+      b ?
         if (b != null)
           buffers += b
     }
@@ -232,7 +231,7 @@ trait Buffer {
 
     var buffers = Set[Buffer](this.firstBuffer)
     this.foreachNextBuffer {
-      b ⇒
+      b ?
         if (b != null)
           buffers += b
     }
@@ -298,7 +297,7 @@ trait Buffer {
   /**
    * Apply a function to all the next buffers, including this one
    */
-  def foreachNextBuffer(closure: Buffer ⇒ Unit) = {
+  def foreachNextBuffer(closure: Buffer ? Unit) = {
 
     var currentBuffer = this
     while (currentBuffer != null) {
@@ -312,7 +311,7 @@ trait Buffer {
   /**
    * Apply a function to all the previous buffers, including this one
    */
-  def foreachPreviousBuffer(closure: Buffer ⇒ Unit) = {
+  def foreachPreviousBuffer(closure: Buffer ? Unit) = {
 
     var currentBuffer = this
     while (currentBuffer != null) {
@@ -330,7 +329,7 @@ trait Buffer {
 
     var res = this
     this.foreachNextBuffer {
-      b ⇒ res = b
+      b ? res = b
     }
     res
 
@@ -343,7 +342,7 @@ trait Buffer {
 
     var res = this
     this.foreachPreviousBuffer {
-      b ⇒ res = b
+      b ? res = b
     }
     res
 
@@ -374,10 +373,10 @@ trait Buffer {
     
     var res : Option[T] = None
     this.foreachNextBuffer {
-        case b: T ⇒
+        case b: T ?
 
           res = Some(b)
-        case _ ⇒ 
+        case _ ? 
       
     }
   
@@ -416,11 +415,11 @@ trait Buffer {
       
       //println("Clean IO from "+getClass)
       this.foreachNextBuffer {
-        case io: IOBuffer ⇒
+        case io: IOBuffer ?
 
           //println("Removing IO Buffer")
           io.remove
-        case _ ⇒
+        case _ ?
       }
     }
 
@@ -432,10 +431,10 @@ trait Buffer {
   def getIOChain: Option[IOBuffer] = {
 
     this.foreachNextBuffer {
-      case io: IOBuffer ⇒
+      case io: IOBuffer ?
 
         return Some(io)
-      case _ ⇒
+      case _ ?
     }
 
     None

@@ -1,5 +1,8 @@
-ooxoo-core [![Build Status](http://www.idyria.com/jenkins/buildStatus/icon?job=ooxoo-core)](https://www.idyria.com/jenkins/job/ooxoo-core/)
+ooxoo-core 
 ==========
+
+[![Build Status](https://www.opendesignflow.org/ci/jenkins/buildStatus/icon?job=dev/ooxoo-core)](https://www.opendesignflow.org/ci/jenkins/buildStatus/icon?job=dev/ooxoo-core)
+
 
 OOXOO XML Data binding library
 

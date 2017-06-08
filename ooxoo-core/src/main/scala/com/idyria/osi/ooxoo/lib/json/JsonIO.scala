@@ -2,21 +2,20 @@
  * #%L
  * Core runtime for OOXOO
  * %%
- * Copyright (C) 2008 - 2014 OSI / Computer Architecture Group @ Uni. Heidelberg
+ * Copyright (C) 2006 - 2017 Open Design Flow
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 package com.idyria.osi.ooxoo.lib.json
@@ -206,14 +205,15 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
     }
 
     // println(s"Got streamout")
-
+    logFine[JsonIO]("Got streamout")
+    
     (du.isHierarchyClose, du.hierarchical, du.element, du.value) match {
 
       // Open
       //---------
       case (close, true, element, value) if (element != null) =>
 
-        //println(s"Open")
+         logFine[JsonIO]("Open Element")
 
         // Detect multiple elements presence using IO chain stack
         //-------------------
@@ -225,16 +225,24 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         //-- Name output, don't output if multiple and not first
         (isMultiple, isFirst) match {
           case (true, false) =>
-          case _ => output.print(s""""${element.name}":""")
+          case _ => 
+            
+            logFine[JsonIO]("Write Name")
+            output.print(s""""${element.name}":""")
         }
 
         value match {
 
           // Not value and multiple, open Multiple Hierarchy
-          case null if (isMultiple && isFirst) => output.print(s"[{")
+          case null if (isMultiple && isFirst) => 
+            
+            logFine[JsonIO]("Open Multiple Hierarchy")
+            output.print(s"[{")
 
           // Not value: Open hierarchy
           case null =>
+            
+            logFine[JsonIO]("Open Hierarchy")
             output.print(s"{")
 
           // Value: Set value to element
@@ -249,11 +257,12 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       //-------------
       case (true, _, _, _) =>
 
-        //   println(s"Close")
+         logFine[JsonIO]("Close")
         ignoreClose match {
           case true => ignoreClose = false
           case false =>
 
+            logFine[JsonIO]("Close Hierarchy")
             // Detect multiple elements presence using IO chain stack
             //-------------------
             var (isMultiple, isLast) = this.previousStack.headOption match {
@@ -263,7 +272,11 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
             //-- Close: Add multiple close if multiple and last
             (isMultiple, isLast) match {
-              case (true, true) => output.print(s"""}],""")
+              case (true, true) => 
+                
+                logFine[JsonIO]("Close last multiple ")
+                output.print(s"""}],""")
+                
               case _ => output.print(s"""},""")
             }
 
@@ -273,6 +286,9 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
       //--------------------------------
       case (false, false, element, value) if (element != null) =>
 
+        
+        logFine[JsonIO]("Element with value")
+        
         // Detect multiple elements presence using IO chain stack
         //-------------------
         var (isMultiple, isFirst, isLast) = this.previousStack.headOption match {
@@ -285,19 +301,27 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         (isMultiple, isFirst) match {
 
           // Multiple first
-          case (true, true) => output.print(s""""${element.name}":[""")
+          case (true, true) => 
+            
+             logFine[JsonIO]("Multiple Values")
+            output.print(s""""${element.name}":[""")
 
           // Multiple not first: none
           case (true, false) =>
           // Normal
-          case _ => output.print(s""""${element.name}":""")
+          case _ => 
+            
+            output.print(s""""${element.name}":""")
         }
 
         // Value
         //---------------
         value match {
           case null => output.print(s"""""""")
-          case v => output.print(s""""${value}"""")
+          case v => 
+            
+            logFine[JsonIO]("Simple value: "+value)
+            output.print(s""""${value}"""")
         }
 
         // Close : Close last multiple or just a ,
@@ -305,10 +329,15 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
         (isMultiple, isLast) match {
 
           // Last
-          case (true, true) => output.print(s"""],""")
+          case (true, true) => 
+            
+            logFine[JsonIO]("Close multiple: "+value)
+            output.print(s"""],""")
 
           // Otherwise normal ,
-          case _ => output.print(s""",""")
+          case _ => 
+            
+            output.print(s""",""")
         }
 
 

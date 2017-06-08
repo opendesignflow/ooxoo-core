@@ -1,129 +1,128 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.odfi.ooxoo</groupId>
-    <artifactId>ooxoo-all</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>Top project for OOXOO3</name>
-    <inceptionYear>2008</inceptionYear>
-    <parent>
-        <groupId>org.odfi</groupId>
-        <artifactId>superpom-scala</artifactId>
-        <version>2.12.2.r1</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.odfi.ooxoo</groupId>
+	<artifactId>ooxoo-all</artifactId>
+	<version>3.3.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>Top project for OOXOO3</name>
+	<parent>
+		<groupId>org.odfi</groupId>
+		<artifactId>superpom-scala</artifactId>
+		<version>2.12.2.r14</version>
+	</parent>
 
-    <!-- Site Distribution -->
-    <!-- ################# -->
-    <scm>
-        <!-- <connection>scm:git:git://bitbucket.org/osi/ooxoo-core.git</connection>
-        <developerConnection>scm:git:git@bitbucket.org:osi/ooxoo-core.git</developerConnection> -->
-        <connection>scm:git:git://github.com:richnou/ooxoo-core.git</connection>
-        <developerConnection>scm:git:git@github.com:richnou/ooxoo-core.git</developerConnection>
-        <url>http://github.com/richnou/ooxoo-core</url>
-      <tag>HEAD</tag>
-    </scm>
+	<!-- Site Distribution -->
+	<!-- ################# -->
+	<scm>
+		<connection>scm:git:https://github.com/richnou/ooxoo-core.git</connection>
+		<developerConnection>scm:git:git@github.com:richnou/ooxoo-core.git</developerConnection>
+		<url>http://github.com/richnou/ooxoo-core</url>
+	</scm>
 
 
-    <!-- Site -->
-    <!-- #### -->
-    <properties>
-        <github.global.server>github</github.global.server>
-    </properties>
-
-    <!-- License and so on -->
-    <!-- ################# -->
-    <organization>
-        <name>Open Design Flow.org</name>
-        <url>https://github.com/richnou/ooxoo-core</url>
-    </organization>
-
-    <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>license-maven-plugin</artifactId>
-            <version>1.6</version>
-            <configuration>
-              <licenseName>gpl_v3</licenseName>
-              <extraExtensions>
-                <scala>java</scala>
-              </extraExtensions>
-            </configuration>
-          </plugin>
-          <plugin>
-              <groupId>com.github.github</groupId>
-              <artifactId>site-maven-plugin</artifactId>
-              <version>0.9</version>
-              <configuration>
-                <message>Creating site for ${project.version}</message>
-                <repositoryName>ooxoo-core</repositoryName>
-                <repositoryOwner>richnou</repositoryOwner>
-              </configuration>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>site</goal>
-                  </goals>
-                  <phase>site</phase>
-                </execution>
-              </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!-- Repositories to find ODFI packages -->
-    <!-- ############################################## -->
-    <pluginRepositories>
-        <pluginRepository>
-            <id>sonatype</id>
-            <name>Sonatype OSS Snapshots Repository</name>
-            <url>http://oss.sonatype.org/content/groups/public</url>
-        </pluginRepository>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>odfi.central</id>
-            <name>plugins-release</name>
-            <url>http://www.opendesignflow.org/maven/repository/internal/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>odfi.snapshots</id>
-            <name>plugins-snapshot</name>
-            <url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
-    <repositories>
-        <repository>
-            <id>sonatype</id>
-            <name>Sonatype OSS Snapshots Repository</name>
-            <url>http://oss.sonatype.org/content/groups/public</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>odfi.central</id>
-            <name>odfi-release</name>
-            <url>http://www.opendesignflow.org/maven/repository/internal/</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>odfi.snapshots</id>
-            <name>odfi-snapshot</name>
-            <url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
-        </repository>
-    </repositories>
 
 
-    <modules>
-        <module>ooxoo-core</module>
-        <module>ooxoo-db</module>
-        <module>maven-ooxoo-plugin</module>
-    </modules>
+	<!-- Site -->
+	<!-- #### -->
+	<properties>
+		<github.global.server>github</github.global.server>
+	</properties>
+
+	<!-- License and so on -->
+	<!-- ################# -->
+	<inceptionYear>2006</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License (AGPL) version 3.0</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+		</license>
+	</licenses>
+
+	<contributors>
+		<contributor>
+			<name>Richard Leys</name>
+			<email>leys.richard@gmail.com</email>
+		</contributor>
+	</contributors>
+
+	<build>		
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>${license.plugin.version}</version>
+				<configuration>
+					<encoding>UTF8</encoding>
+					<licenseName>agpl_v3</licenseName>
+				</configuration>
+				<executions>
+					<execution>
+						<id>update-file-header</id>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>process-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- Repositories to find ODFI packages -->
+	<!-- ############################################## -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>odfi.central</id>
+			<name>plugins-release</name>
+			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>odfi.snapshots</id>
+			<name>plugins-snapshot</name>
+			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<repositories>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>odfi.central</id>
+			<name>odfi-release</name>
+			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>odfi.snapshots</id>
+			<name>odfi-snapshot</name>
+			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+		</repository>
+	</repositories>
+
+
+	<modules>
+		<module>ooxoo-core</module>
+		<module>ooxoo-db</module>
+		<module>maven-ooxoo-plugin</module>
+	</modules>
 </project>
