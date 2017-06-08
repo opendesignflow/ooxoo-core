@@ -41,7 +41,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
 
   var transactionAction: PartialFunction[Transaction, Unit] = {
 
-    case Transaction.Commit(transaction) ?
+    case Transaction.Commit(transaction) =>
 
       //    println("Transaction Commit Called")
 
@@ -51,24 +51,24 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
       this.pushDataUnit = null
       this.pullDataUnit = null
 
-    case Transaction.Discard(transaction) ?
+    case Transaction.Discard(transaction) =>
 
       //println("Discarding")
 
       this.pushDataUnit = null
       this.pullDataUnit = null
 
-    case Transaction.Cancel(transaction) ?
+    case Transaction.Cancel(transaction) =>
 
       this.pushDataUnit = null
       this.pullDataUnit = null
 
-    case Transaction.Buffering(transaction) ?
+    case Transaction.Buffering(transaction) =>
 
       this.pushDataUnit = null
       this.pullDataUnit = null
 
-    case _ ?
+    case _ =>
 
       this.pushDataUnit = null
       this.pullDataUnit = null
@@ -89,7 +89,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
 
       // Stopped -> D nothing
       //-----------------------
-      case Transaction.Stopped(transaction) ?
+      case Transaction.Stopped(transaction) =>
 
         this.pullDataUnit = null
         super.pull(du)
@@ -101,7 +101,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
         this.pullDataUnit
 
       // Cache, but no value already
-      case _ if (pullDataUnit == null) ?
+      case _ if (pullDataUnit == null) =>
 
         logFine("Pulling and caching value")
 
@@ -136,7 +136,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
     Transaction() match {
 
       // Stopped, just push the DU
-      case Transaction.Stopped(transaction) ?
+      case Transaction.Stopped(transaction) =>
       
         this.pushDataUnit = null
         this.pullDataUnit = null
@@ -160,7 +160,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
         
         
       // Retain
-      case _ ?
+      case _ =>
 
         this.pushDataUnit = du
         this.pullDataUnit = du
@@ -413,11 +413,11 @@ object Transaction extends TLogSource {
     currentTransactions.get(thread) match {
 
       //-- Already a transaction
-      case Some(transactions) ?
+      case Some(transactions) =>
 
         transactions.head
 
-      case None ?
+      case None =>
 
         logFine("-- Creating transaction for Thread --")
 
@@ -453,7 +453,7 @@ object Transaction extends TLogSource {
     currentTransactions.get(thread) match {
 
       //-- Already have some transactions
-      case Some(transactions) ?
+      case Some(transactions) =>
 
         // Create
         var transaction = new Transaction
@@ -467,7 +467,7 @@ object Transaction extends TLogSource {
 
         transaction
 
-      case None ?
+      case None =>
 
         logFine("-- Creating transaction for Thread --")
 
@@ -482,7 +482,7 @@ object Transaction extends TLogSource {
   /**
    * Executes the closure on the transaction, issuing a commit at the end of join group
    */
-  def join[T <: Any](cl: ? T): T = {
+  def join[T <: Any](cl: => T): T = {
 
     //-- Make the transaction pending
     Transaction().begin
@@ -509,8 +509,8 @@ object Transaction extends TLogSource {
 
     //println("Searching for Transaction to discard for current Thread")
 
-    currentTransactions.find { case (th, tr) ? tr.head == transaction } match {
-      case Some((th, tr)) ?
+    currentTransactions.find { case (th, tr) => tr.head == transaction } match {
+      case Some((th, tr)) =>
 
         // println("Found Transaction to discard for current Thread")
         tr.head.discard
@@ -520,8 +520,8 @@ object Transaction extends TLogSource {
         if (tr.size == 0)
           currentTransactions -= th
 
-      case None ?
-      // FIXME : Return an error trying to discard a non registered transaction ?
+      case None =>
+      // FIXME : Return an error trying to discard a non registered transaction =>
     }
 
   }
@@ -531,7 +531,7 @@ object Transaction extends TLogSource {
    */
   def discardAll = {
 
-    currentTransactions.foreach { case (th, tr) ? tr.foreach(discard(_)) }
+    currentTransactions.foreach { case (th, tr) => tr.foreach(discard(_)) }
 
   }
 

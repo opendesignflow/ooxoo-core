@@ -148,8 +148,8 @@ object AnyXList {
 
     // Register
     //------------------
-    this.modelsMap = this.modelsMap + ((xelement.ns -> xelement.name) -> { du ? cl })
-    this.modelsMap = this.modelsMap + (("" -> xelement.name) -> { du ? cl })
+    this.modelsMap = this.modelsMap + ((xelement.ns -> xelement.name) -> { du => cl })
+    this.modelsMap = this.modelsMap + (("" -> xelement.name) -> { du => cl })
 
   }
     
@@ -174,7 +174,7 @@ object AnyXList {
 
                       	//println(s"AnyXList got a DU to translate to buffer: ${element.name} ${element.ns}")
                       
-                        // Is there a registered model for the element ?
+                        // Is there a registered model for the element =>
                         //-------------
                         modelsMap.get((element.ns -> element.name)) match {
 

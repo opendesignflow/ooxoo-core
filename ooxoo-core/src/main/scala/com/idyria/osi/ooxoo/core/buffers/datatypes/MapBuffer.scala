@@ -87,7 +87,7 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
     // Streamout Entries
     //-----------
     this.foreach {
-      case (key, value) ?
+      case (key, value) =>
 
         //println("Found entry")
 
@@ -98,12 +98,12 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
 
         //-- Output
         this.getIOChain match {
-          case Some(ioChain) ?
+          case Some(ioChain) =>
 
             elt.appendBuffer(ioChain)
             elt.streamOut()
 
-          case None ?
+          case None =>
         }
 
     }
@@ -220,7 +220,7 @@ class DataMapBuffer[K <: AbstractDataBuffer[_],V <: Buffer](var keyCreateClosure
     // Streamout Entries
     //-----------
     this.foreach {
-      case (key, value) ?
+      case (key, value) =>
 
         //println("Found entry")
 
@@ -231,12 +231,12 @@ class DataMapBuffer[K <: AbstractDataBuffer[_],V <: Buffer](var keyCreateClosure
 
         //-- Output
         this.getIOChain match {
-          case Some(ioChain) ?
+          case Some(ioChain) =>
 
             elt.appendBuffer(ioChain)
             elt.streamOut()
 
-          case None ?
+          case None =>
         }
 
     }

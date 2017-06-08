@@ -61,8 +61,8 @@ class ScalaProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
-      case true ? res = res + "_"
-      case false ?
+      case true => res = res + "_"
+      case false =>
     }
 
     res
@@ -120,7 +120,7 @@ class ScalaProducer extends ModelProducer {
         var name = basename
 
         model.splitName(name) match {
-          case (sNs, sName) ? name = sName
+          case (sNs, sName) => name = sName
         }
 
         // enumeration and name "Value" are incompatible
@@ -183,8 +183,8 @@ class ScalaProducer extends ModelProducer {
     // Try to find Target Package from model
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
-      case Some(p) ? p
-      case None ? model.getClass().getPackage().getName()
+      case Some(p) => p
+      case None => model.getClass().getPackage().getName()
     }
     
     
@@ -265,8 +265,8 @@ import scala.language.implicitConversions
 
       //-- Class Definition
       (namespace, name) match {
-        case ("", name) ? out << s"""@xelement(name="$name")"""
-        case (namespace, name) ? out << s"""@xelement(name="$name",ns="$namespace")"""
+        case ("", name) => out << s"""@xelement(name="$name")"""
+        case (namespace, name) => out << s"""@xelement(name="$name",ns="$namespace")"""
       }
 
       //-- Imported Traits
@@ -324,16 +324,16 @@ import scala.language.implicitConversions
       //-- Attributes
       //---------------------------
       out.indent
-      element.attributes.foreach { attribute ?
+      element.attributes.foreach { attribute =>
 
         //--- Annotation
         var resolvedName = model.splitName(attribute.name)
         var localName = resolvedName match {
-          case ("", name) ?
+          case ("", name) =>
 
             out << s"""@xattribute(name="$name")"""
             name
-          case (namespace, name) ?
+          case (namespace, name) =>
 
             out << s"""@xattribute(name="$name",ns="$namespace")"""
             name
@@ -342,7 +342,7 @@ import scala.language.implicitConversions
         //-- Field
         attribute.maxOccurs match {
 
-          case count if (count > 1) ?
+          case count if (count > 1) =>
 
             out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new ${attribute.classType}}
                         """
@@ -359,7 +359,7 @@ import scala.language.implicitConversions
 
           // Normal Attribute
           //-------------------
-          case _ ?
+          case _ =>
 
             out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
                         """
@@ -383,15 +383,15 @@ import scala.language.implicitConversions
       //-- Sub Element
       //---------------------------
       out.indent
-      element.elements.foreach { element ?
+      element.elements.foreach { element =>
 
         // Annotation
         var resolvedName = model.splitName(element.name)
         resolvedName match {
-          case ("", name) ?
+          case ("", name) =>
             out << s"""@xelement(name="$name")"""
 
-          case (namespace, name) ?
+          case (namespace, name) =>
 
             out << s"""@xelement(name="$name",ns="$namespace")"""
         }
@@ -416,12 +416,12 @@ import scala.language.implicitConversions
         //---------------
         element.maxOccurs match {
 
-          case count if (count > 1) ?
+          case count if (count > 1) =>
 
             out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new $resolvedType}
                         """
 
-          case _ ?
+          case _ =>
 
             // Default value
             var defaultValue = element.default match {
@@ -545,31 +545,32 @@ def apply(xml : String) = {
           classOf[AbstractDataBuffer[_]].isAssignableFrom(classType) match {
 
             //-- Add Conversion from base data type
-            case true ?
+            case true =>
 
               var baseDataType = typesMap.collectFirst {
-                case (implClass, baseType) if (implClass.isAssignableFrom(classType)) ? baseType
+                case (implClass, baseType) if (implClass.isAssignableFrom(classType)) => baseType
               } match {
 
                 // Found base type for this Base data type
-                case Some(baseType) ?
+                case Some(baseType) =>
 
                   // Convert from string does not make sense for String type
                   //if (baseType != "String")
                   out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.data = res.dataFromString(data); res; } "
 
                 // Not found, just ouput a warning comment
-                case None ?
+                case None =>
 
                   out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
 
               }
 
-            case false ?
+            case false =>
           }
 
         } catch {
-          case e: Throwable ?
+          case e: Throwable =>
+            e.printStackTrace()
         }
 
         //-- EOF Object

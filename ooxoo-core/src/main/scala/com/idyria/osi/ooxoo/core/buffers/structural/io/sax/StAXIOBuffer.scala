@@ -91,11 +91,11 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
     // Fetch Prefixes from data unit context
     //-----------------
     du("prefixes") match {
-      case Some(mapObject) if (mapObject.isInstanceOf[Map[_, _]]) ?
+      case Some(mapObject) if (mapObject.isInstanceOf[Map[_, _]]) =>
 
         this.namespacePrefixesMap = this.namespacePrefixesMap ++ mapObject.asInstanceOf[Map[String, String]]
-      case Some(mapObject) ?
-      case None ?
+      case Some(mapObject) =>
+      case None =>
     }
 
     // Write
@@ -133,9 +133,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
       //println(s"Stax: Start Element ${du.element.name}")
       du.element.ns match {
-        case "" ? this.eventWriter.writeStartElement(du.element.name)
-        case null ? this.eventWriter.writeStartElement(du.element.name)
-        case _ ? this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
+        case "" => this.eventWriter.writeStartElement(du.element.name)
+        case null => this.eventWriter.writeStartElement(du.element.name)
+        case _ => this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
       }
 
       //-- Close already if non hierarchical and set the value if some
@@ -144,11 +144,11 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
         //-- With text content
         (du.value, du("cdata")) match {
-          case (null, _) ?
-          case (value, Some(true)) ? 
+          case (null, _) =>
+          case (value, Some(true)) => 
             this.eventWriter.writeCData(du.value)
            
-          case (value, _) ?
+          case (value, _) =>
             //this.eventWriter.writeCharacters(du.value.toCharArray(),currenText.length(),du.value.length)
             //currenText = du.value
             this.eventWriter.writeCharacters(du.value)
@@ -166,14 +166,14 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
       // try {
       du.attribute.ns match {
-        case "" ?
+        case "" =>
           //println(s"--> Attribute ${du.attribute.name} / ${du.value}")
           this.eventWriter.writeAttribute(du.attribute.name, du.value)
-        case null ?
+        case null =>
 
           this.eventWriter.writeAttribute(du.attribute.name, du.value)
 
-        case _ ?
+        case _ =>
           //println(s"--> NS Attribute ${du.attribute.name} / ${du.value}")
           this.eventWriter.writeAttribute(getPrefixForNamespace(du.attribute.ns), du.attribute.ns, du.attribute.name, du.value)
       }
@@ -188,9 +188,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       // If some data are provided with the close, then write them
       //-------------------
       (du.value, du("cdata")) match {
-        case (null, _) ?
-        case (value, Some(true)) ? this.eventWriter.writeCData(du.value)
-        case (value, _) ? this.eventWriter.writeCharacters(du.value)
+        case (null, _) =>
+        case (value, Some(true)) => this.eventWriter.writeCData(du.value)
+        case (value, _) => this.eventWriter.writeCharacters(du.value)
       }
 
       //println("StaxIO Closing")
@@ -204,9 +204,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
     else if (du.value != null) {
 
       (du.value, du("cdata")) match {
-        case (null, _) ?
-        case (value, Some(true)) ? this.eventWriter.writeCData(du.value)
-        case (value, _) ? this.eventWriter.writeCharacters(du.value)
+        case (null, _) =>
+        case (value, Some(true)) => this.eventWriter.writeCData(du.value)
+        case (value, _) => this.eventWriter.writeCharacters(du.value)
       }
 
     }
@@ -253,8 +253,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
         //-- NS
         reader.getNamespaceURI() match {
-          case ns if (ns != null && ns != "") ? du.element.ns = ns
-          case _ ?
+          case ns if (ns != null && ns != "") => du.element.ns = ns
+          case _ =>
         }
 
         //-- Text value
@@ -269,7 +269,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         //-- Send attributes if any
         //--------------
         if (reader.getAttributeCount() > 0) {
-          for (i ? 0 to reader.getAttributeCount() - 1) {
+          for (i <- 0 to reader.getAttributeCount() - 1) {
 
             //-- Prepare data unit
             du = new DataUnit

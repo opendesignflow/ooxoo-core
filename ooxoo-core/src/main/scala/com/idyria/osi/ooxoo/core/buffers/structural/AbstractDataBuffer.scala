@@ -111,12 +111,12 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
     // Try to add element/attribute content if implementation class has some
     //--------------
     xelement_base(this) match {
-      case null ?
-      case base ? du.element = base
+      case null =>
+      case base => du.element = base
     }
     xattribute_base(this) match {
-      case null ?
-      case base ? du.attribute = base
+      case null =>
+      case base => du.attribute = base
     }
 
     du

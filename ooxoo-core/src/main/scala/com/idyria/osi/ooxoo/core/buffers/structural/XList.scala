@@ -41,7 +41,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class XList[T <: Buffer](
 
-    val createBuffer: DataUnit ? T) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
+    val createBuffer: DataUnit => T) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
   var currentBuffer: Buffer = null
 
@@ -95,15 +95,15 @@ class XList[T <: Buffer](
     lockIO
     this.foreach {
 
-      content ?
+      content =>
 
         this.getIOChain match {
-          case Some(ioChain) ?
+          case Some(ioChain) =>
 
             //println("Calling streamout on element: " + value.hashCode())
             content.appendBuffer(ioChain)
 
-          case None ?
+          case None =>
         }
 
         //println(s"Goiung to streamout xlist content of type (${content.getClass}), with: ${du.element} and ${du.attribute} ")
@@ -115,7 +115,7 @@ class XList[T <: Buffer](
           xelement_base(content) match {
 
             //-- Any Element
-            case null if (content.isInstanceOf[AnyElementBuffer]) ?
+            case null if (content.isInstanceOf[AnyElementBuffer]) =>
 
               du.element = new xelement_base
               du.element.name = content.asInstanceOf[AnyElementBuffer].name
@@ -132,7 +132,7 @@ class XList[T <: Buffer](
               du.hierarchical = false
 
             //-- Any Attribute
-            case null if (content.isInstanceOf[AnyAttributeBuffer]) ?
+            case null if (content.isInstanceOf[AnyAttributeBuffer]) =>
 
               du.attribute = new xattribute_base
               du.attribute.name = content.asInstanceOf[AnyAttributeBuffer].name
@@ -176,8 +176,8 @@ class XList[T <: Buffer](
 
               //-- If this is not a vertical buffer, it must never be hirarchical
               content match {
-                case e: VerticalBuffer ? du.hierarchical = true
-                case _                 ? du.hierarchical = false
+                case e: VerticalBuffer => du.hierarchical = true
+                case _                 => du.hierarchical = false
               }
 
               content.streamOut(du)
@@ -218,12 +218,12 @@ class XList[T <: Buffer](
 
     //-- Stream in
     this.getIOChain match {
-      case Some(ioChain) ?
+      case Some(ioChain) =>
 
         //println("Calling streamout on element: " + value.hashCode())
         buffer.appendBuffer(ioChain)
 
-      case None ?
+      case None =>
     }
 
     buffer <= du
@@ -315,10 +315,10 @@ object XList {
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */
-  def apply[T <: Buffer](cl: ? T): XList[T] = {
+  def apply[T <: Buffer](cl: => T): XList[T] = {
 
-    var realClosure: (DataUnit ? T) = {
-      du ? cl
+    var realClosure: (DataUnit => T) = {
+      du => cl
     }
 
     return new XList[T](realClosure)
@@ -328,17 +328,14 @@ object XList {
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */
-  def apply[T <: Buffer](cl: DataUnit ? T): XList[T] = {
+  def apply[T <: Buffer](cl: DataUnit => T): XList[T] = {
 
-    var realClosure: (DataUnit ? T) = {
-      du ? cl(du)
+    var realClosure: (DataUnit => T) = {
+      du => cl(du)
     }
 
     return new XList[T](realClosure)
 
   }
-
-  //implicit def convertClosuretoXList[T <: Buffer](cl: ? T): XList[T] = XList[T](cl)
-  //implicit def convertDataUnitClosuretoXList[T <: Buffer](cl: DataUnit ? T): XList[T] = XList[T](cl)
 
 }
