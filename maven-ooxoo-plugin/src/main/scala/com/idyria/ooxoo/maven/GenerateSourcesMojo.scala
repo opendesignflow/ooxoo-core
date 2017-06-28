@@ -38,6 +38,7 @@ import java.io._
 import scala.io.Source
 
 import org.scala_tools.maven.mojo.annotations._
+import com.idyria.osi.tea.file.DirectoryUtilities
 
 /**
  * Generate sources from model, and copy model also to output
@@ -54,6 +55,9 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @Parameter(property = "ooxoo.force", defaultValue = "false")
   var force: Boolean = false
+  
+  @Parameter(property = "ooxoo.cleanOutputs", defaultValue = "true")
+  var cleanOutputs: Boolean = true
 
   @Parameter(defaultValue = "${project.build.sourceDirectory}")
   var sourceFolder = new File("src/main/scala")
@@ -208,6 +212,9 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
                       // Prepare Output
                       //--------------
                       var outputFolder = new File(outputBaseFolder, producer.outputType)
+                      if (cleanOutputs) {
+                        DirectoryUtilities.deleteDirectoryContent(outputFolder)
+                      }
                       outputFolder.mkdirs()
                       var out = new FileWriters(outputFolder)
 

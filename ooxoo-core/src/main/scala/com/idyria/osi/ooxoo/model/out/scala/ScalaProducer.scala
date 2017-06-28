@@ -192,10 +192,6 @@ class ScalaProducer extends ModelProducer {
     //-- Convert Target  Package to Folder path and create as well
     var targetPackagePath = this.targetPackage.replace(".", "/")
 
-    //-- Clean output
-    out.cleanOutput(targetPackagePath)
-    
-    //println(s"Number of elemetns: " + model.topElements.size)
 
     def writeElement(element: Element): Unit = {
 
