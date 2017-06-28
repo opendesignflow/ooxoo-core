@@ -212,9 +212,10 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
                       // Prepare Output
                       //--------------
                       var outputFolder = new File(outputBaseFolder, producer.outputType)
-                      if (cleanOutputs) {
+                      /*if (cleanOutputs) {
+                        println("Cleaning: "+outputFolder)
                         DirectoryUtilities.deleteDirectoryContent(outputFolder)
-                      }
+                      }*/
                       outputFolder.mkdirs()
                       var out = new FileWriters(outputFolder)
 
