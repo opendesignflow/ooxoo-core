@@ -10,11 +10,38 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import java.lang.reflect._
 
 import com.idyria.osi.tea.logging.TLog
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
+import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
+import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
+import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
 trait ReflectUtilsTrait {
 
   var resolvedFields: Option[Iterable[Field]] = None
 
+  def listElementAndAttributeFields = {
+    getFields(this).collect {
+      
+      case f if (f.getAnnotationsByType(classOf[xelement]).size>0) => 
+        
+        var elementbase = xelement_base(f)
+        (elementbase.name,f)
+       case f if (f.getAnnotationsByType(classOf[xattribute]).size>0) => 
+         var attributeBase = xattribute_base(f)
+        (attributeBase.name,f)
+         
+    }
+  }
+  
+  def listDataElementAndAttributeFields = listElementAndAttributeFields.filter {
+    
+    case (name,field) => classOf[AbstractDataBuffer[_]].isAssignableFrom(field.getType)
+  }
+ 
+  /**
+   * List all Fields Recursively
+   */
   def getFields(source: AnyRef): Iterable[Field] = {
 
     resolvedFields match {
