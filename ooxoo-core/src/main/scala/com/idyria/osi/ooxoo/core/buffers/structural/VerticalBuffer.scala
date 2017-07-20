@@ -254,10 +254,6 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    */
   override def streamIn(du: DataUnit) = {
 
-    // require(du.attribute != null || du.element != null)
-
-    //println(s"In VBuffer streaming for ${getClass}")
-
     logFine[VerticalBuffer](s"(${getClass.getSimpleName()}) Got DU " + du)
 
     (this.inHierarchy, du.isHierarchyClose, du.element, du.attribute) match {
@@ -274,7 +270,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
         if (classOf[ListeningSupport].isInstance(this)) {
           this.asInstanceOf[ListeningSupport].@->("streamIn.close")
         }
-        
+
       // Element
       //---------------
 
@@ -283,8 +279,6 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
       // Don't check top element on any class
       case (false, false, element, null) if (this.getClass.isAnnotationPresent(classOf[any])) => this.inHierarchy = true;
-
-
 
       // Top Element
       case (false, false, element, null) if (!this.getClass.isAnnotationPresent(classOf[any])) =>
@@ -315,7 +309,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
           //-- Call Import data unit if we are a databuffer
           //---------------
           case (_, db: AbstractDataBuffer[_]) =>
-            //db.importDataUnit(du)
+          //db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
@@ -324,13 +318,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             //logFine[VerticalBuffer]("Trying to set ")
             (this.getXContentField, this.getIOChain) match {
               case (Some(content), Some(ios)) =>
-              
+
                 content.appendBuffer(ios.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
-                du.setHierarchyClose 
-              	
+                du.setHierarchyClose
+
                 content <= du
-                
+
               case _ =>
             }
 
@@ -352,8 +346,8 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
           //-- Call Import data unit if we are a databuffer
           //---------------
-          case db: AbstractDataBuffer[_] => 
-            //db.importDataUnit(du)
+          case db: AbstractDataBuffer[_] =>
+          //db.importDataUnit(du)
 
           //-- Try to find an xcontent class field otherwise and pass it the DU to streamIn
           //---------------
@@ -366,7 +360,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
                 content.appendBuffer(ios.cloneIO);
                 // Mark DU as hierarchy close, to make sure we won't stay in this subtree (it is only a value)
-                du.setHierarchyClose 
+                du.setHierarchyClose
                 content <= du
 
               //-- Close content buffer because it is only a value
@@ -381,7 +375,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
       //-------------------------
       case (true, false, element, null) =>
 
-         logFine[VerticalBuffer](s"-- Element: $element // ${du.element.name} // ${du.value}")
+        logFine[VerticalBuffer](s"-- Element: $element // ${du.element.name} // ${du.value}")
 
         // Proceed to element
         //-----------------------
@@ -397,14 +391,13 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             // Clone this IO to the buffer
             //--------------
-           /* buffer.withIOChain(this) {
+            /* buffer.withIOChain(this) {
         	  buffer <= du
           	}*/
-            
 
             // Stream in DU to element
             //---------------------
-           buffer.appendBuffer(this.getIOChain.get.cloneIO);
+            buffer.appendBuffer(this.getIOChain.get.cloneIO);
             buffer <= du
 
             logFine[VerticalBuffer](s"-------> on ${buffer.hashCode()} ${buffer}")
@@ -459,10 +452,10 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             // println(s"Found attribute Buffer to pass in value: ${du.value}")
 
             // Stream in attribute
-          	buffer.withIOChain(this) {
-        	  buffer <= du
-          	}
-          	/*buffer.appendBuffer(this.getIOChain.cloneIO);
+            buffer.withIOChain(this) {
+              buffer <= du
+            }
+            /*buffer.appendBuffer(this.getIOChain.cloneIO);
             buffer <= du
             buffer.cleanIOChain*/
 
@@ -488,7 +481,19 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
     }
 
     // Call parent
+    //---------------
+
     super.streamIn(du)
+
+    // Call post stream In at the end of this element
+    if (du.isHierarchyClose) {
+     try {
+       postStreamIn
+     } catch {
+       case e : Throwable => 
+         e.printStackTrace()
+     }
+    }
 
   }
 
@@ -498,14 +503,14 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
    */
   def getElementField(name: QName): Option[Buffer] = {
 
-    logFine[VerticalBuffer]("*Looking for field for element: /"+name.getLocalPart()+"/")
+    logFine[VerticalBuffer]("*Looking for field for element: /" + name.getLocalPart() + "/")
 
     // Get all xelement annotated fields
     // Filter on annotations not maching name
     this.getAnnotatedFields(this, classOf[xelement]).filter {
       a =>
         var xelt = xelement_base(a)
-        logFine[VerticalBuffer]("xelement annotation name:/"+xelt.name+"/");
+        logFine[VerticalBuffer]("xelement annotation name:/" + xelt.name + "/");
         xelt != null && (name.getLocalPart().equals(xelt.name) || name.getLocalPart().equals(a.getName()))
     } match {
 

@@ -217,7 +217,15 @@ trait BaseBufferTrait extends Buffer {
     // Pass
     if (this.previousBuffer != null)
       this.previousBuffer <= du
-
+      
+   
+  }
+  
+  /**
+   * Post Streamin call is made by the implementations, because streamin end depends on the type of element currently being read
+   */
+  def postStreamIn = {
+    
   }
 
 }
