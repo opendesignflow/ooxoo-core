@@ -44,6 +44,38 @@ class ClassBuffer[T] extends AbstractDataBuffer[Class[T]] {
   
 }
 
+class GenericClassBuffer extends AbstractDataBuffer[Class[_]] {
+  
+  
+  def dataFromString(str:String) = {
+    
+    
+    
+    data = Thread.currentThread().getContextClassLoader().loadClass(str)
+    data
+    
+  }
+  
+  def dataToString : String = this.toString
+ 
+  
+  override def toString = data.getCanonicalName()
+  
+  
+}
+
+object GenericClassBuffer {
+  def apply() = new GenericClassBuffer
+  
+   implicit def convertFromClassToBuffer(cl: Class[_]) : GenericClassBuffer = {
+    
+    var b = new GenericClassBuffer
+    b.data = cl
+    b
+    
+  }
+}
+
 object ClassBuffer {
   
   def apply() = new ClassBuffer

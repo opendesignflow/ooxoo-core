@@ -129,7 +129,8 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
 
     this.dataFromString(du.value) match {
       case null =>
-      case res => this.data = res
+      case res => 
+        //this.data = res
     }
 
   }

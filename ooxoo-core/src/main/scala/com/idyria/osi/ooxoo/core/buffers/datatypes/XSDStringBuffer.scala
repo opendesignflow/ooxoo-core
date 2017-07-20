@@ -59,7 +59,8 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
       }*/
       //this.data = str.trim; 
       //data
-       str.trim
+       this.data = str.trim
+       this.data
     case s => 
      /* println(s"Data from strng with: "+str)
        try {
@@ -67,7 +68,8 @@ class XSDStringBuffer extends AbstractDataBuffer[String] with Comparable[String]
       }catch {
         case e: Throwable =>  e.printStackTrace(System.out)
       }*/
-      this.data + s.trim
+      this.data = this.data + s.trim
+      this.data
 
       //data
   }

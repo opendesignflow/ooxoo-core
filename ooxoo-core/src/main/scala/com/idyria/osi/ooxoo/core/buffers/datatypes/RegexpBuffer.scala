@@ -1,22 +1,3 @@
-package com.idyria.osi.ooxoo.core.buffers.datatypes
-
-import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import scala.util.matching.Regex
-import scala.language.implicitConversions
-
-/**
- * A Buffer to Set Regular expressions as XML datatype
- */
-class RegexpBuffer extends AbstractDataBuffer[Regex] {
-  
-   def dataFromString(str: String) : Regex = {
-     
-     str.r
-     
-   }
-   
-   def dataToString : String = if (data!=null) data.pattern.pattern();
-
 /*
  * #%L
  * Core runtime for OOXOO
@@ -37,6 +18,28 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
+
+package com.idyria.osi.ooxoo.core.buffers.datatypes
+
+import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
+import scala.util.matching.Regex
+import scala.language.implicitConversions
+
+/**
+ * A Buffer to Set Regular expressions as XML datatype
+ */
+class RegexpBuffer extends AbstractDataBuffer[Regex] {
+  
+   def dataFromString(str: String) : Regex = {
+     
+     data = str.r
+     data
+     
+   }
+   
+   def dataToString : String = if (data!=null) data.pattern.pattern();
+
+
 else null
 
    override def toString : String = this.dataToString
