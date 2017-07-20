@@ -434,14 +434,14 @@ import scala.language.implicitConversions
 
             // Automatic Element creation: Yes per default only if the element has children it self
             // Or The default value was set 
-            var getterContent = element.elements.size match {
+            var (getterContent) = element.elements.size match {
               case _ if (element.default != null) => 
                 s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
               
               case _ if(element.traits.find(t => t.toString==classOf[AnyContent].getCanonicalName).isDefined) => 
                 s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
               
-              case size if(size>0) => 
+              case size if(size>0 || element.attributes.size>0) => 
                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
               
               case 0 => 
@@ -454,6 +454,10 @@ import scala.language.implicitConversions
                         """*/
 
             out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = $getterContent
+                        """
+            
+            //-- Add "Option" getter to test presence of element
+            out << s"""def ${cleanName(resolvedName._2)}Option : Option[$resolvedType] = __${cleanName(resolvedName._2)} match {case null => None; case defined => Some(defined) }
                         """
 
         }
