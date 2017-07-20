@@ -59,6 +59,29 @@ class XList[T <: Buffer](
     this += res
     res
   }
+  
+  /**
+   * Just create an instance of contained element
+   */
+  def createInstance = {
+    createBuffer(null)
+  }
+  
+  /**
+   * Added object is rolledback if an error happens
+   * Error is kept through
+   */
+  def addRollbackOnError(cl: T => Any) : T = {
+   val newobj = add
+    try {
+      cl(newobj)
+      newobj
+    } catch {
+      case e : Throwable => 
+        this -= newobj
+        throw e
+    }
+  }
 
   // Accessors
   //----------------
