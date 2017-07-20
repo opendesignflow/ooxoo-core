@@ -32,6 +32,8 @@ import java.io.File
 */
 trait Model {
 
+    var defaultElementBufferClass : Class[ _<:ElementBuffer] = classOf[ElementBuffer]
+  
     /**
         Global namespace of model
     */
@@ -50,7 +52,7 @@ trait Model {
 
     //-- Top Elements list
     @xelement(name="Element")
-    var topElements = XList{ du => new Element(du.element.name)}
+    var topElements = XList{ du => new Element(du.element.name,Model.this)}
 
     // Parameters
     //-------------------------

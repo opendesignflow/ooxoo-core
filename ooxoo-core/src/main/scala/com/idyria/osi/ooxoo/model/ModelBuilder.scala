@@ -33,8 +33,13 @@ import java.io.ByteArrayOutputStream
  *
  */
 @xelement(name = "Model")
-class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
+class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
+  // General Config
+  //------------------
+  
+  //var defaultElementBufferClass : Class[ _<:ElementBuffer] = classOf[ElementBuffer]
+  
   // Producers configuration
   //-------------------------------
 
@@ -117,7 +122,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
       case Some(element) =>
 
         // Create new 
-        var newElement = new Element(className.split("""\.""").last)
+        var newElement = new Element(className.split("""\.""").last,this)
         newElement.classType = className
         newElement.imported = true
 
@@ -141,7 +146,7 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
       case Some(parent) =>
 
         // Create new 
-        var newElement = new Element(element.name)
+        var newElement = new Element(element.name,this)
         newElement.classType = element.name
         newElement.importSource = element
         newElement.imported = true
@@ -170,7 +175,10 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
   
   def ofType(baseType: Element): Unit = {
 
-    ofType(baseType.name)
+    elementsStack.headOption match {
+      case Some(element) => element.importSource = baseType
+      case None => throw new RuntimeException("Cannot call ofType() outside of an element")
+    }
     
 
   }
@@ -210,6 +218,20 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
 
   }
 
+  /**
+   * Makes current element a trait, the implementation will be a custom class with the hierarchical name of the current 
+   * element
+   * 
+   * Example: A is {
+   * 			B is {
+   * 				makeTraitAndUseSameNameImplementation
+   * 			} 
+   * 	}
+   * 
+   * Produces: ABTrait
+   * A Uses: AB
+   * User implements: AB extends BTrait
+   */
   def makeTraitAndUseCustomImplementation = {
     elementsStack.headOption match {
       case Some(element) =>
@@ -218,12 +240,26 @@ class ModelBuilder extends ElementBuffer with Model with ModelBuilderLanguage {
     }
   }
   
+  /**
+   * Makes current element a trait, the implementation will be a custom class with the  name of the current 
+   * element, not the hierarchical name
+   * 
+   * Example: A is {
+   * 			B is {
+   * 				makeTraitAndUseSameNameImplementation
+   * 			} 
+   * 	}
+   * 
+   * Produces: BTrait
+   * A Uses: B
+   * User implements: B extends BTrait
+   */
   def makeTraitAndUseSameNameImplementation = {
     elementsStack.headOption match {
       case Some(element) =>
         element.makeTraitAndUseCustomImplementation
         element.staticClassName = true
-      case None => throw new RuntimeException("Cannot call makeTraitAndUseCustomImplementation() outside of an element")
+      case None => throw new RuntimeException("Cannot call makeTraitAndUseSameNameImplementation() outside of an element")
     }
   }
 
@@ -398,14 +434,14 @@ trait Common {
 //-----------------------
 @xelement(name = "Element")
 class Element(
-    inputName: String) extends ElementBuffer with Common {
+    inputName: String,var builder : Model) extends ElementBuffer with Common {
 
   // Structure
   //---------------
 
   @xelement(name = "Element")
   var elements = XList { du =>
-    var elt = new Element(du.element.name)
+    var elt = new Element(du.element.name,builder)
     elt.parent = this
     elt
   }
@@ -443,8 +479,8 @@ class Element(
 
   // Defaults
   //-------------
-  this.classType = classOf[ElementBuffer].getCanonicalName
-  this.traits += classOf[ElementBuffer].getCanonicalName
+  this.classType = builder.defaultElementBufferClass.getCanonicalName
+  this.traits +=  builder.defaultElementBufferClass.getCanonicalName
   this.name = inputName
   this.className = inputName
 
@@ -516,7 +552,7 @@ object Element {
 
   implicit def stringToElement(str: String): Element = {
 
-    new Element(str)
+    new Element(str,null)
 
   }
 

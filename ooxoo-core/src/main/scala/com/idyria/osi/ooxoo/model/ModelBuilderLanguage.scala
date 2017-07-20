@@ -33,8 +33,10 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.fs.FileBuffer
  * This trait contains all the language Wrappers and Conversions used in Model Builder.
  * It is separated to lighten real model management in ModelBuilder from convienience language
  */
-trait ModelBuilderLanguage extends ListeningSupport {
+trait ModelBuilderLanguage extends ListeningSupport with Model{
 
+ 
+  
   // Typing
   //------------------------------
 
@@ -51,6 +53,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
     ("uuid" -> classOf[UUIDBuffer]),
     
     ("file" -> classOf[FileBuffer]),
+    ("class" -> classOf[GenericClassBuffer]),
     
     ("int" -> classOf[IntegerBuffer]),
     ("integer" -> classOf[IntegerBuffer]),
@@ -279,7 +282,7 @@ trait ModelBuilderLanguage extends ListeningSupport {
     }
 
   }
-  implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(str)
+  implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(new Element(str,this))
   implicit def elementToIsWordWrapping(elt: Element): IsWordElementWrapper = new IsWordElementWrapper(elt)
 
   // Attribute Language
