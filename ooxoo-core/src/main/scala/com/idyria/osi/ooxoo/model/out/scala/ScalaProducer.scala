@@ -61,7 +61,7 @@ class ScalaProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     forbiddenKeyWords.contains(res) match {
-      case true => res = res + "_"
+      case true  => res = res + "_"
       case false =>
     }
 
@@ -74,9 +74,9 @@ class ScalaProducer extends ModelProducer {
   def makePlural(name: String): String = {
 
     name match {
-      case name if (name.length() == 1) => name
+      case name if (name.length() == 1)  => name
       case name if (name.matches(".*s")) => name
-      case _ => English.plural(name)
+      case _                             => English.plural(name)
     }
 
     /*
@@ -95,7 +95,7 @@ class ScalaProducer extends ModelProducer {
         //println(s"Element has a separate class definitnion: " + element.traitSeparateFromObject)
         element.traitSeparateFromObject
       case null => element.name
-      case _ => element.className
+      case _    => element.className
     }
 
     val r = canonicalClassName(model, name, element)
@@ -113,7 +113,7 @@ class ScalaProducer extends ModelProducer {
     basename.contains(".") match {
       case true =>
         basename
-      case false if (element.staticClassName == true) => 
+      case false if (element.staticClassName == true) =>
         basename
       case false =>
 
@@ -127,7 +127,7 @@ class ScalaProducer extends ModelProducer {
         val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
         var className = (element.classType, name.toString) match {
           case (enumerationBufferClass, "Value") => "_Value"
-          case _ => name
+          case _                                 => name
         }
 
         // Merge ClassName with its parents
@@ -141,7 +141,7 @@ class ScalaProducer extends ModelProducer {
 
           var currentName = current.parent.className match {
             case null => current.parent.name
-            case _ => current.parent.className
+            case _    => current.parent.className
           }
           parentNames = s"${model.splitName(currentName.toString)._2}$parentNames"
           current = current.parent
@@ -184,18 +184,14 @@ class ScalaProducer extends ModelProducer {
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
       case Some(p) => p
-      case None => model.getClass().getPackage().getName()
+      case None    => model.getClass().getPackage().getName()
     }
-    
-    
-    
+
     //-- Convert Target  Package to Folder path and create as well
     var targetPackagePath = this.targetPackage.replace(".", "/")
 
-
     def writeElement(element: Element): Unit = {
 
-      
       // If Element is an instance of another element, oder is imported don't write out
       //------------
       if (element.instanceOfElement != null || element.imported.data == true) {
@@ -207,32 +203,14 @@ class ScalaProducer extends ModelProducer {
       var namespace = ""
       var name = element.name
       model.splitName(element.name) match {
-        case (sNs, sName) => 
-          namespace = sNs; 
+        case (sNs, sName) =>
+          namespace = sNs;
           name = sName
       }
-   
+
       // Class Name: Use Canonical Function, with our class name as base
       //-----------------
       var className = canonicalClassName(model, element.className, element).split("\\.").last
-
-      /*// enumeration and name "Value" are incompatible
-      val enumerationBufferClass = classOf[EnumerationBuffer].getCanonicalName()
-      var className = (element.classType, name.toString) match {
-        case (enumerationBufferClass, "Value") => "_Value"
-        case _                                 => name
-      }
-
-      // Merge ClassName with its parents
-      
-      var current = element
-      var parentNames = ""
-      while (current.parent != null) {
-        parentNames = s"${model.splitName(current.parent.name.toString)._2}$parentNames"
-        current = current.parent
-      }
-
-      className = s"$parentNames$className"*/
 
       // If Type has already been written, don't overwrite it
       //-----------------------
@@ -261,14 +239,19 @@ import scala.language.implicitConversions
 
       //-- Class Definition
       (namespace, name) match {
-        case ("", name) => out << s"""@xelement(name="$name")"""
+        case ("", name)        => out << s"""@xelement(name="$name")"""
         case (namespace, name) => out << s"""@xelement(name="$name",ns="$namespace")"""
+      }
+
+      if (element.requestContainerRelation && element.parent != null) {
+
+        element.traits += classOf[VerticalBufferWithParentReference[_]].getCanonicalName + s"[${canonicalClassName(model, element.parent.className, element.parent).stripSuffix("Trait")}]"
       }
 
       //-- Imported Traits
       var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
         case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
-        case _ => ""
+        case _                                   => ""
       }
 
       // var parents = for( p <- current.parent if(current.parent!=null))
@@ -284,7 +267,7 @@ import scala.language.implicitConversions
       //   - If imported, create classType from source
       //------------------
       var classType = element.importSource match {
-        case null => element.classType
+        case null   => element.classType
         case source => canonicalClassName(model, source)
 
       }
@@ -292,179 +275,191 @@ import scala.language.implicitConversions
       out << s"""$classOrTrait ${className} extends $classType $traits {
             """
 
-      //-- Enumeration
-      //-------------------------
-      out.indent
-      element.enumerationValues.size match {
-        case 0 =>
-        case _ =>
+      if (element.isHierarchyParent == false) {
+        //-- Enumeration
+        //-------------------------
+        out.indent
+        element.enumerationValues.size match {
+          case 0 =>
+          case _ =>
 
-          // Declare Values
-          //--------------------
-          out << ""
-          out << s"type ${className} = Value"
-          out << s"val ${element.enumerationValues.map(_.toString).mkString(",")} = Value"
+            // Declare Values
+            //--------------------
+            out << ""
+            out << s"type ${className} = Value"
+            out << s"val ${element.enumerationValues.map(_.toString).mkString(",")} = Value"
 
-          // Create Selection methods
-          //-------------------------
-          out << element.enumerationValues.map {
-            value =>
+            // Create Selection methods
+            //-------------------------
+            out << element.enumerationValues.map {
+              value =>
 
-              s"""def select$value : Unit = this select this.$value"""
+                s"""def select$value : Unit = this select this.$value"""
 
-          }.mkString("\n")
+            }.mkString("\n")
 
-      }
-      out.outdent
-
-      //-- Attributes
-      //---------------------------
-      out.indent
-      element.attributes.foreach { attribute =>
-
-        //--- Annotation
-        var resolvedName = model.splitName(attribute.name)
-        var localName = resolvedName match {
-          case ("", name) =>
-
-            out << s"""@xattribute(name="$name")"""
-            name
-          case (namespace, name) =>
-
-            out << s"""@xattribute(name="$name",ns="$namespace")"""
-            name
         }
+        out.outdent
 
-        //-- Field
-        attribute.maxOccurs match {
+        //-- Attributes
+        //---------------------------
+        out.indent
+        element.attributes.foreach { attribute =>
 
-          case count if (count > 1) =>
+          //--- Annotation
+          var resolvedName = model.splitName(attribute.name)
+          var localName = resolvedName match {
+            case ("", name) =>
 
-            out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new ${attribute.classType}}
+              out << s"""@xattribute(name="$name")"""
+              name
+            case (namespace, name) =>
+
+              out << s"""@xattribute(name="$name",ns="$namespace")"""
+              name
+          }
+
+          //-- Field
+          attribute.maxOccurs match {
+
+            case count if (count > 1) =>
+
+              out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList ({ new ${attribute.classType}},Some(this))
                         """
 
-          // Attribute Needs Subclassing: Enumeration
+            // Attribute Needs Subclassing: Enumeration
+            //---------------
+            case _ if (attribute.classType.toString == classOf[EnumerationBuffer].getCanonicalName()) =>
+
+              out << s"""var ${cleanName(resolvedName._2)} = new ${attribute.classType} {"""
+
+              writeEnumerationValues(localName, attribute, out)
+
+              out << s"""}"""
+
+            // Normal Attribute
+            //-------------------
+            case _ =>
+
+              out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
+                        """
+
+              out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
+                        """
+
+              attribute.default match {
+                case null => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
+                        """
+                case defaultValue => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}.convertFromString("${defaultValue}");__${cleanName(resolvedName._2)} case v => v }
+                        """
+
+              }
+
+          }
+
+        }
+        out.outdent
+
+        //-- Sub Element
+        //---------------------------
+        out.indent
+        element.elements.foreach { element =>
+
+          // Annotation
+          var resolvedName = model.splitName(element.name)
+          resolvedName match {
+            case ("", name) =>
+              out << s"""@xelement(name="$name")"""
+
+            case (namespace, name) =>
+
+              out << s"""@xelement(name="$name",ns="$namespace")"""
+          }
+
+          // ResolvedType if imported of not
+          // !! If the Element has a different class name and target object, use the target object!
+          //-----------------
+          var resolvedType = element.imported.data.booleanValue() match {
+
+            case true if (element.importSource == null) =>
+              model.splitName(element.classType.toString)._2
+
+            case true if (element.importSource != null) =>
+
+              s"${canonicalClassName(model, element.importSource)}"
+
+            // Resolved Type is in the targetpackage, and is the canonical name of the subelement
+            case _ => s"${canonicalClassName(model, element)}"
+
+          }
+          // Element definition
           //---------------
-          case _ if (attribute.classType.toString == classOf[EnumerationBuffer].getCanonicalName()) =>
+          element.maxOccurs match {
 
-            out << s"""var ${cleanName(resolvedName._2)} = new ${attribute.classType} {"""
+            case count if (count > 1) =>
 
-            writeEnumerationValues(localName, attribute, out)
-
-            out << s"""}"""
-
-          // Normal Attribute
-          //-------------------
-          case _ =>
-
-            out << s"""var __${cleanName(resolvedName._2)} : ${attribute.classType} = null
+              out << s"""var ${cleanName(makePlural(resolvedName._2))} =  XList ({ new $resolvedType},this)
                         """
 
-            out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
-                        """
+            case _ =>
 
-            attribute.default match {
-              case null => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} 
-                        """
-              case defaultValue => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}.convertFromString("${defaultValue}");__${cleanName(resolvedName._2)} case v => v }
-                        """
+              // Default value
+              var defaultValue = element.default match {
+                case null => "null"
+                case defaultValue =>
 
-            }
+                  s"""${resolvedType}.convertFromString("$defaultValue")"""
+              }
 
-        }
-
-      }
-      out.outdent
-
-      //-- Sub Element
-      //---------------------------
-      out.indent
-      element.elements.foreach { element =>
-
-        // Annotation
-        var resolvedName = model.splitName(element.name)
-        resolvedName match {
-          case ("", name) =>
-            out << s"""@xelement(name="$name")"""
-
-          case (namespace, name) =>
-
-            out << s"""@xelement(name="$name",ns="$namespace")"""
-        }
-
-        // ResolvedType if imported of not
-        // !! If the Element has a different class name and target object, use the target object!
-        //-----------------
-        var resolvedType = element.imported.data.booleanValue() match {
-
-          case true if (element.importSource == null) =>
-            model.splitName(element.classType.toString)._2
-
-          case true if (element.importSource != null) =>
-
-            s"${canonicalClassName(model, element.importSource)}"
-
-          // Resolved Type is in the targetpackage, and is the canonical name of the subelement
-          case _ => s"${canonicalClassName(model, element)}"
-
-        }
-        // Element definition
-        //---------------
-        element.maxOccurs match {
-
-          case count if (count > 1) =>
-
-            out << s"""var ${cleanName(makePlural(resolvedName._2))} = XList { new $resolvedType}
-                        """
-
-          case _ =>
-
-            // Default value
-            var defaultValue = element.default match {
-              case null => "null"
-              case defaultValue =>
-
-                s"""${resolvedType}.convertFromString("$defaultValue")"""
-            }
-
-            /*out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
+              /*out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
                         """*/
-            out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
+              out << s"""var __${cleanName(resolvedName._2)} : $resolvedType = null
               """
 
-            // Automatic Element creation: Yes per default only if the element has children it self
-            // Or The default value was set 
-            var (getterContent) = element.elements.size match {
-              case _ if (element.default != null) => 
-                s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
-              
-              case _ if(element.traits.find(t => t.toString==classOf[AnyContent].getCanonicalName).isDefined) => 
-                s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
-              
-              case size if(size>0 || element.attributes.size>0) => 
-                 s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
-              
-              case 0 => 
-                s"__${cleanName(resolvedName._2)}"
-            }
+              // Automatic Element creation: Yes per default only if the element has children it self
+              // Or The default value was set 
+              var (getterContent) = element.elements.size match {
+                case _ if (element.default != null) =>
+                  s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
 
-            out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
+                case _ if (element.traits.find(t => t.toString == classOf[AnyContent].getCanonicalName).isDefined) =>
+                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+
+                case size if (size > 0 || element.attributes.size > 0) =>
+                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+
+                case 0 =>
+                  s"__${cleanName(resolvedName._2)}"
+              }
+
+              out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
                         """
-            /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
+              /*out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = $resolvedType();__${cleanName(resolvedName._2)} case v => v }
                         """*/
 
-            out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = $getterContent
-                        """
-            
-            //-- Add "Option" getter to test presence of element
-            out << s"""def ${cleanName(resolvedName._2)}Option : Option[$resolvedType] = __${cleanName(resolvedName._2)} match {case null => None; case defined => Some(defined) }
+              out << s"""def ${cleanName(resolvedName._2)} : $resolvedType = $getterContent
                         """
 
+              //-- Add "Option" getter to test presence of element
+              out << s"""def ${cleanName(resolvedName._2)}Option : Option[$resolvedType] = __${cleanName(resolvedName._2)} match {case null => None; case defined => Some(defined) }
+                        """
+
+          }
         }
-      }
+        out.outdent
 
+        // Extra Elements
+        //-----------------------
+        /*out.indent
+      if(element.requestContainerRelation) {
+        
+        out << s"var parentContainer"
+      }
+      out.outdent*/
+
+        
+      }
       //-- End of class
-      out.outdent
       out << s"""}"""
 
       // Object Singleton Definition
@@ -472,7 +467,7 @@ import scala.language.implicitConversions
       if (!element.isTrait) {
 
         var objectName = element.traitSeparateFromObject match {
-          case null => className
+          case null       => className
           case targetName => targetName
         }
         out << s"object ${objectName} {"

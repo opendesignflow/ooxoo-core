@@ -280,6 +280,18 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       left.description = str
       this
     }
+    
+    // Hierarchy Definition
+    def hierarchy(right: => Any) : IsWordElementWrapper = {
+      @->("element.start", left)
+
+      left.isHierarchyParent = true
+      right
+
+      @->("element.end", left)
+
+      left
+    }
 
   }
   implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(new Element(str,this))

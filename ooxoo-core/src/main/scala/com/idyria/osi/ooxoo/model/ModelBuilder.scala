@@ -25,6 +25,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 import scala.language.implicitConversions
 import java.io.ByteArrayOutputStream
+import scala.reflect.ClassTag
 
 /**
  * Contains the methods and tree stacking utilities to be able to define an XML model in a convienient way.
@@ -37,9 +38,9 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
   // General Config
   //------------------
-  
+
   //var defaultElementBufferClass : Class[ _<:ElementBuffer] = classOf[ElementBuffer]
-  
+
   // Producers configuration
   //-------------------------------
 
@@ -74,9 +75,11 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
           elt.parent = top;
 
           top.elements += elt
+          
+          resolveElementBaseType(elt)
 
         case None if (topElements.contains(elt)) => topElements += elt
-        case None => topElements += elt
+        case None                                => topElements += elt
       }
 
       // Stack element
@@ -95,6 +98,17 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     }
   }
 
+  def resolveElementBaseType(elt:Element) = {
+    
+    elt.parent match {
+      case null => 
+      case parent if (parent.isHierarchyParent) =>
+        elt.classType = parent.name
+      case other => 
+    }
+    
+  }
+  
   /**
    * Set class Type of current element to full string class name
    */
@@ -102,7 +116,7 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.classType = classType
-      case None => throw new RuntimeException("Cannot call classType() outside of an element")
+      case None          => throw new RuntimeException("Cannot call classType() outside of an element")
     }
 
   }
@@ -122,7 +136,7 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
       case Some(element) =>
 
         // Create new 
-        var newElement = new Element(className.split("""\.""").last,this)
+        var newElement = new Element(className.split("""\.""").last, this)
         newElement.classType = className
         newElement.imported = true
 
@@ -146,7 +160,7 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
       case Some(parent) =>
 
         // Create new 
-        var newElement = new Element(element.name,this)
+        var newElement = new Element(element.name, this)
         newElement.classType = element.name
         newElement.importSource = element
         newElement.imported = true
@@ -167,19 +181,18 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
   def ofType(str: String): Unit = {
 
     str.contains(".") match {
-      case true => classType(str)
+      case true  => classType(str)
       case false => classType(getType(str.toLowerCase()).getCanonicalName())
     }
 
   }
-  
+
   def ofType(baseType: Element): Unit = {
 
     elementsStack.headOption match {
       case Some(element) => element.importSource = baseType
-      case None => throw new RuntimeException("Cannot call ofType() outside of an element")
+      case None          => throw new RuntimeException("Cannot call ofType() outside of an element")
     }
-    
 
   }
 
@@ -187,7 +200,7 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType
-      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
   }
@@ -200,9 +213,13 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType.name
-      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
+  }
+
+  def withTrait[T](implicit tag: ClassTag[T]): Unit = {
+    withTrait(tag.runtimeClass)
   }
 
   def isTrait: Unit = {
@@ -217,17 +234,26 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     }
 
   }
+  
+  def requestContainerReference = {
+    elementsStack.headOption match {
+      case Some(element) =>
+        element.requestContainerRelation = true
+        //withTrait(classOf[VerticalBufferWithParentReference[_]].getCanonicalName+s"[${element.parent.g}]")
+      case None => throw new RuntimeException("Cannot call requestContainerReference() outside of an element")
+    }
+  }
 
   /**
-   * Makes current element a trait, the implementation will be a custom class with the hierarchical name of the current 
+   * Makes current element a trait, the implementation will be a custom class with the hierarchical name of the current
    * element
-   * 
+   *
    * Example: A is {
    * 			B is {
    * 				makeTraitAndUseSameNameImplementation
-   * 			} 
+   * 			}
    * 	}
-   * 
+   *
    * Produces: ABTrait
    * A Uses: AB
    * User implements: AB extends BTrait
@@ -239,17 +265,17 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
       case None => throw new RuntimeException("Cannot call makeTraitAndUseCustomImplementation() outside of an element")
     }
   }
-  
+
   /**
-   * Makes current element a trait, the implementation will be a custom class with the  name of the current 
+   * Makes current element a trait, the implementation will be a custom class with the  name of the current
    * element, not the hierarchical name
-   * 
+   *
    * Example: A is {
    * 			B is {
    * 				makeTraitAndUseSameNameImplementation
-   * 			} 
+   * 			}
    * 	}
-   * 
+   *
    * Produces: BTrait
    * A Uses: B
    * User implements: B extends BTrait
@@ -267,7 +293,7 @@ class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
-      case None => throw new RuntimeException("Cannot call any() outside of an element")
+      case None          => throw new RuntimeException("Cannot call any() outside of an element")
     }
 
   }
@@ -434,14 +460,14 @@ trait Common {
 //-----------------------
 @xelement(name = "Element")
 class Element(
-    inputName: String,var builder : Model) extends ElementBuffer with Common {
+    inputName: String, var builder: Model) extends ElementBuffer with Common {
 
   // Structure
   //---------------
 
   @xelement(name = "Element")
   var elements = XList { du =>
-    var elt = new Element(du.element.name,builder)
+    var elt = new Element(du.element.name, builder)
     elt.parent = this
     elt
   }
@@ -459,7 +485,21 @@ class Element(
   // Related Type
   //------------------
 
-  var parent: Element = null
+  /**
+   * If true, this element is not really an element but a parent in the children's hierarchy
+   */
+  @xattribute(name = "hierarchyParent")
+  var isHierarchyParent = false
+  
+  /**
+   * The element needs a reference to its container
+   */
+  var requestContainerRelation = false
+
+  /**
+   * 
+   */
+  var parent : Element = null
 
   def depth: Int = {
 
@@ -480,7 +520,7 @@ class Element(
   // Defaults
   //-------------
   this.classType = builder.defaultElementBufferClass.getCanonicalName
-  this.traits +=  builder.defaultElementBufferClass.getCanonicalName
+  this.traits += builder.defaultElementBufferClass.getCanonicalName
   this.name = inputName
   this.className = inputName
 
@@ -516,11 +556,11 @@ class Element(
    * The final object however has a different name
    */
   var traitSeparateFromObject: String = null
-  
+
   /**
    * If set, generator should not change the name in any way
    */
-  var staticClassName  = false
+  var staticClassName = false
 
   /**
    * Set to trait and change name
@@ -552,7 +592,7 @@ object Element {
 
   implicit def stringToElement(str: String): Element = {
 
-    new Element(str,null)
+    new Element(str, null)
 
   }
 
