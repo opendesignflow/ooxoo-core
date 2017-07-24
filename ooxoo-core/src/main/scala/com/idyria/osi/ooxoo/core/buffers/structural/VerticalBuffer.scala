@@ -397,6 +397,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
 
             // Stream in DU to element
             //---------------------
+            du("parent" -> this)
             buffer.appendBuffer(this.getIOChain.get.cloneIO);
             buffer <= du
 

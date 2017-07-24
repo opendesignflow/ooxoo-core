@@ -41,7 +41,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class XList[T <: Buffer](
 
-    val createBuffer: DataUnit => T) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
+    val createBuffer: DataUnit => T, var containerBuffer: Option[ElementBuffer] = None) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
   var currentBuffer: Buffer = null
 
@@ -55,29 +55,43 @@ class XList[T <: Buffer](
   // Create
   //----------------
   def add: T = {
-    val res = createBuffer(null)
+    val res = createInstance
+    /*if (res.isInstanceOf[VerticalBufferWithParentReference[ElementBuffer]] && containerBuffer.isDefined) {
+      res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
+    }*/
     this += res
     res
   }
-  
+
+  def addFirst: T = {
+    val res = createInstance
+    res +=: this
+
+    res
+  }
+
   /**
    * Just create an instance of contained element
    */
   def createInstance = {
-    createBuffer(null)
+    val res = createBuffer(null)
+    if (res.isInstanceOf[VerticalBufferWithParentReference[ElementBuffer]] && containerBuffer.isDefined) {
+      res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
+    }
+    res
   }
-  
+
   /**
    * Added object is rolledback if an error happens
    * Error is kept through
    */
-  def addRollbackOnError(cl: T => Any) : T = {
-   val newobj = add
+  def addRollbackOnError[RT](cl: T => RT): T = {
+    val newobj = add
     try {
       cl(newobj)
       newobj
     } catch {
-      case e : Throwable => 
+      case e: Throwable =>
         this -= newobj
         throw e
     }
@@ -188,7 +202,7 @@ class XList[T <: Buffer](
               // Reset
               du.element = null
               du.hierarchical = false
-              
+
             //-- Error because only Any* Objects are allowed not to be annotated
             case null =>
               throw new RuntimeException(s"Cannot streamout content of type (${content.getClass}) in list that has no xelement/xattribute definition")
@@ -345,6 +359,19 @@ object XList {
     }
 
     return new XList[T](realClosure)
+
+  }
+
+  /**
+   * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
+   */
+  def apply[T <: Buffer](cl: => T, parent: ElementBuffer): XList[T] = {
+
+    var realClosure: (DataUnit => T) = {
+      du => cl
+    }
+
+    return new XList[T](realClosure, Some(parent))
 
   }
 
