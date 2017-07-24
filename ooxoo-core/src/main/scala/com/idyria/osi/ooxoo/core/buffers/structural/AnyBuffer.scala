@@ -77,6 +77,13 @@ trait AnyContent {
 
     @any
     var content = AnyXList()
+    
+    def addContentOfType[T <: ElementBuffer](implicit tag : ClassTag[T]) = {
+      
+      val newelt = tag.runtimeClass.newInstance().asInstanceOf[T]
+      content += newelt
+      newelt
+    }
 
 }
 
