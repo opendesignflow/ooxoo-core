@@ -32,8 +32,8 @@ class ClassBuffer[T] extends AbstractDataBuffer[Class[T]] {
     
     
     
-    Thread.currentThread().getContextClassLoader().loadClass(str).asInstanceOf[Class[T]]
-    
+    data = Thread.currentThread().getContextClassLoader().loadClass(str).asInstanceOf[Class[T]]
+    data
   }
   
   def dataToString : String = this.toString
@@ -43,6 +43,8 @@ class ClassBuffer[T] extends AbstractDataBuffer[Class[T]] {
   
   
 }
+
+
 
 class GenericClassBuffer extends AbstractDataBuffer[Class[_]] {
   
@@ -93,6 +95,20 @@ object ClassBuffer {
     
     
     cb.data = Thread.currentThread().getContextClassLoader().loadClass(cm.classSymbol(classTag[Long].runtimeClass).fullName).asInstanceOf[Class[T]]
+    cb
+  }
+  
+  implicit def convertFromClassToClassBuffer[T](cl: Class[T]) : ClassBuffer[T] = {
+    
+    var cb = new ClassBuffer[T]
+    cb.data = cl
+    cb
+  }
+  
+  implicit def convertFromGenClassToClassBuffer[T](cl: Class[_]) : ClassBuffer[T] = {
+    
+    var cb = new ClassBuffer[T]
+    cb.data = cl.asInstanceOf[Class[T]]
     cb
   }
   
