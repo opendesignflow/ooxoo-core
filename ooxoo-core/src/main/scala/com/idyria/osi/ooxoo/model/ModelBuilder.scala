@@ -34,7 +34,7 @@ import scala.reflect.ClassTag
  *
  */
 @xelement(name = "Model")
-class ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
+trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
   // General Config
   //------------------
