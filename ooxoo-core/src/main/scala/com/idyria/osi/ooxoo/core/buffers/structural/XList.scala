@@ -24,7 +24,7 @@ import scala.collection.mutable.MutableList
 import scala.reflect.runtime.universe._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
-import scala.reflect.ClassTag
+import scala.reflect._
 import java.lang.reflect.ParameterizedType
 import scala.language.implicitConversions
 import com.idyria.osi.tea.logging._
@@ -32,6 +32,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.AbstractBuffer
 import scala.collection.mutable.ArrayBuffer
+import com.idyria.osi.ooxoo.core.buffers.id.ElementWithID
 
 /**
  *
@@ -41,9 +42,11 @@ import scala.collection.mutable.ArrayBuffer
  */
 class XList[T <: Buffer](
 
-    val createBuffer: DataUnit => T, var containerBuffer: Option[ElementBuffer] = None) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
+    val createBuffer: DataUnit => T, var containerBuffer: Option[ElementBuffer] = None, implicit val ctag: ClassTag[T]) extends ArrayBuffer[T] with BaseBufferTrait with HierarchicalBuffer with TLogSource with IOTransparentBuffer {
 
   var currentBuffer: Buffer = null
+
+  //var localTag = classTag[T]
 
   /*def -=(b:Buffer) : Boolean = {
     this.contains(b) match {
@@ -111,6 +114,29 @@ class XList[T <: Buffer](
     this.collect {
       case x if (tag.runtimeClass.isInstance(x)) => x.asInstanceOf[CT]
     }.toList
+  }
+
+  /**
+   * Look for an element of type ElementWithID which has its eid field set to searched id
+   */
+  def findByEId[CT <: T](id: String) = ctag.runtimeClass match {
+    case withId if (classOf[ElementWithID].isAssignableFrom(withId)) => getAllOfType[ElementWithID].find {
+
+      e => id != null && e.eid != null && e.eid.toString == id
+    }
+    case other => None
+  }
+
+  def findOrCreateByEId(id: String) = ctag.runtimeClass match {
+    case withId if (classOf[ElementWithID].isAssignableFrom(withId)) =>
+      findByEId[T](id) match {
+        case Some(v) => v.asInstanceOf[T]
+        case None => 
+          val added = this.add
+          added.asInstanceOf[ElementWithID].eid.set(id)
+          added
+      }
+    case other => sys.error("Cannot use findOrCreateByEid if contained element is not an ElementWithID")
   }
 
   def ensureElement[CT <: T](implicit tag: ClassTag[CT]): CT = {
@@ -345,46 +371,46 @@ class XList[T <: Buffer](
 }
 object XList {
 
-  def apply[T <: Buffer](implicit tag: ClassTag[T]): XList[T] = {
-    return new XList[T](du => tag.runtimeClass.newInstance().asInstanceOf[T])
+  def apply[T <: Buffer : ClassTag](implicit ctag: ClassTag[T]): XList[T] = {
+    return new XList[T](du => ctag.runtimeClass.newInstance().asInstanceOf[T], None,ctag)
   }
 
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */
-  def apply[T <: Buffer](cl: => T): XList[T] = {
+  def apply[T <: Buffer](cl: => T)(implicit ctag: ClassTag[T]): XList[T] = {
 
     var realClosure: (DataUnit => T) = {
       du => cl
     }
 
-    return new XList[T](realClosure)
+    return new XList[T](realClosure, None,ctag)
 
   }
 
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */
-  def apply[T <: Buffer](cl: => T, parent: ElementBuffer): XList[T] = {
+  def apply[T <: Buffer](cl: => T, parent: ElementBuffer)(implicit ctag: ClassTag[T]): XList[T] = {
 
     var realClosure: (DataUnit => T) = {
       du => cl
     }
 
-    return new XList[T](realClosure, Some(parent))
+    return new XList[T](realClosure, Some(parent),ctag)
 
   }
 
   /**
    * Creates an XList from a closure that does not take any DataUnit as input (if useless like in most cases)
    */
-  def apply[T <: Buffer](cl: DataUnit => T): XList[T] = {
+  def apply[T <: Buffer](cl: DataUnit => T)(implicit ctag: ClassTag[T]): XList[T] = {
 
     var realClosure: (DataUnit => T) = {
       du => cl(du)
     }
 
-    return new XList[T](realClosure)
+    return new XList[T](realClosure,None,ctag)
 
   }
 
