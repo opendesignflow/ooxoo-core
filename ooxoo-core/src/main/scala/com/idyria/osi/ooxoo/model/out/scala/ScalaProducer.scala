@@ -419,6 +419,10 @@ import scala.language.implicitConversions
               // Automatic Element creation: Yes per default only if the element has children it self
               // Or The default value was set 
               var (getterContent) = element.elements.size match {
+                
+                case all => 
+                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
+/*
                 case _ if (element.default != null) =>
                   s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
 
@@ -429,7 +433,7 @@ import scala.language.implicitConversions
                   s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
 
                 case 0 =>
-                  s"__${cleanName(resolvedName._2)}"
+                  s"__${cleanName(resolvedName._2)}"*/
               }
 
               out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
