@@ -123,6 +123,9 @@ class XList[T <: Buffer](
     case withId if (classOf[ElementWithID].isAssignableFrom(withId)) => getAllOfType[ElementWithID].find {
 
       e => id != null && e.eid != null && e.eid.toString == id
+    } match {
+      case Some(found) =>  Some(found.asInstanceOf[CT])
+      case None => None
     }
     case other => None
   }
