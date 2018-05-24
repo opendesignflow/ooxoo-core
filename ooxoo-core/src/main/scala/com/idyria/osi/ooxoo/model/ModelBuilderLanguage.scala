@@ -28,6 +28,7 @@ import com.idyria.osi.tea.listeners.ListeningSupport
 import com.idyria.osi.ooxoo.core.buffers.datatypes.hash.SHA256StringBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.fs.FileBuffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.compress.ZipString
 
 /**
  * This trait contains all the language Wrappers and Conversions used in Model Builder.
@@ -54,7 +55,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
     
     ("file" -> classOf[FileBuffer]),
     ("class" -> classOf[GenericClassBuffer]),
-    
+    ("zipstring" -> classOf[ZipString]),
     ("int" -> classOf[IntegerBuffer]),
     ("integer" -> classOf[IntegerBuffer]),
     ("long" -> classOf[LongBuffer]),
@@ -326,6 +327,37 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
 
       this
 
+    }
+    
+     /**
+     * Set type of attribute based on string
+     * Will force the Type to Integer
+     */
+    def isIDKey: IsWordAttributeWrapper = {
+
+
+      left.idKey = true
+      left.classType =  getType("integer").getCanonicalName
+
+      this
+
+    }
+    
+     /**
+     * Set type of attribute based on string
+     */
+    def generated: IsWordAttributeWrapper = {
+
+
+      left.generated = true
+
+      this
+
+    }
+    
+    def isGeneratedIDKey = {
+      isIDKey
+      generated
     }
 
     /**

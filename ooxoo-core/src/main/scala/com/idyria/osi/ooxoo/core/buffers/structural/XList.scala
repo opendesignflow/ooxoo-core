@@ -58,11 +58,14 @@ class XList[T <: Buffer](
   // Create
   //----------------
   def add: T = {
+  
     val res = createInstance
     /*if (res.isInstanceOf[VerticalBufferWithParentReference[ElementBuffer]] && containerBuffer.isDefined) {
       res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
     }*/
+    
     this += res
+   
     res
   }
 
@@ -77,10 +80,13 @@ class XList[T <: Buffer](
    * Just create an instance of contained element
    */
   def createInstance = {
+ 
     val res = createBuffer(null)
+ 
     if (res.isInstanceOf[VerticalBufferWithParentReference[ElementBuffer]] && containerBuffer.isDefined) {
       res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
     }
+   
     res
   }
 
@@ -120,7 +126,10 @@ class XList[T <: Buffer](
    * Look for an element of type ElementWithID which has its eid field set to searched id
    */
   def findByEId[CT <: T](id: String) = ctag.runtimeClass match {
-    case withId if (classOf[ElementWithID].isAssignableFrom(withId)) => getAllOfType[ElementWithID].find {
+    case withId if (classOf[ElementWithID].isAssignableFrom(withId)) => 
+      
+
+      getAllOfType[ElementWithID].find {
 
       e => id != null && e.eid != null && e.eid.toString == id
     } match {
@@ -139,7 +148,25 @@ class XList[T <: Buffer](
           added.asInstanceOf[ElementWithID].eid.set(id)
           added
       }
-    case other => sys.error("Cannot use findOrCreateByEid if contained element is not an ElementWithID")
+    case other => sys.error(s"Cannot use findOrCreateByEid if contained element ${ctag.runtimeClass} is not an ElementWithID")
+  }
+  
+  def createUniqueIDElementOrError(id:String)(error:String) = ctag.runtimeClass match {
+    case withId if (classOf[ElementWithID].isAssignableFrom(withId)) =>
+      println("Looking up same ID")
+      findByEId[T](id) match {
+        case Some(v) =>
+
+          sys.error(error)
+        case None => 
+
+          val added = this.add
+        
+          added.asInstanceOf[ElementWithID].eid.set(id)
+          
+          added
+      }
+    case other => sys.error(s"Cannot use findOrCreateByEid if contained element ${ctag.runtimeClass} is not an ElementWithID")
   }
 
   def ensureElement[CT <: T](implicit tag: ClassTag[CT]): CT = {

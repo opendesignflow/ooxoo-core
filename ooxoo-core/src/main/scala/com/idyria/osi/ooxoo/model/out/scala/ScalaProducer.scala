@@ -41,7 +41,7 @@ class ScalaProducer extends ModelProducer {
   // Name Cleaning
   //-------------------
 
-  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object", "type", "lazy", "extends", "with")
+  val forbiddenKeyWords = List("for", "trait", "class", "package", "var", "val", "def", "private", "final", "match", "case", "object", "type", "lazy", "extends", "with","wait","synchronized")
 
   /**
    * Returns a scala friendly name from base name, without reserved keywords etc...
@@ -64,8 +64,11 @@ class ScalaProducer extends ModelProducer {
       case true  => res = res + "_"
       case false =>
     }
+    
+    // Replace - with _
+    res.replace('-','_')
 
-    res
+    
   }
 
   /**
@@ -110,7 +113,7 @@ class ScalaProducer extends ModelProducer {
 
     // Name: If canonical, return as is, otherwise merge with parent
     //------------
-    basename.contains(".") match {
+    val finalName = basename.contains(".") match {
       case true =>
         basename
       case false if (element.staticClassName == true) =>
@@ -149,6 +152,9 @@ class ScalaProducer extends ModelProducer {
 
         s"$targetPackage.$parentNames$className"
     }
+    
+    // Clean
+    finalName.replace('-','_')
 
   }
 

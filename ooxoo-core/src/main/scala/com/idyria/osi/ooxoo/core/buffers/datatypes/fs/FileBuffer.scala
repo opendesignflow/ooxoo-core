@@ -28,10 +28,16 @@ class FileBuffer extends AbstractDataBuffer[File] {
   
   
    def dataFromString(str: String) = new File(new URI(str).getPath)
-   def dataToString = this.data.toURI().toString()
+   def dataToString = data match {
+       case null => ""
+       case other => this.data.toURI().toString()
+   }
    
    override def toString: String = {
-     data.toString()
+     data match {
+       case null => ""
+       case other => other.toString
+     }
    }
   
 }

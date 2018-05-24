@@ -42,7 +42,10 @@ class URIBuffer extends AbstractDataBuffer[URI] {
   }
 
   def dataToString: String = {
-    this.data.toString()
+    this.data match {
+      case null => "" 
+      case other => data.toString()
+    }
 
   }
 
@@ -52,9 +55,7 @@ class URIBuffer extends AbstractDataBuffer[URI] {
   def dataFromString(str: String): URI = { this.data = URI.create(str); data }
 
   override def toString: String = {
-    if (this.data == null)
-      super.toString
-    this.data.toString()
+    dataToString
 
   }
 
@@ -81,6 +82,7 @@ object URIBuffer {
 
   def apply() = new URIBuffer
 
+   def convertFromString(str: String): URIBuffer = new URIBuffer(str)
   implicit def convertFromStringToURIBuffer(str: String): URIBuffer = new URIBuffer(str)
    implicit def convertFromURIBufferToString(uri: URIBuffer): String = uri.dataToString
   implicit def convertFromURItoURIBuffer(uri: URI): URIBuffer = new URIBuffer(uri)

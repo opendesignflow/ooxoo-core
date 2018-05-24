@@ -84,6 +84,8 @@ trait Writer {
         this.<<(Source.fromFile(file).mkString)
         this
     }
+    
+    def getWriterForFile(f:String) : Writer
 
     /**
         Finish writing

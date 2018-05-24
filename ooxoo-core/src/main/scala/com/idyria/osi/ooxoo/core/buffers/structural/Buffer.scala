@@ -26,6 +26,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import java.util.concurrent.locks.ReentrantLock
 import scala.reflect.ClassTag
+import javax.persistence.Transient
 
 /**
  *
@@ -401,6 +402,7 @@ trait Buffer {
     
   }
   
+  @Transient
   var cleanLock = new ReentrantLock
 
   def lockIO = cleanLock.lock()

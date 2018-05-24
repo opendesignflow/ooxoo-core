@@ -32,6 +32,7 @@ import java.io.OutputStream
 import java.io.InputStream
 import java.io.FileInputStream
 import java.lang.ref.WeakReference
+import java.io.ByteArrayInputStream
 
 /**
  * @author zm4632
@@ -153,6 +154,8 @@ trait STAXSyncTrait extends ElementBuffer {
     this
 
   }
+  
+  def fromString(s:String) = fromInputStream(new ByteArrayInputStream(s.getBytes))
 
   /**
    * Parent of File is created by default
@@ -193,6 +196,30 @@ trait STAXSyncTrait extends ElementBuffer {
 
     new String(bout.toByteArray())
 
+  }
+  
+  def toXMLStringWithNamespaces(ns:Map[String,String],indenting:Boolean=false) : String = {
+    
+     var res = StAXIOBuffer(this, indenting = indenting,ns)
+
+    var bout = new ByteArrayOutputStream()
+    var out = new PrintStream(bout)
+    out.append(res)
+    out.close()
+
+    new String(bout.toByteArray())
+  }
+  
+ 
+  def toXMLStringNoIndenting = {
+     var res = StAXIOBuffer(this, indenting = false)
+
+    var bout = new ByteArrayOutputStream()
+    var out = new PrintStream(bout)
+    out.append(res)
+    out.close()
+
+    new String(bout.toByteArray())
   }
 
 }

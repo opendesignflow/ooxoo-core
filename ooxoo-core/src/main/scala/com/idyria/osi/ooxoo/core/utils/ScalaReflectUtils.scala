@@ -15,9 +15,13 @@ import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
+import javax.persistence.Transient
+import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
+import com.idyria.osi.ooxoo.core.buffers.datatypes.IntegerBuffer
 
 trait ReflectUtilsTrait {
 
+  @Transient
   var resolvedFields: Option[Iterable[Field]] = None
 
   def listElementAndAttributeFields = {
@@ -140,7 +144,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     // get Field and reutrn
     //-----------------
     field.setAccessible(true)
-    return field.get(source).asInstanceOf[T]
+    
+    // Support basic types readout
+    //-------------------
+   val res =  field.get(source) match {
+      case i : Integer => IntegerBuffer(i)
+      case other => other
+    
+    }
+    return res.asInstanceOf[T]
+    //return field.get(source).asInstanceOf[T]
 
   }
 

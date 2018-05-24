@@ -47,7 +47,7 @@ import com.idyria.osi.tea.file.DirectoryUtilities
 //@Mojo(name = "generate-sources")
 //@goal("generate-sources")
 //@phase("generate-sources")
-@Mojo(name = "generate-sources")
+@Mojo(name = "generate")
 class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @Parameter(defaultValue = "${project}")
@@ -61,6 +61,9 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @Parameter(defaultValue = "${project.build.sourceDirectory}")
   var sourceFolder = new File("src/main/scala")
+
+  @Parameter(defaultValue = "${project.build.testSourceDirectory}")
+  var testSourceFolder = new File("src/test/scala")
 
   var modelsFolder = new File("src/main/xmodels")
 
@@ -113,7 +116,7 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
         //-- Search in source package
         //--------------
-        java.nio.file.Files.walkFileTree(sourceFolder.toPath, new java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
+        val fileVisitor = new java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
 
           override def visitFile(file: java.nio.file.Path, attributes: java.nio.file.attribute.BasicFileAttributes) = {
 
@@ -129,7 +132,14 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
             java.nio.file.FileVisitResult.CONTINUE
 
           }
-        })
+        }
+
+        java.nio.file.Files.walkFileTree(sourceFolder.toPath, fileVisitor)
+        if (testSourceFolder.exists) {
+           java.nio.file.Files.walkFileTree(testSourceFolder.toPath, fileVisitor)
+          //getLog().info("Test Folder: " + testSourceFolder.toPath);
+        }
+       
 
         //-- Process all models
         //--  - First Filter the on that don't have to be regenerated

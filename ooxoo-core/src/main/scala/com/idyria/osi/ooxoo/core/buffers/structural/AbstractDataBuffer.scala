@@ -38,7 +38,7 @@ import scala.reflect.ClassTag
  * @author rleys
  *
  */
-abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLogSource with ListeningSupport {
+abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLogSource with ListeningSupport with Serializable{
 
   var data: DT = _
   def dataToString: String
@@ -58,6 +58,12 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
     this.@->("data.update")
   }
 
+  
+  def isNotNull = data match {
+    case null => false
+    case other => true
+  }
+  
   // Data Set
   //------------------
 

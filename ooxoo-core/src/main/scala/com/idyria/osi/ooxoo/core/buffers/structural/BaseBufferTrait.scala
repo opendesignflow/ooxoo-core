@@ -25,6 +25,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+import javax.persistence.Transient
 
 /**
  * The Base Buffer class is a default implementation providing Buffer infrastructure.
@@ -44,8 +45,10 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
  */
 trait BaseBufferTrait extends Buffer {
 
+  @Transient
   protected var nextBuffer: Buffer = null
 
+  @Transient
   protected var previousBuffer: Buffer = null
 
   def appendBuffer(buffer: Buffer): Buffer = {

@@ -75,11 +75,11 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
           elt.parent = top;
 
           top.elements += elt
-          
+
           resolveElementBaseType(elt)
 
         case None if (topElements.contains(elt)) => topElements += elt
-        case None                                => topElements += elt
+        case None => topElements += elt
       }
 
       // Stack element
@@ -98,17 +98,17 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     }
   }
 
-  def resolveElementBaseType(elt:Element) = {
-    
+  def resolveElementBaseType(elt: Element) = {
+
     elt.parent match {
-      case null => 
+      case null =>
       case parent if (parent.isHierarchyParent) =>
         elt.classType = parent.name
-      case other => 
+      case other =>
     }
-    
+
   }
-  
+
   /**
    * Set class Type of current element to full string class name
    */
@@ -116,7 +116,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.classType = classType
-      case None          => throw new RuntimeException("Cannot call classType() outside of an element")
+      case None => throw new RuntimeException("Cannot call classType() outside of an element")
     }
 
   }
@@ -135,7 +135,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     elementsStack.headOption match {
       case Some(element) =>
 
-        // Create new 
+        // Create new
         var newElement = new Element(className.split("""\.""").last, this)
         newElement.classType = className
         newElement.imported = true
@@ -150,6 +150,8 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
   }
 
+  def importElement(classF: Class[_ <: ElementBuffer]): Element = importElement(classF.getCanonicalName)
+
   /**
    * Create a new Element in current, which has the direct class type names and such of the provided className
    * Per default, the last part of the qualified class name is used as element name
@@ -159,7 +161,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     elementsStack.headOption match {
       case Some(parent) =>
 
-        // Create new 
+        // Create new
         var newElement = new Element(element.name, this)
         newElement.classType = element.name
         newElement.importSource = element
@@ -181,7 +183,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
   def ofType(str: String): Unit = {
 
     str.contains(".") match {
-      case true  => classType(str)
+      case true => classType(str)
       case false => classType(getType(str.toLowerCase()).getCanonicalName())
     }
 
@@ -191,7 +193,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.importSource = baseType
-      case None          => throw new RuntimeException("Cannot call ofType() outside of an element")
+      case None => throw new RuntimeException("Cannot call ofType() outside of an element")
     }
 
   }
@@ -200,7 +202,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType
-      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
   }
@@ -213,7 +215,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => element.traits += traitType.name
-      case None          => throw new RuntimeException("Cannot call withTrait() outside of an element")
+      case None => throw new RuntimeException("Cannot call withTrait() outside of an element")
     }
 
   }
@@ -234,12 +236,12 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     }
 
   }
-  
+
   def requestContainerReference = {
     elementsStack.headOption match {
       case Some(element) =>
         element.requestContainerRelation = true
-        //withTrait(classOf[VerticalBufferWithParentReference[_]].getCanonicalName+s"[${element.parent.g}]")
+      //withTrait(classOf[VerticalBufferWithParentReference[_]].getCanonicalName+s"[${element.parent.g}]")
       case None => throw new RuntimeException("Cannot call requestContainerReference() outside of an element")
     }
   }
@@ -293,7 +295,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
     elementsStack.headOption match {
       case Some(element) => withTrait(classOf[AnyContent].getCanonicalName)
-      case None          => throw new RuntimeException("Cannot call any() outside of an element")
+      case None => throw new RuntimeException("Cannot call any() outside of an element")
     }
 
   }
@@ -304,7 +306,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
   implicit val defaultDesc = { "" }
   def attribute(name: String)(implicit desc: String): Attribute = {
 
-    // Create Attribute 
+    // Create Attribute
     var attr = new Attribute(name)
     @->("attribute.add", attr)
     attr
@@ -445,6 +447,12 @@ trait Common {
   @xelement(name = "EnumerationValues")
   var enumerationValues = XList { new XSDStringBuffer }
 
+  @xelement(name = "IDKey")
+  var idKey: BooleanBuffer = false
+
+  @xelement(name = "Generated")
+  var generated: BooleanBuffer = false
+
   /**
    * Sets the appropriate maxOccurs or boolean so that a List gets generated
    */
@@ -460,7 +468,7 @@ trait Common {
 //-----------------------
 @xelement(name = "Element")
 class Element(
-    inputName: String, var builder: Model) extends ElementBuffer with Common {
+  inputName: String, var builder: Model) extends ElementBuffer with Common {
 
   // Structure
   //---------------
@@ -490,16 +498,16 @@ class Element(
    */
   @xattribute(name = "hierarchyParent")
   var isHierarchyParent = false
-  
+
   /**
    * The element needs a reference to its container
    */
   var requestContainerRelation = false
 
   /**
-   * 
+   *
    */
-  var parent : Element = null
+  var parent: Element = null
 
   def depth: Int = {
 
@@ -533,14 +541,14 @@ class Element(
 
   /*def :+ (desc: String) = {
 
-        println("Setting Description on element") 
+        println("Setting Description on element")
         this.description = desc
     }*/
 
   // Sub Elements
   //-------------------
 
-  // Body 
+  // Body
   //---------------------
   //var body : String = ""
   //var bodyContent

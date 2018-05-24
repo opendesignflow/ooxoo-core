@@ -20,50 +20,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.idyria.osi.ooxoo.model.writers
 
-
 import com.idyria.osi.ooxoo.model._
 
 import java.io.PrintStream
+import java.io.File
 
-class PrintStreamWriter( var out : PrintStream ) extends Writer {
+class PrintStreamWriter(var out: PrintStream) extends Writer {
 
-    var filesWritten = List[String]()
+  var filesWritten = List[String]()
 
-    def cleanOutput(path:String) = {
-      
-    }
-    
-    /**
-        Also saves the path of written file for the fileWritten
-    */
-    def file(path: String) = {
+  def cleanOutput(path: String) = {
 
-        out.println(s"---------- File: $path -----------------")
+  }
 
-        filesWritten =  path :: filesWritten
-    }
+  /**
+   * Also saves the path of written file for the fileWritten
+   */
+  def file(path: String) = {
 
-    def fileWritten(path:String): Boolean = {
+    out.println(s"---------- File: $path -----------------")
 
-        this.filesWritten.contains(path)
+    filesWritten = path :: filesWritten
+  }
 
-    }
+  def fileWritten(path: String): Boolean = {
 
-    def <<(str: String) : Writer = {
-        out.println(s"${this.indentString}$str")
-        this
-    }
+    this.filesWritten.contains(path)
 
-    def finish = {
-        
-    }
+  }
+
+  def <<(str: String): Writer = {
+    out.println(s"${this.indentString}$str")
+    this
+  }
+
+  def finish = {
+
+  }
+
+  def getWriterForFile(f: String) = {
+    this
+  }
 
 }
 
 /**
-    Simply outputs result to stdout, for example for debugging purpose
-*/
-class StdoutWriter extends PrintStreamWriter (System.out) {
-    
-    
+ * Simply outputs result to stdout, for example for debugging purpose
+ */
+class StdoutWriter extends PrintStreamWriter(System.out) {
+
 }

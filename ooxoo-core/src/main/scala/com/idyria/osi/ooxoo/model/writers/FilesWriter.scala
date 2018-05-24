@@ -20,57 +20,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.idyria.osi.ooxoo.model.writers
 
-
 import com.idyria.osi.ooxoo.model._
 import java.io._
 import com.idyria.osi.tea.file.DirectoryUtilities
 
 /**
-
-Write outputs to a base folder
-
-*/
+ *
+ * Write outputs to a base folder
+ *
+ */
 class FileWriters(
 
-    var baseFolder : File
+  var baseFolder: File) extends PrintStreamWriter(null) {
 
-    ) extends PrintStreamWriter (null) {
-    
-    override def cleanOutput(path:String) = {
-      DirectoryUtilities.deleteDirectoryContent(new File(baseFolder,path))
+  override def cleanOutput(path: String) = {
+    DirectoryUtilities.deleteDirectoryContent(new File(baseFolder, path))
+  }
+
+  override def file(path: String) = {
+
+    // Close actual output
+    //---------------
+    if (this.out != null) {
+      this.out.close()
     }
 
-    override def file(path: String) = {
+    // To File
+    //---------------
+    var file = new File(baseFolder, path)
 
-        // Close actual output
-        //---------------
-        if (this.out != null) {
-            this.out.close()
-        }
+    // Prepare Folder
+    //---------------------
+    file.getParentFile.mkdirs
 
-        // To File
-        //---------------
-        var file = new File(baseFolder,path)
+    // Set to current output
+    //----------------
+    this.out = new PrintStream(new FileOutputStream(file))
 
-        // Prepare Folder
-        //---------------------
-        file.getParentFile.mkdirs
+    // Save as file written
+    //----------
+    filesWritten = path :: filesWritten
 
-        // Set to current output
-        //----------------
-        this.out = new PrintStream(new FileOutputStream(file))
+    println(s"Opened File to : $file")
+  }
 
-        // Save as file written
-        //----------
-        filesWritten =  path :: filesWritten 
-
-        println(s"Opened File to : $file")
+  override def finish = {
+    if (this.out != null) {
+      this.out.close()
     }
+  }
 
-    override def finish = {
-        if (this.out != null) {
-            this.out.close()
-        }
-    }
-    
+  override def getWriterForFile(f: String) = {
+    var w = new FileWriters(baseFolder)
+    w.file(f)
+
+    w
+  }
+
 }

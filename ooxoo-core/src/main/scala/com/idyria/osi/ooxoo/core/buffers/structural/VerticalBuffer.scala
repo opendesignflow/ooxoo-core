@@ -27,6 +27,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
 import com.idyria.osi.tea.logging.TeaLogging
 import com.idyria.osi.tea.listeners.ListeningSupport
+import javax.persistence.Transient
 
 /**
  * Just a type marker
@@ -47,8 +48,10 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
   /**
    * This will be true if the element matching this Buffer has been received, and the next one must go to one sub field
    */
+  @Transient
   protected var inHierarchy = false
 
+  @Transient
   protected var stackSize = 0
 
   // Search

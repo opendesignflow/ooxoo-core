@@ -24,16 +24,23 @@ import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.tea.hash.HashUtils
 
+/**
+ * This buffer does not hash on stream in and out, only when value is set if not
+ * streaming in
+ * 
+ */
 class SHA256StringBuffer extends XSDStringBuffer {
   
   
   override def set(data:String) = {
-    super.set(HashUtils.hashBytesAsBase64(data.getBytes, "SHA-256"))
+    super.set(HashUtils.hashBytesAsHex(data.getBytes, "SHA-256"))
   }
+  
+ 
   
   override def equals(comp:String) = {
     this.data == comp ||
-    this.data == HashUtils.hashBytesAsBase64(comp.getBytes, "SHA-256")
+    this.data == HashUtils.hashBytesAsHex(comp.getBytes, "SHA-256")
   }
 }
 

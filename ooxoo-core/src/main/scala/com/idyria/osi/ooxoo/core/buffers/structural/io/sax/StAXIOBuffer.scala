@@ -39,24 +39,26 @@ import java.io.InputStream
 import java.io.OutputStream
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import javanet.staxutils.IndentingXMLStreamWriter
+import javax.xml.namespace.NamespaceContext
+import scala.collection.convert.AsJavaConverters
 
 /**
  * @author rleys
  *
  */
 @transient
-class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSource {
+class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSource with AsJavaConverters {
 
   // Constructors
   //----------------
   def this(url: URL) = this(new InputStreamReader(url.openStream()))
   def this(stream: InputStream) = this(new InputStreamReader(stream))
 
-  // Stream in parameters 
+  // Stream in parameters
   //-----------------------
 
   var output: OutputStream = null
-  
+
   var outputBytesWritten = 0
 
   var eventWriter: XMLStreamWriter = null
@@ -66,6 +68,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
   var indenting = false
 
+  /**
+   * ns/prefix
+   */
   var namespacePrefixesMap = Map[String, String]()
 
   /**
@@ -74,7 +79,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
   def getPrefixForNamespace(ns: String): String = this.namespacePrefixesMap.getOrElse(ns, { s"ns${this.namespacePrefixesMap.size}" })
 
   /*   this.namespacePrefixesMap.get(ns) match {
-      case None => 
+      case None =>
 
       case Some()
     }
@@ -82,7 +87,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
   }*/
 
   var currenText = ""
-  
+
   /**
    * Writes the data unit to the output stream, then pass it on
    */
@@ -120,10 +125,45 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         case false => of.createXMLStreamWriter(this.output)
       }
 
-      // Begin document
-      this.eventWriter.writeStartDocument()
-      documentElement = true
+      /*this.eventWriter.setNamespaceContext(new NamespaceContext with AsJavaConverters {
+        def getNamespaceURI(prefix: String) = {
 
+          namespacePrefixesMap.find {
+            case (ns, p) => p == prefix
+          } match {
+            case Some((ns, _)) => ns
+            case other => null
+          }
+
+        }
+
+        def getPrefix(ns: String) = {
+          namespacePrefixesMap.find {
+            case (n, p) => ns == n
+          } match {
+            case Some((_, p)) => p
+            case other => null
+          }
+        }
+
+        def getPrefixes(ns: String) = getPrefix(ns) match {
+          case null => asJavaIterator(List[String]().toIterator)
+          case found => asJavaIterator(List(found).toIterator)
+        }
+      })
+      namespacePrefixesMap.find {
+        case ((ns, "")) => true
+        case other => false
+
+      } match {
+        case Some((ns, p)) =>
+          this.eventWriter.setDefaultNamespace(ns)
+        case other =>
+      }*/
+
+      // Begin document
+      documentElement = true
+      this.eventWriter.writeStartDocument()
 
     }
 
@@ -135,7 +175,31 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       du.element.ns match {
         case "" => this.eventWriter.writeStartElement(du.element.name)
         case null => this.eventWriter.writeStartElement(du.element.name)
-        case _ => this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
+        case _ =>
+
+          getPrefixForNamespace(du.element.ns) match {
+            case "" =>
+              // this.eventWriter.writeStartElement("", du.element.name, du.element.ns)
+              this.eventWriter.writeStartElement(du.element.ns, du.element.name)
+             // this.eventWriter.writeStartElement(du.element.name)
+            case prefix =>
+              this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
+          }
+
+      }
+
+      //-- NS if documentElement not done
+      if (documentElement) {
+
+        namespacePrefixesMap.foreach {
+          case (ns, "") =>
+        
+           // this.eventWriter.writeDefaultNamespace(ns)
+             this.eventWriter.writeNamespace("", ns)
+          case (ns, p) =>
+            this.eventWriter.writeNamespace(p, ns)
+        }
+
       }
 
       //-- Close already if non hierarchical and set the value if some
@@ -145,9 +209,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
         //-- With text content
         (du.value, du("cdata")) match {
           case (null, _) =>
-          case (value, Some(true)) => 
+          case (value, Some(true)) =>
             this.eventWriter.writeCData(du.value)
-           
+
           case (value, _) =>
             //this.eventWriter.writeCharacters(du.value.toCharArray(),currenText.length(),du.value.length)
             //currenText = du.value
@@ -179,7 +243,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       }
       // } catch {
       //  case e : Throwable => println(s"--> Failed Attribute ${du.attribute.name} on ${this.eventWriter}")
-      //} 
+      //}
 
     } //-- Close Element
     //--------------
@@ -197,8 +261,8 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       //try {
       this.eventWriter.writeEndElement()
       //} catch {
-      //case e : Throwable => 
-      // } 
+      //case e : Throwable =>
+      // }
     } // Output Simple value
     //----------
     else if (du.value != null) {
@@ -298,7 +362,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
       //-------------------
       else if (reader.isCharacters()) {
 
-       // println("Sending characters: "+reader.getText())
+        // println("Sending characters: "+reader.getText())
 
         // Send a value only event
         var du = new DataUnit
@@ -341,36 +405,35 @@ object StAXIOBuffer {
     new StAXIOBuffer(url)
 
   }
-  
-  def apply(in:InputStream) = {
-     new StAXIOBuffer(new InputStreamReader(in))
+
+  def apply(in: InputStream) = {
+    new StAXIOBuffer(new InputStreamReader(in))
   }
 
   /**
    * Streams out to a buffer
    */
-  def writeToOutputStream(in: ElementBuffer,out: OutputStream, indenting: Boolean = false) = {
-    
+  def writeToOutputStream(in: ElementBuffer, out: OutputStream, indenting: Boolean = false) = {
+
     var io = new StAXIOBuffer
     io.indenting = indenting
     io.output = out
     in.appendBuffer(io)
     in.streamOut()
     io
-    
+
     io.outputBytesWritten
-    
-    
-    
+
   }
 
   /**
    * Streams out an ElementBuffer to a string
    */
-  def apply(in: ElementBuffer, indenting: Boolean = false): String = {
+  def apply(in: ElementBuffer, indenting: Boolean = false, ns: Map[String, String] = Map()): String = {
 
     var io = new StAXIOBuffer
     io.indenting = indenting
+    io.namespacePrefixesMap = ns
     in.appendBuffer(io)
     in.streamOut()
 
