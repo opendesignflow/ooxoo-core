@@ -1,0 +1,130 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
+	<name>OOXOO Db Project</name>
+	<parent>
+		<groupId>org.odfi.ooxoo</groupId>
+		<artifactId>ooxoo-all</artifactId>
+		<version>3.3.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>ooxoo-db-examples</artifactId>
+
+	<!-- Repositories to find ODFI packages -->
+	<!-- ############################################## -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>odfi.central</id>
+			<name>plugins-release</name>
+			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>odfi.snapshots</id>
+			<name>plugins-snapshot</name>
+			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<repositories>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>odfi.central</id>
+			<name>odfi-release</name>
+			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>odfi.snapshots</id>
+			<name>odfi-snapshot</name>
+			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources/scala</source>
+								<source>${project.build.directory}/generated-sources/jpa</source>
+							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources/scala</source>
+								<source>${project.build.directory}/generated-sources/jpa</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ooxoo-plugin</artifactId>
+				<version>${project.parent.version}</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate-sources</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>${project.parent.groupId}</groupId>
+						<artifactId>ooxoo-db</artifactId>
+						<version>${project.parent.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ooxoo-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
