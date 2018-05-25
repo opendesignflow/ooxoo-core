@@ -100,7 +100,7 @@
 					<execution>
 						<phase>generate-sources</phase>
 						<goals>
-							<goal>generate-sources</goal>
+							<goal>generate</goal>
 						</goals>
 					</execution>
 				</executions>
