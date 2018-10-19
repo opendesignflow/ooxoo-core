@@ -166,6 +166,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
         newElement.classType = element.name
         newElement.importSource = element
         newElement.imported = true
+        newElement.maxOccurs = element.maxOccurs
 
         this.@->("element.start", newElement)
         this.@->("element.end", newElement)
@@ -176,6 +177,16 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     }
 
   }
+  
+  def importElements(wrapper:IsWordElementWrapper) = {
+  
+      wrapper.left.elements.foreach {
+          elt => 
+              importElement(elt)
+      }
+      
+  }
+  
 
   /**
    * Set class type of current element to the one matching a standard type
@@ -224,6 +235,13 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     withTrait(tag.runtimeClass)
   }
 
+  def withAttachedInstance[T](implicit tag: ClassTag[T]) : Unit = {
+       withTrait(classOf[AttachedImplementation[_]].getCanonicalName + "["+tag.runtimeClass.getCanonicalName+"]")
+  }
+  def withAttachedInstance(cn:String) : Unit = {
+       withTrait(classOf[AttachedImplementation[_]].getCanonicalName + "["+cn+"]")
+  }
+  
   def isTrait: Unit = {
     isTrait(false)
   }
@@ -456,10 +474,15 @@ trait Common {
   /**
    * Sets the appropriate maxOccurs or boolean so that a List gets generated
    */
-  def setMultiple = {
+  def setMultiple : Unit = {
 
     maxOccurs = 2
 
+  }
+  
+  def setMultiple(m:Boolean) : Unit = m match {
+      case true => maxOccurs = 2
+      case false => maxOccurs = 1
   }
 
 }

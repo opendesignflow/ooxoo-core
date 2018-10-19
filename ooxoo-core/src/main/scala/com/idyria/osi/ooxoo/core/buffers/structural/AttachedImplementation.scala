@@ -1,8 +1,8 @@
 /*-
  * #%L
- * OOXOO Db Project
+ * Core runtime for OOXOO
  * %%
- * Copyright (C) 2006 - 2017 Open Design Flow
+ * Copyright (C) 2006 - 2018 Open Design Flow
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.db
+package com.idyria.osi.ooxoo.core.buffers.structural
 
-import java.io.File
+import com.idyria.osi.tea.errors.TError
 
-trait FileDocument extends Document {
-  val file: File
+trait AttachedImplementation[MT <: Any] {
+
+    var attachedInstance: Option[MT] = None
+
+    def ensureInstance = attachedInstance match {
+        case Some(inst) =>
+            inst
+
+        case None =>
+
+            attachedInstance = Some(createInstance)
+            attachedInstance.get
+    }
+    
+    def safeEnsureInstance : ErrorOption[MT] = {
+        try {
+            ESome(ensureInstance)
+        } catch {
+            case e : Throwable => EError(e)
+        }
+    }
+
+    def createInstance: MT
+
 }

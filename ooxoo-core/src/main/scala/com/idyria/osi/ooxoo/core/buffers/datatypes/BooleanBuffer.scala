@@ -40,7 +40,10 @@ class BooleanBuffer extends AbstractDataBuffer[java.lang.Boolean] with Comparabl
 
     def compareTo(comp: java.lang.Boolean ) : Int = this.data.compareTo(comp)
 
-    def toBool = this.data.booleanValue()
+    def toBool = this.data match {
+        case null => false
+        case data => data.booleanValue()
+    }
    
 
 }

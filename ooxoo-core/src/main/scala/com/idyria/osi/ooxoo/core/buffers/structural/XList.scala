@@ -68,12 +68,24 @@ class XList[T <: Buffer](
    
     res
   }
+  
+  def addWith(cl: T => Any) : T = {
+      val res = add
+      cl(res)
+      res
+  }
 
   def addFirst: T = {
     val res = createInstance
     res +=: this
 
     res
+  }
+  
+   def addFirstWith(cl: T => Any) : T = {
+      val res = add
+      cl(res)
+      res
   }
 
   /**

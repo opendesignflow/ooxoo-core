@@ -413,9 +413,10 @@ object StAXIOBuffer {
   /**
    * Streams out to a buffer
    */
-  def writeToOutputStream(in: ElementBuffer, out: OutputStream, indenting: Boolean = false) = {
+  def writeToOutputStream(in: ElementBuffer, out: OutputStream, indenting: Boolean = false,prefixes:Map[String,String]= Map[String,String]()) = {
 
     var io = new StAXIOBuffer
+    io.namespacePrefixesMap = prefixes
     io.indenting = indenting
     io.output = out
     in.appendBuffer(io)
@@ -438,6 +439,18 @@ object StAXIOBuffer {
     in.streamOut()
 
     return new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray())
+
+  }
+  
+  def streamOut(in: ElementBuffer, indenting: Boolean = false, ns: Map[String, String] = Map()) : StAXIOBuffer = {
+
+    var io = new StAXIOBuffer
+    io.indenting = indenting
+    io.namespacePrefixesMap = ns
+    in.appendBuffer(io)
+    in.streamOut()
+
+    io
 
   }
 

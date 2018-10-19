@@ -43,9 +43,9 @@ class UUIDBuffer extends AbstractDataBuffer[UUID] {
   def dataFromString(str: String): UUID = str match {
     case null => null
     case s => 
-      UUID.fromString(str)
+      this.data = UUID.fromString(str)
 
-      //data
+      data
   }
 
   override def toString: String = {

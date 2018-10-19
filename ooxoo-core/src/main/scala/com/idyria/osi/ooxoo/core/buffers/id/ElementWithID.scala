@@ -36,7 +36,7 @@ trait ElementWithID extends ElementBuffer {
    * For example " " is turned to "-"
    */
   def stringToStdEId(value:Any) = {
-    value.toString().replaceAll("""[^\w-_]""", "").replaceAll("""\s+""", "-").toLowerCase()
+    value.toString().replaceAll("""[^\w-_.]""", "").replaceAll("""\s+""", "-").toLowerCase()
   }
   
 }
