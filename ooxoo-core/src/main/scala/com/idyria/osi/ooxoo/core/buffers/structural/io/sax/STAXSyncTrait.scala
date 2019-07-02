@@ -34,6 +34,8 @@ import java.io.FileInputStream
 import java.lang.ref.WeakReference
 import java.io.ByteArrayInputStream
 import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 
 /**
  * @author zm4632
@@ -159,6 +161,14 @@ trait STAXSyncTrait extends ElementBuffer {
 
     def fromString(s: String) = fromInputStream(new ByteArrayInputStream(s.getBytes))
 
+    def fromNode(node:Node) = {
+       var io = com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer(node)
+        this.appendBuffer(io)
+        io.streamIn
+
+        this
+    }
+    
     /**
      * Parent of File is created by default
      * Pleae check for validity before calling this method to ensure no useless folders are created
@@ -181,6 +191,10 @@ trait STAXSyncTrait extends ElementBuffer {
         this.staxPreviousFile = Some(sourceFile)
 
         this
+    }
+    
+    def fromElement(elt:Element) = {
+      
     }
 
     def resyncToFile = staxPreviousFile match {
