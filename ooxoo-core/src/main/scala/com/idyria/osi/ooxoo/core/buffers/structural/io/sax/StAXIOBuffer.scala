@@ -8,12 +8,12 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -41,13 +41,18 @@ import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import javanet.staxutils.IndentingXMLStreamWriter
 import javax.xml.namespace.NamespaceContext
 import scala.collection.convert.AsJavaConverters
+import javax.xml.transform.dom.DOMSource
+import org.w3c.dom.Node
+import java.io.StringWriter
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
 
 /**
  * @author rleys
  *
  */
 @transient
-class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSource with AsJavaConverters {
+class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extends BaseIOBuffer with TLogSource with AsJavaConverters {
 
   // Constructors
   //----------------
@@ -181,7 +186,7 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
             case "" =>
               // this.eventWriter.writeStartElement("", du.element.name, du.element.ns)
               this.eventWriter.writeStartElement(du.element.ns, du.element.name)
-             // this.eventWriter.writeStartElement(du.element.name)
+            // this.eventWriter.writeStartElement(du.element.name)
             case prefix =>
               this.eventWriter.writeStartElement(getPrefixForNamespace(du.element.ns), du.element.name, du.element.ns)
           }
@@ -193,9 +198,9 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
 
         namespacePrefixesMap.foreach {
           case (ns, "") =>
-        
-           // this.eventWriter.writeDefaultNamespace(ns)
-             this.eventWriter.writeNamespace("", ns)
+
+            // this.eventWriter.writeDefaultNamespace(ns)
+            this.eventWriter.writeNamespace("", ns)
           case (ns, p) =>
             this.eventWriter.writeNamespace(p, ns)
         }
@@ -293,14 +298,25 @@ class StAXIOBuffer(var xmlInput: Reader = null) extends BaseIOBuffer with TLogSo
   override def streamIn = {
 
     // XML input must be provided
-    require(this.xmlInput != null)
+    require(this.xmlInput != null || this.xmlNode != null, "An XML Input Reader or DOM Node must be provided")
 
     // Prepare XML Source
     //------------------------
 
     // Prepare input
     //-----------------
-    var reader = XMLInputFactory.newInstance().createXMLStreamReader(this.xmlInput)
+    var reader = this.xmlInput match {
+      case null =>
+
+        var writer = new StringWriter();
+        var transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.transform(new DOMSource(this.xmlNode), new StreamResult(writer));
+        var xml = writer.toString();
+
+        XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(xml))
+      case other =>
+        XMLInputFactory.newInstance().createXMLStreamReader(this.xmlInput)
+    }
 
     while (reader.hasNext()) {
       reader.next();
@@ -410,10 +426,14 @@ object StAXIOBuffer {
     new StAXIOBuffer(new InputStreamReader(in))
   }
 
+  def apply(in: Node) = {
+    new StAXIOBuffer(xmlNode = in)
+  }
+
   /**
    * Streams out to a buffer
    */
-  def writeToOutputStream(in: ElementBuffer, out: OutputStream, indenting: Boolean = false,prefixes:Map[String,String]= Map[String,String]()) = {
+  def writeToOutputStream(in: ElementBuffer, out: OutputStream, indenting: Boolean = false, prefixes: Map[String, String] = Map[String, String]()) = {
 
     var io = new StAXIOBuffer
     io.namespacePrefixesMap = prefixes
@@ -441,8 +461,8 @@ object StAXIOBuffer {
     return new String(io.output.asInstanceOf[ByteArrayOutputStream].toByteArray())
 
   }
-  
-  def streamOut(in: ElementBuffer, indenting: Boolean = false, ns: Map[String, String] = Map()) : StAXIOBuffer = {
+
+  def streamOut(in: ElementBuffer, indenting: Boolean = false, ns: Map[String, String] = Map()): StAXIOBuffer = {
 
     var io = new StAXIOBuffer
     io.indenting = indenting
