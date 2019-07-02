@@ -24,6 +24,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import java.net.URI
 import scala.language.implicitConversions
+import com.idyria.osi.tea.env.EnvStrToStr
 
 class URIBuffer extends AbstractDataBuffer[URI] {
 
@@ -74,6 +75,19 @@ class URIBuffer extends AbstractDataBuffer[URI] {
 
     //println("Called compare to to xsdstringbuffer")
     this.data.compareTo(comp)
+  }
+  
+  // Utils
+  //---------------
+  
+  /**
+   * Does not edit the source data
+   */
+  def toReplacedEnvironment = {
+    new URI(EnvStrToStr(this.dataToString).replaceAll("""\\""","/"))
+  }
+  def normalizeString = {
+    this.dataFromString(this.dataToString.replaceAll("""\\""","/"))
   }
 
 }
