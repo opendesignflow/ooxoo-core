@@ -25,11 +25,17 @@ import org.apache.commons.lang3.RandomUtils
 import com.idyria.osi.tea.random.UniqueLongGenerator
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import com.idyria.osi.tea.security.TSecUtils
+import scala.util.Random
 
 trait ElementWithID extends ElementBuffer {
   
   @xattribute(name="eid")
   var eid : XSDStringBuffer = ""
+  
+  def hasEID = {
+      this.eid!=null && this.eid.toString.length > 0
+  }
   
   /**
    * Turn the value into a standard ID string.
@@ -37,6 +43,16 @@ trait ElementWithID extends ElementBuffer {
    */
   def stringToStdEId(value:Any) = {
     value.toString().replaceAll("""[^\w-_.]""", "").replaceAll("""\s+""", "-").toLowerCase()
+  }
+  
+  def generateHexId = {
+      this.eid = TSecUtils.hashBytesToHexString(Random.nextString(128).getBytes, "SHA-256",join="")
+  }
+  
+  def ensureGenericRandomID = {
+      if (this.eid==null || this.eid.toString.trim.length==0) {
+          generateHexId
+      }
   }
   
 }
