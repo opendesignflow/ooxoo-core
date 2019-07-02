@@ -53,7 +53,7 @@ class GenericClassBuffer extends AbstractDataBuffer[Class[_]] {
     
     
     
-    data = Thread.currentThread().getContextClassLoader().loadClass(str)
+    data = Thread.currentThread().getContextClassLoader().loadClass(str.trim())
     data
     
   }
