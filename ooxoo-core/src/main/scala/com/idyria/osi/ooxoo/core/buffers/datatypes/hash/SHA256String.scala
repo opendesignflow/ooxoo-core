@@ -20,9 +20,11 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.datatypes.hash
 
-import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
+
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.tea.hash.HashUtils
+
+import scala.language.implicitConversions
 
 /**
  * This buffer does not hash on stream in and out, only when value is set if not

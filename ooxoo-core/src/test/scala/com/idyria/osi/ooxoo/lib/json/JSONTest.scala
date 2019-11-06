@@ -39,6 +39,9 @@ import com.idyria.osi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import org.scalatest.BeforeAndAfter
 
+
+import scala.language.reflectiveCalls
+
 @xelement(name = "Test")
 class Test extends ElementBuffer {
 
@@ -120,6 +123,7 @@ object Action {
   def apply() = new Action
 
 }
+
 
 /**
  * Main test

@@ -1,125 +1,172 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-ooxoo-plugin</artifactId>
-	<name>OOXOO Plugin for maven</name>
-	<description>Maven plugin for ooxoo to generate ooxoo class bindings from data model sources</description>
-	<packaging>maven-plugin</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-ooxoo-plugin</artifactId>
+    <name>OOXOO Plugin for maven</name>
+    <description>Maven plugin for ooxoo to generate ooxoo class bindings from data model sources</description>
+    <packaging>maven-plugin</packaging>
 
-	<parent>
-		<groupId>org.odfi.ooxoo</groupId>
-		<artifactId>ooxoo-all</artifactId>
-	    <version>3.3.1-SNAPSHOT</version>
-		<relativePath>..</relativePath>
-	</parent>
- 
-	<!-- Site Distribution -->
+    <parent>
+        <groupId>org.odfi.ooxoo</groupId>
+        <artifactId>ooxoo-all</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- Site Distribution -->
     <!-- ################# -->
-	<!-- <distributionManagement>
+    <!-- <distributionManagement>
         <site>
           <id>idyria.central</id>
           <url>scpexe://wurst.idyria.com/access/osi/${parent.project.groupId}/${parent.project.artifactId}/maven-site/${project.artifactId}</url>
         </site>
     </distributionManagement>-->
-	
-	<build>
-		<plugins>
-			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-plugin-plugin</artifactId>
-		        <version>3.5</version>
-		        <dependencies>
-					<dependency>
-						<groupId>com.jsuereth</groupId>
-						<artifactId>scala-mojo-support_2.12</artifactId>
-						<version>0.5.2.odfi</version>
-					</dependency>
-				</dependencies>
-		        <configuration>
-		          <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
-		          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-		        </configuration>
-		        <executions>
-		          <execution>
-		            <id>mojo-descriptor</id>
-		            <goals>
-		              <goal>descriptor</goal>
-		            </goals>
-		          </execution>
-		          <!-- if you want to generate help goal -->
-			  <!-- <execution>
-		            <id>help-goal</id>
-		            <goals>
-		              <goal>helpmojo</goal>
-		            </goals>
-			  </execution> -->
-		        </executions>
-	      	</plugin>
-	      	<plugin>
-				<groupId>net.alchim31.maven</groupId>
-        		<artifactId>scala-maven-plugin</artifactId>
-        		<configuration>
-        			<useZincServer>true</useZincServer>
-        			<addZincArgs>-no-color</addZincArgs>
-        		</configuration>
-			</plugin>
-			<plugin>
-              <groupId>com.github.github</groupId>
-              <artifactId>site-maven-plugin</artifactId>
-              <version>0.9</version>
-              <configuration>
-                <message>Creating site for ${project.version}</message>
-                <repositoryName>ooxoo-core</repositoryName>
-                <repositoryOwner>richnou</repositoryOwner>
-                <path>maven-ooxoo-plugin</path>
-                <merge>true</merge>
-              </configuration>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>site</goal>
-                  </goals>
-                  <phase>site</phase>
-                </execution>
-              </executions>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-		</plugins>
-		
-	</build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.6.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.jsuereth</groupId>
+                        <artifactId>scala-mojo-support_2.13</artifactId>
+                        <version>3.6.2</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <mojoDependencies></mojoDependencies>
+                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <!--                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>-->
+                    <extractors>
+                        <extractor>scala</extractor>
+                    </extractors>
+                </configuration>
+                <executions>
+                    <!--                    <execution>-->
+                    <!--                        <id>default-descriptor</id>-->
+                    <!--                        <phase>process-classes</phase>-->
+                    <!--                    </execution>-->
+                    <!--                    &lt;!&ndash; if you want to generate help goal &ndash;&gt;-->
+                    <!--                    <execution>-->
+                    <!--                        <id>help-goal</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>helpmojo</goal>-->
+                    <!--                        </goals>-->
+                    <!--                    </execution>-->
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                    <!-- if you want to generate help goal -->
+                    <!-- <execution>
+                    <id>help-goal</id>
+                    <goals>
+                      <goal>helpmojo</goal>
+                    </goals>
+              </execution> -->
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.9</version>
+                <configuration>
+                    <message>Creating site for ${project.version}</message>
+                    <repositoryName>ooxoo-core</repositoryName>
+                    <repositoryOwner>richnou</repositoryOwner>
+                    <path>maven-ooxoo-plugin</path>
+                    <merge>true</merge>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
 
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>ooxoo-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-	      <groupId>org.apache.maven</groupId>
-	      <artifactId>maven-plugin-api</artifactId>
-	      <version>3.3.9</version>
-	    </dependency>
-	    <!-- dependencies to annotations -->
-	    <dependency>
-	      <groupId>org.apache.maven.plugin-tools</groupId>
-	      <artifactId>maven-plugin-annotations</artifactId>
-	      <version>3.5</version>
-	      <!-- annotations are not needed for plugin execution so you can remove this dependency
-	           for execution with using provided scope -->
-	       <!--<scope>provided</scope>-->
-	    </dependency>
-	    <!-- generated help mojo has a dependency to plexus-utils -->
-	    <dependency>
-	      <groupId>org.codehaus.plexus</groupId>
-	      <artifactId>plexus-utils</artifactId>
-	      <version>3.0.1</version>
-	    </dependency>
-	    <dependency>
-			<groupId>com.jsuereth</groupId>
-			<artifactId>scala-mojo-support_2.12</artifactId>
-			<version>0.5.2.odfi</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>ooxoo-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.3.9</version>
+        </dependency>
+        <!-- dependencies to annotations -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.5</version>
+            <!-- annotations are not needed for plugin execution so you can remove this dependency
+               for execution with using provided scope -->
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <!-- generated help mojo has a dependency to plexus-utils -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jsuereth</groupId>
+            <artifactId>scala-mojo-support_2.13</artifactId>
+            <version>3.6.2</version>
+            <!--            <scope>provided</scope>-->
+        </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>com.jsuereth</groupId>-->
+        <!--            <artifactId>scala-mojo-support_2.12</artifactId>-->
+        <!--            <version>0.5.2.odfi</version>-->
+        <!--        </dependency>-->
+    </dependencies>
 
 
 </project>

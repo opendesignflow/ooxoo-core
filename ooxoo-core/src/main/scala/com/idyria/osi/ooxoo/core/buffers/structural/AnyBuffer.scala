@@ -79,8 +79,9 @@ trait AnyContent {
     var content = AnyXList()
     
     def addContentOfType[T <: ElementBuffer](implicit tag : ClassTag[T]) = {
-      
-      val newelt = tag.runtimeClass.newInstance().asInstanceOf[T]
+
+
+      val newelt =  tag.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[T]
       content += newelt
       newelt
     }
@@ -133,8 +134,8 @@ object AnyXList {
 
         // Register
         //------------------
-        this.modelsMap = this.modelsMap +((xelement.ns -> xelement.name) -> {du => cl.newInstance()}) 
-        this.modelsMap = this.modelsMap +(("" -> xelement.name) -> {du => cl.newInstance()}) 
+        this.modelsMap = this.modelsMap +((xelement.ns -> xelement.name) -> {du => cl.getDeclaredConstructor().newInstance()})
+        this.modelsMap = this.modelsMap +(("" -> xelement.name) -> {du =>  cl.getDeclaredConstructor().newInstance()})
     }
     
     def register[T  <: Buffer](implicit tag: ClassTag[T]) = {

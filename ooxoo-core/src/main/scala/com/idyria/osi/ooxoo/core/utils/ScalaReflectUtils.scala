@@ -182,7 +182,7 @@ trait ReflectUtilsTrait {
 
       // Not an enclosing class
       case null =>
-        var obj = field.getType.newInstance.asInstanceOf[T]
+        var obj = field.getType.getDeclaredConstructor().newInstance().asInstanceOf[T]
         field.setAccessible(true)
         field.set(source, obj)
         return obj
@@ -295,7 +295,7 @@ object ScalaReflectUtils {
 
       // Not an enclosing class
       case null =>
-        var obj = field.getType.newInstance.asInstanceOf[T]
+        var obj = field.getType.getDeclaredConstructor().newInstance().asInstanceOf[T]
         field.setAccessible(true)
         field.set(source, obj)
         return obj

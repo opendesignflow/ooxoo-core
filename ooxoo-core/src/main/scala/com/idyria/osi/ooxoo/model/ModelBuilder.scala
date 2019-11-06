@@ -599,7 +599,7 @@ class Element(
   def makeTrait(changeName: Boolean = false) = {
     this.isTrait = true
     if (changeName && !this.className.endsWith("Trait")) {
-      this.className = this.className + "Trait"
+      this.className = this.className.toString + "Trait"
     }
   }
 

@@ -21,13 +21,19 @@
 
 package com.idyria.osi.ooxoo.model
 
-import java.io._
+import java.io.{File, PrintWriter, StringWriter}
+
+import com.idyria.osi.ooxoo.model.Writer
+
 import scala.io._
 import scala.tools.nsc._
 import scala.tools.nsc.interpreter._
 import scala.runtime._
 import java.net._
-import scala.collection.JavaConversions._
+
+import com.idyria.osi.tea.compile.PrintWriterReplReporter
+
+import scala.jdk.javaapi.CollectionConverters._
 
 /**
  * Return informations about a model
@@ -48,6 +54,10 @@ class ModelInfos(
 
 */
 object ModelCompiler {
+
+  // Reporter
+  //-------------
+
 
   // Run Statistics
   //---------------------
@@ -114,12 +124,14 @@ object ModelCompiler {
   // Create Compiler
   //---------------------
   var interpreterOutput = new StringWriter
-  var imain = new IMain(settings2, new PrintWriter(interpreterOutput))
+  val compilerReporter = new PrintWriterReplReporter(new PrintWriter(interpreterOutput))
+
+  var imain = new IMain(settings2,compilerReporter)
 
   // Compilation result
 
   def resetCompiler = {
-    imain = new IMain(settings2, new PrintWriter(interpreterOutput))
+    imain = new IMain(settings2, compilerReporter)
   }
   
   /**
@@ -202,7 +214,7 @@ $inputModel
         //----------------
         // Interpret
         imain.interpret(s"modelInfos.producers=${modelInfos.name}.producers") match {
-          case IR.Error =>
+          case scala.tools.nsc.interpreter.Results.Error =>
 
             //println(s"Compilation error: ${interpreterOutput.toString()}")
             throw new RuntimeException(s"Could not interpret content: ${interpreterOutput.toString()}")

@@ -27,6 +27,8 @@ import com.idyria.osi.tea.tree.TTreeNode
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 
+import scala.language.implicitConversions
+
 class JSONObject extends TTreeBuilder[JSONNode] {
 
   trait BuilderJSONNode extends JSONNode {

@@ -24,6 +24,8 @@ import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import java.io.File
 import java.net.URI
 
+import scala.language.implicitConversions
+
 class FileBuffer extends AbstractDataBuffer[File] {
 
     def this(str: String) = {

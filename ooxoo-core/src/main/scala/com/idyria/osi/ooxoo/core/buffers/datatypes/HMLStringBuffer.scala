@@ -3,9 +3,10 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.datatypes
 
-import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import javax.swing.text.html.HTMLEditorKit
+
 import org.apache.commons.lang3.StringEscapeUtils
+
+import scala.language.implicitConversions
 
 /**
  * @author rleys

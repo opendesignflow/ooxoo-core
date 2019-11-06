@@ -20,19 +20,24 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-import scala.collection.mutable.MutableList
+
 import scala.reflect.runtime.universe._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
+
 import scala.reflect._
 import java.lang.reflect.ParameterizedType
+
 import scala.language.implicitConversions
 import com.idyria.osi.tea.logging._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
+
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.AbstractBuffer
 import scala.collection.mutable.ArrayBuffer
 import com.idyria.osi.ooxoo.core.buffers.id.ElementWithID
+
+import scala.collection.mutable.ListBuffer
 
 /**
   *
@@ -97,9 +102,12 @@ class XList[T <: Buffer](
 
         val res = createBuffer(null)
 
-        if (res.isInstanceOf[VerticalBufferWithParentReference[ElementBuffer]] && containerBuffer.isDefined) {
-            res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
+        res match {
+            case r : VerticalBufferWithParentReference[_] if (containerBuffer.isDefined) =>
+                res.asInstanceOf[VerticalBufferWithParentReference[ElementBuffer]].parentReference = Some(containerBuffer.get)
+            case other =>
         }
+
 
         res
     }
@@ -201,7 +209,7 @@ class XList[T <: Buffer](
         } match {
             case Some(elt) => elt.asInstanceOf[CT]
             case None =>
-                val n = tag.runtimeClass.newInstance().asInstanceOf[CT]
+                val n =  tag.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[CT]
                 this += n
                 n
         }
@@ -391,7 +399,7 @@ class XList[T <: Buffer](
 object XList {
 
     def apply[T <: Buffer : ClassTag](implicit ctag: ClassTag[T]): XList[T] = {
-        return new XList[T](du => ctag.runtimeClass.newInstance().asInstanceOf[T], None, ctag)
+        return new XList[T](du =>  ctag.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[T], None, ctag)
     }
 
     /**

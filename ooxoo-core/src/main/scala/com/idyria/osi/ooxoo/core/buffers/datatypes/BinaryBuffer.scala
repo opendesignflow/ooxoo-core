@@ -28,6 +28,8 @@ import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 
+import scala.language.implicitConversions
+
 class BinaryBuffer extends AbstractDataBuffer[Array[Byte]] {
 
   var base64Buffer = ""

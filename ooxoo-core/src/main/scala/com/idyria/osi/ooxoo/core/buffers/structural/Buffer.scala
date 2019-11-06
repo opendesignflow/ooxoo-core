@@ -102,7 +102,7 @@ trait Buffer {
   /**
    * streamIn a data unit from the next buffer
    */
-  def streamIn(du: DataUnit)
+  def streamIn(du: DataUnit) : Unit
 
   /**
    *  Alias for streamIn
@@ -390,7 +390,7 @@ trait Buffer {
   /**
    * Run Some code with the IOChain of another buffer (transfer and clean)
    */
-  def withIOChain(buffer: Buffer)(cl : => Any) {
+  def withIOChain(buffer: Buffer)(cl : => Any) : Unit = {
     
     buffer.getIOChain match {
       case Some(io) =>

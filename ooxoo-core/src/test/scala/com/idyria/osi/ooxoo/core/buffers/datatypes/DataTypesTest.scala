@@ -33,6 +33,8 @@ import com.idyria.osi.ooxoo.core.utils._
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 
+import scala.language.reflectiveCalls
+
 class DataTypesTest extends FunSuite  with GivenWhenThen {
 
   test("Int Buffer") {

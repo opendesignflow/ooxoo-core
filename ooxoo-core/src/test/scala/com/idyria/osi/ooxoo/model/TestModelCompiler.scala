@@ -31,7 +31,7 @@ import com.idyria.osi.ooxoo.model.out.scala._
 
 
 import scala.language.postfixOps
-import scala.collection.JavaConversions._
+import scala.jdk.javaapi.CollectionConverters._
 
 
 class TestModelCompiler extends FunSuite with GivenWhenThen {

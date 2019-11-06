@@ -39,7 +39,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
  * The value must be a Buffer Type
  *
  */
-class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends scala.collection.mutable.HashMap[String, T] with BaseBufferTrait {
+class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends scala.collection.mutable.LinkedHashMap[String, T] with BaseBufferTrait {
 
   
   @xelement(name = "Entry")
@@ -72,7 +72,7 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
    * - Make some extra streamouts for the entries
    *
    */
-  override def streamOut(du: DataUnit) = {
+  override def streamOut(du: DataUnit) : Unit = {
 
     // Preserve IO chain because we are doint multiple streamouts here
     this.lockIO
@@ -92,7 +92,7 @@ class MapBuffer[T <: Buffer](var valueCreateClosure: (DataUnit => T)) extends sc
         //println("Found entry")
 
         //-- Prepare Element
-        var elt = new EntryElement
+        val elt = new EntryElement
         elt.name = key
         elt.value = value
 

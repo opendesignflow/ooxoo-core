@@ -39,7 +39,7 @@ abstract class ModelProducer {
     */
     var outputType = "undefined"
 
-    def produce(mode: Model, output: Writer)
+    def produce(mode: Model, output: Writer) : Unit
 
 }
 
@@ -60,7 +60,7 @@ trait Writer {
     // Output
     //------------
 
-    def cleanOutput(path:String)
+    def cleanOutput(path:String) : Unit
     
     /**
         Opens a file at provided path
@@ -90,7 +90,7 @@ trait Writer {
     /**
         Finish writing
     */
-    def finish
+    def finish : Unit
 
 
 }
