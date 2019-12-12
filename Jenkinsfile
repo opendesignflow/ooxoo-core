@@ -26,7 +26,7 @@ node {
     }
 
   stage('Build') {
-    sh "${mvnHome}/bin/mvn ${mavenOptions}  compile test-compile"
+    sh "${mvnHome}/bin/mvn ${mavenOptions}  install"
   }
 
   stage('Test') {
