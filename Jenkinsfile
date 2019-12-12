@@ -25,14 +25,11 @@ node {
       sh "${mvnHome}/bin/mvn ${mavenOptions} clean"
     }
 
-  stage('Build') {
-    sh "${mvnHome}/bin/mvn ${mavenOptions}  install"
-  }
-
-  stage('Test') {
-    sh "${mvnHome}/bin/mvn ${mavenOptions} -Dmaven.test.failure.ignore test"
+  stage('Build & Test') {
+    sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=true install"
     junit '**/target/surefire-reports/TEST-*.xml'
   }
+
 
   if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
     
