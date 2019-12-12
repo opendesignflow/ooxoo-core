@@ -23,8 +23,8 @@ package com.idyria.osi.ooxoo.lib.json
 
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.AnyBufferTrait
-import com.idyria.osi.tea.tree.TTreeBuilder
-import com.idyria.osi.tea.tree.TTreeNode
+import org.odfi.tea.tree.TTreeBuilder
+import org.odfi.tea.tree.TTreeNode
 import com.idyria.osi.ooxoo.core.buffers.structural.AnyElementBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base

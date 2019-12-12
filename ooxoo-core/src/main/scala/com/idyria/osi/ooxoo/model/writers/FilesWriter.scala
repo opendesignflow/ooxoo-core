@@ -22,7 +22,7 @@ package com.idyria.osi.ooxoo.model.writers
 
 import com.idyria.osi.ooxoo.model._
 import java.io._
-import com.idyria.osi.tea.file.DirectoryUtilities
+import org.odfi.tea.file.DirectoryUtilities
 
 /**
  *

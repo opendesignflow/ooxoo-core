@@ -31,7 +31,7 @@ import scala.tools.nsc.interpreter._
 import scala.runtime._
 import java.net._
 
-import com.idyria.osi.tea.compile.PrintWriterReplReporter
+import org.odfi.tea.compile.PrintWriterReplReporter
 
 import scala.jdk.javaapi.CollectionConverters._
 
@@ -124,7 +124,7 @@ object ModelCompiler {
   // Create Compiler
   //---------------------
   var interpreterOutput = new StringWriter
-  val compilerReporter = new PrintWriterReplReporter(new PrintWriter(interpreterOutput))
+  val compilerReporter = new PrintWriterReplReporter(settings2,new PrintWriter(interpreterOutput))
 
   var imain = new IMain(settings2,compilerReporter)
 

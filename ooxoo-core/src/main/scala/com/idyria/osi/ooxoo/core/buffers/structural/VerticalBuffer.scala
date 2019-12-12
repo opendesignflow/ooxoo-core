@@ -21,12 +21,12 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
-import com.idyria.osi.tea.logging.TLogSource
+import org.odfi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.QName
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
-import com.idyria.osi.tea.logging.TeaLogging
-import com.idyria.osi.tea.listeners.ListeningSupport
+import org.odfi.tea.logging.TeaLogging
+import org.odfi.tea.listeners.ListeningSupport
 import javax.persistence.Transient
 
 /**

@@ -21,9 +21,9 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import scala.beans.BeanProperty
-import com.idyria.osi.tea.logging.TLogSource
+import org.odfi.tea.logging.TLogSource
 import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
-import com.idyria.osi.tea.listeners.ListeningSupport
+import org.odfi.tea.listeners.ListeningSupport
 import scala.reflect.ClassTag
 
 /**

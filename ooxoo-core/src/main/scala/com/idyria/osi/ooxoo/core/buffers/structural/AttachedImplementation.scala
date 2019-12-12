@@ -20,7 +20,7 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-import com.idyria.osi.tea.errors.TError
+import org.odfi.tea.errors.TError
 
 trait AttachedImplementation[MT <: Any] {
 

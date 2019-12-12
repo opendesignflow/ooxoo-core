@@ -21,7 +21,7 @@
 package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import com.idyria.osi.tea.io.Base64
+import org.odfi.tea.io.Base64
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.ByteArrayOutputStream

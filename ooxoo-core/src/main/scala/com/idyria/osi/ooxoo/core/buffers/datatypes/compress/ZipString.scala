@@ -24,7 +24,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream
 import java.io.ByteArrayInputStream
-import com.idyria.osi.tea.io.TeaIOUtils
+import org.odfi.tea.io.TeaIOUtils
 import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream
 import java.io.ByteArrayOutputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream

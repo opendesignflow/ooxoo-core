@@ -31,7 +31,7 @@ import java.io.FileOutputStream
 import scala.reflect.ClassTag
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import com.idyria.osi.ooxoo.db.FileDocument
-import com.idyria.osi.tea.file.DirectoryUtilities
+import org.odfi.tea.file.DirectoryUtilities
 
 /**
  * FSSStore is a simple filesystem store implementation

@@ -21,7 +21,7 @@
 package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import com.idyria.osi.tea.logging._
+import org.odfi.tea.logging._
 import scala.language.implicitConversions
 import scala.collection.mutable.Stack
 

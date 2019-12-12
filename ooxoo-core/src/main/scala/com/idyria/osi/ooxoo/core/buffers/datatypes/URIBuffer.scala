@@ -24,7 +24,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import java.net.URI
 import scala.language.implicitConversions
-import com.idyria.osi.tea.env.EnvStrToStr
+import org.odfi.tea.env.EnvStrToStr
 
 class URIBuffer extends AbstractDataBuffer[URI] {
 

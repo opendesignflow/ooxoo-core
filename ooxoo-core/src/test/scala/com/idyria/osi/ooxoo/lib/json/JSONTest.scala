@@ -35,7 +35,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.CharArrayWriter
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
-import com.idyria.osi.tea.logging.TLog
+import org.odfi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import org.scalatest.BeforeAndAfter
 

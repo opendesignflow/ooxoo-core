@@ -24,7 +24,7 @@ import scala.language.implicitConversions
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
-import com.idyria.osi.tea.listeners.ListeningSupport
+import org.odfi.tea.listeners.ListeningSupport
 import com.idyria.osi.ooxoo.core.buffers.datatypes.hash.SHA256StringBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.fs.FileBuffer

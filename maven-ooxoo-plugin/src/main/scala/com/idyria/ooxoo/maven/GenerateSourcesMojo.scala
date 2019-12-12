@@ -40,7 +40,7 @@ import java.io._
 import scala.io.Source
 
 import org.scala_tools.maven.mojo.annotations._
-import com.idyria.osi.tea.file.DirectoryUtilities
+import org.odfi.tea.file.DirectoryUtilities
 
 /**
   * Generate sources from model, and copy model also to output

@@ -29,7 +29,7 @@ import scala.reflect._
 import java.lang.reflect.ParameterizedType
 
 import scala.language.implicitConversions
-import com.idyria.osi.tea.logging._
+import org.odfi.tea.logging._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
 
 import scala.collection.mutable.ListBuffer

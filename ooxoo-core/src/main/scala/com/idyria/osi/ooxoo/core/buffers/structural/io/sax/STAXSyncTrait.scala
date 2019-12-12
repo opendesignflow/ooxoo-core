@@ -27,7 +27,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import java.io.PrintStream
 import java.net.URL
 import java.io.ByteArrayOutputStream
-import com.idyria.osi.tea.files.FileWatcherAdvanced
+import org.odfi.tea.files.FileWatcherAdvanced
 import java.io.OutputStream
 import java.io.InputStream
 import java.io.FileInputStream

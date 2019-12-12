@@ -3,12 +3,12 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 import org.scalatest.BeforeAndAfterEach
 import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
 import org.scalatest.GivenWhenThen
-import com.idyria.osi.tea.listeners.ListeningSupport
+import org.odfi.tea.listeners.ListeningSupport
 import org.scalatest.FeatureSpec
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
 import org.scalatest.Matchers
-import com.idyria.osi.tea.logging.TLog
+import org.odfi.tea.logging.TLog
 
 class TransactionBufferTest extends FeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterEach {
 

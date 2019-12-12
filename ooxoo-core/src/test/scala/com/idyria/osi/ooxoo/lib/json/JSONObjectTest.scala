@@ -22,8 +22,8 @@ package com.idyria.osi.ooxoo.lib.json
 
 import org.scalatest.FunSuite
 import com.idyria.osi.ooxoo.core.buffers.structural.AnyElementBuffer
-import com.idyria.osi.tea.logging.TeaLogging
-import com.idyria.osi.tea.logging.TLogSource
+import org.odfi.tea.logging.TeaLogging
+import org.odfi.tea.logging.TLogSource
 
 class JSONObjectTest extends FunSuite with TLogSource {
   

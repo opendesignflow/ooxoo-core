@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
 import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 import com.idyria.osi.ooxoo.db.store.fs.FSDocument
 import java.io.File
-import com.idyria.osi.tea.listeners.ListeningSupport
+import org.odfi.tea.listeners.ListeningSupport
 import scala.reflect._
 import com.idyria.osi.ooxoo.db.DocumentWrapper
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.STAXSyncTrait

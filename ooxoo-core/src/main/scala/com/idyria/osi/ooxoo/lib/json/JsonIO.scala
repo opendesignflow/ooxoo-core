@@ -21,7 +21,7 @@
 package com.idyria.osi.ooxoo.lib.json
 
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
-import com.idyria.osi.tea.logging.TLogSource
+import org.odfi.tea.logging.TLogSource
 import java.io.Reader
 import scala.util.parsing.combinator.RegexParsers
 import scala.io.Source

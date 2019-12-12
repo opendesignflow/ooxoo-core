@@ -22,10 +22,10 @@ package com.idyria.osi.ooxoo.core.buffers.id
 
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import org.apache.commons.lang3.RandomUtils
-import com.idyria.osi.tea.random.UniqueLongGenerator
+import org.odfi.tea.random.UniqueLongGenerator
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.tea.security.TSecUtils
+import org.odfi.tea.security.TSecUtils
 import scala.util.Random
 
 trait ElementWithID extends ElementBuffer {

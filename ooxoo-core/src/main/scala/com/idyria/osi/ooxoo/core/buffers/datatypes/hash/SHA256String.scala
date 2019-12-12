@@ -22,7 +22,7 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes.hash
 
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.tea.hash.HashUtils
+import org.odfi.tea.hash.HashUtils
 
 import scala.language.implicitConversions
 

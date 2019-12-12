@@ -32,7 +32,7 @@ import javax.xml.stream.XMLStreamWriter
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
-import com.idyria.osi.tea.logging._
+import org.odfi.tea.logging._
 import java.io.InputStreamReader
 import java.net.URL
 import java.io.InputStream

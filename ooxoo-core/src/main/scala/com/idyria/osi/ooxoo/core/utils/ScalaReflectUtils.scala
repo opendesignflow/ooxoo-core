@@ -9,7 +9,7 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 
 import java.lang.reflect._
 
-import com.idyria.osi.tea.logging.TLog
+import org.odfi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
