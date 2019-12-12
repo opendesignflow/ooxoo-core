@@ -34,13 +34,14 @@ node {
   if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
     
     stage('Deploy') {
-     configFileProvider(
+     /*configFileProvider(
           [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
           //sh 'mvn -s $MAVEN_SETTINGS clean package'
           mavenOptions="$mavenOptions -s $MAVEN_SETTINGS"
   
           sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
-      }
+      }*/
+      sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
       step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/target/*.jar', fingerprint: true])
       step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
     }
