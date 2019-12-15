@@ -50,14 +50,14 @@ node {
     if (env.BRANCH_NAME == 'dev') {
       stage('Downstream') {
 
-       /* def downstreams = ['../ooxoo-db/dev','../vui2/dev','../wsb-core/dev']
+        def downstreams = ['../ubroker-core/dev','../indesign/dev']
         def stepsForParallel = [:]
         for (x in downstreams) {
           def ds = x 
           stepsForParallel[ds] = transformIntoStep(ds) 
         }
       
-        parallel stepsForParallel*/
+        parallel stepsForParallel
 
       }
 
