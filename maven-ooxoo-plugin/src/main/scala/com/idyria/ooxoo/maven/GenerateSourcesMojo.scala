@@ -26,6 +26,8 @@ import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.project.MavenProject
 
+import scala.beans.BeanProperty
+
 /*
 import org.apache.maven.reporting.MavenReport
 import org.apache.maven.reporting.MavenReportException*/
@@ -49,12 +51,29 @@ import org.odfi.tea.file.DirectoryUtilities
 //@Mojo(name = "generate-sources")@Mojo(name = "generate")
 //@goal("generate-sources")
 //@phase("generate-sources")
+//@Mojo(name="generate-sources",requiresProject = true)
+
+
+//@BeanProperty
+// @Parameter(readonly = true, defaultValue = "${project}",required = true)
+//  @defaultValue(s"${project}")
+
+/*@required
+@readOnly
+@parameter*/
 
 @goal("generate")
 @phase("generate-sources")
+@requiresProject(true)
 class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
-  @Parameter(defaultValue = "project")
+
+ // @Parameter(property = "project", defaultValue = "${project}")
+
+  @required
+  @readOnly
+  @parameter
+  @defaultValue("${project}")
   var project: MavenProject = _
 
   @Parameter(property = "ooxoo.force", defaultValue = "false")
@@ -63,25 +82,36 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
   @Parameter(property = "ooxoo.cleanOutputs", defaultValue = "true")
   var cleanOutputs: Boolean = true
 
-  @Parameter(defaultValue = "${project.build.sourceDirectory}")
+
+  @required
+  @readOnly
+  @parameter
+  @defaultValue("${project.build.sourceDirectory}")
   var sourceFolder = new File("src/main/scala")
+  //var sourceFolder = new File("src/main/scala")
 
   @Parameter(defaultValue = "${project.build.testSourceDirectory}")
   var testSourceFolder = new File("src/test/scala")
 
   var modelsFolder = new File("src/main/xmodels")
 
-  @Parameter(defaultValue = "${project.build.directory}/generated-sources/")
+  @required
+  @readOnly
+  @parameter
+  @defaultValue("${project.build.directory}/generated-sources/")
   var outputBaseFolder = new File("target/generated-sources/")
 
-  @Parameter(
-    defaultValue = "${project.build.directory}/maven-status/maven-ooxoo-plugin/"
-  )
+
+  @required
+  @readOnly
+  @parameter
+  @defaultValue("${project.build.directory}/maven-status/maven-ooxoo-plugin/")
   var statusFolder = new File("target/maven-status/maven-ooxoo-plugin")
 
   @throws(classOf[MojoExecutionException])
   override def execute() = {
     getLog().info("Looking for xmodels to generate with project: " + project);
+    getLog().info("Source Folder: " + sourceFolder);
 
     sourceFolder.exists() match {
       case true =>
@@ -154,7 +184,7 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
         //------------------
 
         force match {
-          case true  => getLog().info("Forcing regeneration ofr models");
+          case true  => getLog().info("Forcing regeneration of models");
           case false =>
         }
 
