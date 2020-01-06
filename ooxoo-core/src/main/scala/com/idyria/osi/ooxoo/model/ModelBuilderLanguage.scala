@@ -138,6 +138,11 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
 
     }
 
+    def setMultiple(b:Boolean) : IsWordElementWrapper = {
+      left.setMultiple(b)
+      this
+    }
+
     /**
      * The right string is used either:
      *
@@ -415,6 +420,8 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       left.default = right
       this
     }
+
+
     
     /**
      * Set documentation on element

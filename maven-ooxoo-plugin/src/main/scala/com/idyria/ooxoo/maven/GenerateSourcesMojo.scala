@@ -48,20 +48,6 @@ import org.odfi.tea.file.DirectoryUtilities
   * Generate sources from model, and copy model also to output
   *
   */
-//@Mojo(name = "generate-sources")@Mojo(name = "generate")
-//@goal("generate-sources")
-//@phase("generate-sources")
-//@Mojo(name="generate-sources",requiresProject = true)
-
-
-//@BeanProperty
-// @Parameter(readonly = true, defaultValue = "${project}",required = true)
-//  @defaultValue(s"${project}")
-
-/*@required
-@readOnly
-@parameter*/
-
 @goal("generate")
 @phase("generate-sources")
 @requiresProject(true)
@@ -76,8 +62,18 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
   @defaultValue("${project}")
   var project: MavenProject = _
 
-  @Parameter(property = "ooxoo.force", defaultValue = "false")
-  var force: Boolean = false
+
+  /*@parameter
+  @alias("ooxoo.force")
+  @defaultValue("false")*/
+
+  //@Parameter(property = "ooxoo.force", defaultValue = "true")
+
+  @parameter
+  @alias("ooxoo.force")
+  @expression("ooxoo.force")
+  @defaultValue("false")
+  var ooxooForce: Boolean = false
 
   @Parameter(property = "ooxoo.cleanOutputs", defaultValue = "true")
   var cleanOutputs: Boolean = true
@@ -110,8 +106,11 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
 
   @throws(classOf[MojoExecutionException])
   override def execute() = {
+
+    getLog().info("Forcing2: " + ooxooForce);
     getLog().info("Looking for xmodels to generate with project: " + project);
     getLog().info("Source Folder: " + sourceFolder);
+    getLog().info("Source Folders: "+project.getCompileSourceRoots)
 
     sourceFolder.exists() match {
       case true =>
@@ -183,14 +182,14 @@ class GenerateSourcesMojo extends AbstractMojo /*with MavenReport*/ {
         //--  - Then Produce
         //------------------
 
-        force match {
+        ooxooForce match {
           case true  => getLog().info("Forcing regeneration of models");
           case false =>
         }
 
         xModelFiles
           .filter { f =>
-            force match {
+            ooxooForce match {
               case true  => true
               case false =>
                 // Get or set a timestamp file to detect if model file changed since last run
