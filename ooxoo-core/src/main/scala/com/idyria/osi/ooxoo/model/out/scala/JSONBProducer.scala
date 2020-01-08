@@ -23,7 +23,7 @@ package com.idyria.osi.ooxoo.model.out.scala
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.model._
-import javax.json.bind.annotation.JsonbProperty
+import javax.json.bind.annotation.{JsonbProperty, JsonbTransient}
 import org.atteo.evo.inflector.English
 
 import scala.beans.BeanProperty
@@ -183,6 +183,8 @@ name match {
 
   def produce(model: Model, out: Writer) = {
 
+    println("Producing JSONB Interface...")
+
     // Try to find Target Package from model
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
@@ -236,7 +238,10 @@ name match {
       out <<
         s"""
 import ${classOf[JsonbProperty].getCanonicalName}
+import ${classOf[JsonbTransient].getCanonicalName}
 import ${classOf[BeanProperty].getCanonicalName}
+import com.google.gson.annotations.SerializedName
+import com.google.gson.annotations.Expose
 import scala.language.implicitConversions
             """
 
@@ -289,13 +294,17 @@ import scala.language.implicitConversions
         var localName = resolvedName match {
           case ("", name) =>
 
-            out << s"""@JsonbProperty("$name")"""
+            out << s"""@JsonbProperty("${name}")"""
+            out << s"""@SerializedName("${name}")"""
+            out << s"""@Expose"""
             out << s"""@BeanProperty"""
 
             name
           case (namespace, name) =>
 
-            out << s"""@JsonbProperty("$name")"""
+            out << s"""@JsonbProperty("${name}")"""
+            out << s"""@SerializedName("${name}")"""
+            out << s"""@Expose"""
             out << s"""@BeanProperty"""
             name
         }
@@ -393,12 +402,14 @@ import scala.language.implicitConversions
           var resolvedName = model.splitName(element.name)
           resolvedName match {
             case ("", name) =>
-              out << s"""@JsonbProperty("$name")"""
+
+              out << s"""@Expose"""
               out << s"""@BeanProperty"""
 
             case (namespace, name) =>
 
-              out << s"""@JsonbProperty("$name")"""
+
+              out << s"""@Expose"""
               out << s"""@BeanProperty"""
           }
 
@@ -426,28 +437,75 @@ import scala.language.implicitConversions
 
             case count if (count > 1) =>
 
+              val fieldName = cleanName(makePlural(resolvedName._2))
+              val fieldNameUpperFirst = fieldName.take(1).toUpperCase + fieldName.drop(1).mkString
+              out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
+              out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
               out <<
-                s"""var ${cleanName(makePlural(resolvedName._2))} = new java.util.ArrayList[$resolvedType]()
+                s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
                         """
+              /*out << s"""def add${fieldNameUpperFirst} = ${fieldName}.add(new $resolvedType)
+                        """*/
 
             case _ =>
+
+              val fieldName = cleanName((resolvedName._2)) + "__field"
+              var realFieldName = cleanName((resolvedName._2))
 
               // Default value
               var defaultValue = element.default match {
                 case null => "null"
-                /*case bool if (resolvedType==classOf[Boolean].getCanonicalName) =>
-                    element.default*/
                 case defaultValue =>
-
                   s"""$defaultValue"""
-                  //s"""${resolvedType}.convertFromString("$defaultValue")"""
               }
 
-              out << s"""var ${cleanName(resolvedName._2)} : $resolvedType = $defaultValue
-          """
-             /* out <<
-                s"""var ${cleanName(resolvedName._2)} : $resolvedType = null
-              """*/
+              out << s"""@JsonbProperty("${resolvedName._2}")"""
+              out << s"""@SerializedName("${resolvedName._2}")"""
+              out <<
+                s"""var ${fieldName} : $resolvedType = $defaultValue
+                """
+
+              // Automatic Element creation: Yes per default only if the element has children it self
+              // Or The default value was set
+              var (getterContent) = element.elements.size match {
+                case _ if (element.default != null) =>
+                  s"""$fieldName"""
+
+                case all =>
+                  resolvedType match {
+                    case boolean if (boolean.endsWith("Boolean")) =>
+                      s"$fieldName"
+                    case other =>
+                      val constructor = JSONBProducer.constructorMapping(resolvedType)
+                      s"$fieldName match {case null => { $fieldName = $constructor; $fieldName } case v => v }"
+                  }
+
+
+              }
+
+
+              out <<
+                s"""def ${realFieldName}_=(v:$resolvedType) = $fieldName = v
+                        """
+
+              out <<
+                s"""def ${realFieldName} : $resolvedType = $getterContent
+                        """
+
+              //-- Add "Option" getter to test presence of element
+              resolvedType match {
+                case boolean if (boolean.endsWith("Boolean")) =>
+
+                  out << s"""@JsonbTransient"""
+                  out << s"""def ${realFieldName}Option : Option[$resolvedType] = Some($fieldName)
+                        """
+                case other =>
+
+                  out << s"""@JsonbTransient"""
+                  out <<
+                    s"""def ${realFieldName}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
+                        """
+              }
 
 
 
@@ -535,14 +593,14 @@ def apply(xml : String) = {
                 // Found base type for this Base data type
                 case Some(baseType) =>
 
-                  // Convert from string does not make sense for String type
-                  //if (baseType != "String")
-                 // out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.data = res.dataFromString(data); res; } "
+                // Convert from string does not make sense for String type
+                //if (baseType != "String")
+                // out << s"implicit def convertFromString(data: String) : $objectName =  { var res = new $objectName ; res.data = res.dataFromString(data); res; } "
 
                 // Not found, just ouput a warning comment
                 case None =>
 
-                 // out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
+                // out << s"// Object could from a base type conversion as class derives AbstractDataBuffer, but base type mapping is missing in scala producer. Please report by specififying the companion class definition"
 
               }
 
@@ -607,7 +665,8 @@ object JSONBProducer {
     classOf[IntegerBuffer].getCanonicalName -> "Int",
     classOf[DoubleBuffer].getCanonicalName -> "Double",
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
-    classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]"
+    classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
+    classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant"
   )
 
   def typeMapping(input: String) = {
@@ -619,5 +678,16 @@ object JSONBProducer {
         input
     }
 
+  }
+
+  def constructorMapping(input:String) = {
+    input match {
+      case arr if (arr.contains("Array[")) =>
+        s"new ${input}(0)"
+      case instant if (instant=="java.time.Instant") =>
+        s"java.time.Instant.now()"
+      case other =>
+        s"new ${input}()"
+    }
   }
 }

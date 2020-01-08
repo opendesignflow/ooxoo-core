@@ -431,18 +431,7 @@ import scala.language.implicitConversions
 
                                 case all =>
                                     s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
-                                /*
-                case _ if (element.default != null) =>
-                  s"""__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${resolvedType}.convertFromString("${element.default}");__${cleanName(resolvedName._2)} case v => v }"""
 
-                case _ if (element.traits.find(t => t.toString == classOf[AnyContent].getCanonicalName).isDefined) =>
-                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
-
-                case size if (size > 0 || element.attributes.size > 0) =>
-                  s"__${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = new $resolvedType();__${cleanName(resolvedName._2)} case v => v }"
-
-                case 0 =>
-                  s"__${cleanName(resolvedName._2)}"*/
                             }
 
                             out << s"""def ${cleanName(resolvedName._2)}_=(v:$resolvedType) = __${cleanName(resolvedName._2)} = v
