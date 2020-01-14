@@ -20,13 +20,16 @@
  */
 package com.idyria.osi.ooxoo.model.out.scala
 
+import java.util.UUID
+
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
+import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.model._
 import javax.json.bind.annotation.{JsonbProperty, JsonbTransient}
 import org.atteo.evo.inflector.English
 
-import scala.beans.BeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 /**
  * This Producer creates scala class implementations for the models
@@ -44,7 +47,7 @@ class JSONBProducer extends ModelProducer {
   /**
    * Returns a scala friendly name from base name, without reserved keywords etc...
    */
-  def cleanName(name: String): String = {
+  def cleanName(name: String, cleanForbidden: Boolean = true): String = {
 
     // Trim and Lower case first character
     // If all letters are capital, keep it this way
@@ -58,15 +61,29 @@ class JSONBProducer extends ModelProducer {
     }
 
     // Prefix with _ is the name is a keyword
-    forbiddenKeyWords.contains(res) match {
-      case true => res = res + "_"
-      case false =>
+    if (cleanForbidden) {
+      forbiddenKeyWords.contains(res) match {
+        case true => res =
+          //res + "_"
+          s"""`$res`"""
+        case false =>
+      }
     }
+
 
     // Replace - with _
     res.replace('-', '_')
 
   }
+
+  def attributeFieldName(n: String) = cleanName(n)
+
+  def elementFieldName(n: String) = cleanName(n + "")
+
+  def elementFieldSetterName(n: String) = cleanName(n + "_")
+
+  def elementFieldGetterName(n: String) = cleanName(n)
+
 
   /**
    * Makes the name plural
@@ -240,9 +257,11 @@ name match {
 import ${classOf[JsonbProperty].getCanonicalName}
 import ${classOf[JsonbTransient].getCanonicalName}
 import ${classOf[BeanProperty].getCanonicalName}
+import ${classOf[BooleanBeanProperty].getCanonicalName}
 import com.google.gson.annotations.SerializedName
 import com.google.gson.annotations.Expose
 import scala.language.implicitConversions
+import scala.jdk.CollectionConverters._
             """
 
       //-- Class Definition
@@ -318,14 +337,14 @@ import scala.language.implicitConversions
           case count if (count > 1) =>
 
             out <<
-              s"""var ${cleanName(makePlural(resolvedName._2))} = new java.util.ArrayList[$attributeType]()
+              s"""var ${attributeFieldName(makePlural(resolvedName._2))} = new java.util.ArrayList[$attributeType]()
                         """
 
           // Attribute Needs Subclassing: Enumeration
           //---------------
           case _ if (attribute.classType.toString == classOf[EnumerationBuffer].getCanonicalName()) =>
 
-            out << s"""var ${cleanName(resolvedName._2)} = new ${attributeType} {"""
+            out << s"""var ${attributeFieldName(resolvedName._2)} = new ${attributeType} {"""
 
             writeEnumerationValues(localName, attribute, out)
 
@@ -336,9 +355,10 @@ import scala.language.implicitConversions
           case _ =>
 
             var defaultValue = attribute.default match {
+              case null if (JSONBProducer.typeIsNative(attributeType)) => "_"
               case null => "null"
-              /*case bool if (resolvedType==classOf[Boolean].getCanonicalName) =>
-                  element.default*/
+              case str if (str.toString == "_build_") => s"${attributeType}.build"
+              case str if (str.toString == "_instance_") => s"${attributeType}()"
               case defaultValue =>
 
                 s"""$defaultValue"""
@@ -346,19 +366,8 @@ import scala.language.implicitConversions
             }
 
             out <<
-              s"""var ${cleanName(resolvedName._2)} : ${attributeType} = $defaultValue
+              s"""var ${attributeFieldName(resolvedName._2)} : ${attributeType} = $defaultValue
                         """
-
-          /*out << s"""def ${cleanName(resolvedName._2)}_=(v:${attribute.classType}) = __${cleanName(resolvedName._2)} = v
-          """
-
-          attribute.default match {
-              case null => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)}
-          """
-              case defaultValue => out << s"""def ${cleanName(resolvedName._2)} : ${attribute.classType} = __${cleanName(resolvedName._2)} match {case null => __${cleanName(resolvedName._2)} = ${attribute.classType}.convertFromString("${defaultValue}");__${cleanName(resolvedName._2)} case v => v }
-          """
-
-          }*/
 
         }
 
@@ -398,22 +407,6 @@ import scala.language.implicitConversions
         out.indent
         element.elements.foreach { element =>
 
-          // Annotation
-          var resolvedName = model.splitName(element.name)
-          resolvedName match {
-            case ("", name) =>
-
-              out << s"""@Expose"""
-              out << s"""@BeanProperty"""
-
-            case (namespace, name) =>
-
-
-              out << s"""@Expose"""
-              out << s"""@BeanProperty"""
-          }
-
-
           // ResolvedType if imported of not
           // !! If the Element has a different class name and target object, use the target object!
           //-----------------
@@ -431,33 +424,72 @@ import scala.language.implicitConversions
               JSONBProducer.typeMapping(s"${canonicalClassName(model, element)}")
 
           }
+
+          // Annotation
+          //----------
+          var resolvedName = model.splitName(element.name)
+          resolvedName match {
+            case ("", name) =>
+
+              out << s"""@Expose"""
+              if (resolvedType.endsWith("Boolean")) {
+                out << s"""@BooleanBeanProperty"""
+              } else {
+                out << s"""@BeanProperty"""
+              }
+
+
+            case (namespace, name) =>
+
+
+              out << s"""@Expose"""
+              if (resolvedType.endsWith("Boolean")) {
+                out << s"""@BooleanBeanProperty"""
+              } else {
+                out << s"""@BeanProperty"""
+              }
+          }
+
+
           // Element definition
           //---------------
           element.maxOccurs match {
 
             case count if (count > 1) =>
 
+              val fieldNameNotCleaned = makePlural(resolvedName._2)
               val fieldName = cleanName(makePlural(resolvedName._2))
-              val fieldNameUpperFirst = fieldName.take(1).toUpperCase + fieldName.drop(1).mkString
+              val fieldNameUpperFirst = fieldNameNotCleaned.take(1).toUpperCase + fieldNameNotCleaned.drop(1).mkString
               out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
               out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
               out <<
                 s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
                         """
-              /*out << s"""def add${fieldNameUpperFirst} = ${fieldName}.add(new $resolvedType)
-                        """*/
+              if (!element.nativeType) {
+                out <<
+                  s"""def add${fieldNameUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
+                      """
+              }
+
+              out <<
+                s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.asScala.toList
+                      """
 
             case _ =>
 
-              val fieldName = cleanName((resolvedName._2)) + "__field"
+              val fieldName = elementFieldName((resolvedName._2))
               var realFieldName = cleanName((resolvedName._2))
 
               // Default value
               var defaultValue = element.default match {
+                case null if (JSONBProducer.typeIsNative(resolvedType)) => "_"
                 case null => "null"
+                case str if (str.toString == "_build_") => s"${resolvedType}.build"
+                case str if (str.toString == "_instance_") => s"${resolvedType}()"
                 case defaultValue =>
                   s"""$defaultValue"""
               }
+
 
               out << s"""@JsonbProperty("${resolvedName._2}")"""
               out << s"""@SerializedName("${resolvedName._2}")"""
@@ -473,7 +505,7 @@ import scala.language.implicitConversions
 
                 case all =>
                   resolvedType match {
-                    case boolean if (boolean.endsWith("Boolean")) =>
+                    case native if (JSONBProducer.typeIsNative(resolvedType)) =>
                       s"$fieldName"
                     case other =>
                       val constructor = JSONBProducer.constructorMapping(resolvedType)
@@ -483,30 +515,32 @@ import scala.language.implicitConversions
 
               }
 
-
-              out <<
-                s"""def ${realFieldName}_=(v:$resolvedType) = $fieldName = v
+              // Add Utilities onlu for non native types
+              //----------------
+              if (!JSONBProducer.typeIsNative(resolvedType)) {
+                //-- Add Only auto creating Getter
+                out << s"""@JsonbTransient"""
+                out <<
+                  s"""def ${cleanName(resolvedName._2, false)}OrCreate : $resolvedType =  $getterContent
                         """
 
-              out <<
-                s"""def ${realFieldName} : $resolvedType = $getterContent
+                //-- Add "Option" getter to test presence of element
+                resolvedType match {
+                  case native if (JSONBProducer.typeIsNative(resolvedType)) =>
+
+                    out << s"""@JsonbTransient"""
+                    out <<
+                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = Some($fieldName)
+                        """
+                  case other =>
+
+                    out << s"""@JsonbTransient"""
+                    out <<
+                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
                         """
 
-              //-- Add "Option" getter to test presence of element
-              resolvedType match {
-                case boolean if (boolean.endsWith("Boolean")) =>
-
-                  out << s"""@JsonbTransient"""
-                  out << s"""def ${realFieldName}Option : Option[$resolvedType] = Some($fieldName)
-                        """
-                case other =>
-
-                  out << s"""@JsonbTransient"""
-                  out <<
-                    s"""def ${realFieldName}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
-                        """
+                }
               }
-
 
 
           }
@@ -666,7 +700,8 @@ object JSONBProducer {
     classOf[DoubleBuffer].getCanonicalName -> "Double",
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
-    classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant"
+    classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
+    classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
   def typeMapping(input: String) = {
@@ -680,11 +715,15 @@ object JSONBProducer {
 
   }
 
-  def constructorMapping(input:String) = {
+  def typeIsNative(t: String) = {
+    List("Double", "Integer", "Float", "Boolean").contains(t)
+  }
+
+  def constructorMapping(input: String) = {
     input match {
       case arr if (arr.contains("Array[")) =>
         s"new ${input}(0)"
-      case instant if (instant=="java.time.Instant") =>
+      case instant if (instant == "java.time.Instant") =>
         s"java.time.Instant.now()"
       case other =>
         s"new ${input}()"
