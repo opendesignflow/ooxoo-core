@@ -299,6 +299,14 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       left
     }
 
+    /**
+     * Default value
+     */
+    def nativeType(b:Boolean) : IsWordElementWrapper = {
+      left.nativeType = b
+      this
+    }
+
   }
   implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(new Element(str,this))
   implicit def elementToIsWordWrapping(elt: Element): IsWordElementWrapper = new IsWordElementWrapper(elt)
@@ -328,7 +336,11 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
 
       // Search for type in internal map
       //--------------------------
-      left.classType = getType(right.trim().toLowerCase()).getCanonicalName
+      right.contains(".") match {
+        case true => left.classType = right
+        case false =>  left.classType = getType(right.trim().toLowerCase()).getCanonicalName
+      }
+
 
       this
 
@@ -420,6 +432,8 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       left.default = right
       this
     }
+
+
 
 
     

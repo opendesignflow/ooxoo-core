@@ -532,6 +532,8 @@ class Element(
    */
   var parent: Element = null
 
+  var nativeType : Boolean = false
+
   def depth: Int = {
 
     var res = 0
