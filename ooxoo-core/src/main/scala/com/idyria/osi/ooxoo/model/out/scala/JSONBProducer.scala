@@ -460,6 +460,7 @@ import scala.jdk.CollectionConverters._
               val fieldNameNotCleaned = makePlural(resolvedName._2)
               val fieldName = cleanName(makePlural(resolvedName._2))
               val fieldNameUpperFirst = fieldNameNotCleaned.take(1).toUpperCase + fieldNameNotCleaned.drop(1).mkString
+              val fieldNameSingularUpperFirst = resolvedName._2.take(1).toUpperCase + resolvedName._2.drop(1).mkString
               out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
               out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
               out <<
@@ -467,7 +468,7 @@ import scala.jdk.CollectionConverters._
                         """
               if (!element.nativeType) {
                 out <<
-                  s"""def add${fieldNameUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
+                  s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
                       """
               }
 
