@@ -705,6 +705,8 @@ object JSONBProducer {
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
+  val nativeTypes = List("Double", "Integer", "Float", "Boolean","Int")
+
   def typeMapping(input: String) = {
 
     typesMap.get(input) match {
@@ -717,7 +719,9 @@ object JSONBProducer {
   }
 
   def typeIsNative(t: String) = {
-    List("Double", "Integer", "Float", "Boolean").contains(t)
+
+    //println("Checking type: "+t+" -> "+nativeTypes.find( test => test == t).isDefined)
+    nativeTypes.find( test => test == t).isDefined
   }
 
   def constructorMapping(input: String) = {
