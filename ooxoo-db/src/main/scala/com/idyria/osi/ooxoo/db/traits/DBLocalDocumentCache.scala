@@ -39,7 +39,7 @@ trait DBLocalDocumentCache {
       case others => 
         
         //-- Instanciate
-        var elt = tag.runtimeClass.newInstance().asInstanceOf[ElementBuffer]
+        var elt = tag.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[ElementBuffer]
         
         //-- Streamin
         elt match {

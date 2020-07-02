@@ -40,14 +40,14 @@ abstract class UserDataBufferType[BT <: AbstractDataBuffer[_]](implicit tag: Cla
     rs.wasNull() match {
       case true => null
       case false =>
-        val buffer = tag.runtimeClass.newInstance().asInstanceOf[AbstractDataBuffer[Any]]
+        val buffer = tag.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[AbstractDataBuffer[Any]]
         buffer.data = getDataFromResult(rs, names)
         buffer
     }
   }
 
   def getDataFromResult(rs: ResultSet, names: Array[String]): Any
-  def setDataToResult(ps: PreparedStatement, value: AbstractDataBuffer[Any], index: Int, session: SharedSessionContractImplementor)
+  def setDataToResult(ps: PreparedStatement, value: AbstractDataBuffer[Any], index: Int, session: SharedSessionContractImplementor) : Unit
 
   // Set
   def nullSafeSet(ps: PreparedStatement, value: Any, index: Int, session: SharedSessionContractImplementor) = {

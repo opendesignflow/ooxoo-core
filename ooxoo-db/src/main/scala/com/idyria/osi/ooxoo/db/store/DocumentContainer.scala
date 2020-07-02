@@ -201,14 +201,14 @@ trait DocumentContainer extends ListeningSupport {
 
                 //-- Get Document
                 this.getDocument(path) match {
-                    case None if (autocreate)                 => document(path, classTag[T].runtimeClass.newInstance().asInstanceOf[T], true)
+                    case None if (autocreate)                 => document(path, classTag[T].runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[T], true)
                     case None                                 => None
 
                     case Some(document) if !(document.exists) => None
                     case Some(document) =>
 
                         // Create top Document
-                        var top = Thread.currentThread.getContextClassLoader().loadClass(s"${classTag[T]}").newInstance.asInstanceOf[T]
+                        var top = Thread.currentThread.getContextClassLoader().loadClass(s"${classTag[T]}").getDeclaredConstructor().newInstance().asInstanceOf[T]
                         //println("Reflection instancitation of "+classTag[T])
                         //classTag[T].
 
@@ -335,7 +335,7 @@ trait DocumentContainer extends ListeningSupport {
 
                             println(s"Getting document ${doc.id}")
                             //-- Prepare a top element
-                            var top = Thread.currentThread.getContextClassLoader().loadClass(s"${classTag[T]}").newInstance.asInstanceOf[T]
+                            var top = Thread.currentThread.getContextClassLoader().loadClass(s"${classTag[T]}").getDeclaredConstructor().newInstance().asInstanceOf[T]
                             this.document[T](doc.id, top)
 
                             //-- OK
