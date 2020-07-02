@@ -78,16 +78,20 @@ abstract class EnumerationBuffer extends Enumeration with BaseBufferTrait {
   
   def select[FT <: Enumeration](value: FT#Value) : Unit = {
     
-  // 
+  //
+  //println("Selecting value: "+value.toString)
+    //println("Search: "+this.values.map(case _ => ))
     this.selectedValue = this.withName(value.toString())
+   // println("Result: "+this.selectedValue)
     
   }
   
   override def toString() = {
     selectedValue match {
       case null => 
-        
-         this(0).toString
+
+        this.values.head.toString
+         //this(0).toString
         
       case _ => 
         

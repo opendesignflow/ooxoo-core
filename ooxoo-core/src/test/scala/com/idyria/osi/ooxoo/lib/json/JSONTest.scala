@@ -64,7 +64,9 @@ class Test extends ElementBuffer {
   var enumelt = new com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer {
 
     type state = Value
-    val stopped, running, closed = Value
+    val stopped = Value("stopped")
+    val running = Value("running")
+    val closed = Value("closed")
     def selectstopped: Unit = this select this.stopped
     def selectrunning: Unit = this select this.running
     def selectclosed: Unit = this select this.closed
@@ -112,7 +114,11 @@ class Path extends com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer w
 class Action extends com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer with com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer {
 
   type Action = Value
-  val stop, suspend, resume, join = Value
+  val stop = Value("stop")
+  val suspend = Value("suspend")
+  val resume = Value("resume")
+  val join = Value("join")
+
   def selectstop: Unit = this select this.stop
   def selectsuspend: Unit = this select this.suspend
   def selectresume: Unit = this select this.resume

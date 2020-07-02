@@ -26,7 +26,7 @@ node {
     }
 
   stage('Build & Test') {
-    sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=true install"
+    sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
     //junit '**/target/surefire-reports/TEST-*.xml'
   }
 

@@ -242,7 +242,9 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
     var attr2 = new com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer {
 
       type state = Value
-      val stopped, running, closed = Value
+      val stopped = Value("stopped")
+      val running = Value("running")
+      val closed = Value("closed")
       def selectstopped: Unit = this select this.stopped
       def selectrunning: Unit = this select this.running
       def selectclosed: Unit = this select this.closed
@@ -253,7 +255,11 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
   class TestEnum extends EnumerationBuffer {
 
     type TestEnum = Value
-    val A, B, C, D = Value
+    val A = Value("A")
+    val C = Value("C")
+    val B = Value("B")
+    val D = Value("D")
+   // val A, B, C, D = Value
 
   }
   object TestEnum extends Enumeration {
@@ -277,6 +283,17 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
 
   test("Enum Buffer") {
 
+    // Test
+    /*TestEnum.values.foreach {
+      v =>
+        println("Value: "+v)
+    }
+    val te  = new TestEnum
+    te.values.foreach {
+      v =>
+        println("Value: "+v)
+    }*/
+
     // Create Container
     var container = new EnumContainer
     container.testEnum = new TestEnum
@@ -284,7 +301,7 @@ class DataTypesTest extends FunSuite  with GivenWhenThen {
 
     // container.testEnum select container.testEnum.B
 
-    container.testEnum select TestEnum.C
+    container.testEnum.select(TestEnum.C)
 
     /* container.testEnum.selectedValue match {
       case TestEnum.C => println("Value is C")
