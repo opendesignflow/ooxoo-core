@@ -50,7 +50,8 @@ node {
     if (env.BRANCH_NAME == 'dev') {
       stage('Downstream') {
 
-        def downstreams = ['../ubroker-core/dev','../indesign/dev']
+        //def downstreams = ['../ubroker-core/dev','../indesign/dev']
+        def downstreams = []
         def stepsForParallel = [:]
         for (x in downstreams) {
           def ds = x 
