@@ -37,7 +37,7 @@ public @interface producer {
         The class name of a model Producer
         To be added to a model like this
     
-        @producer("path.to.Producer")
+        \@producer("path.to.Producer")
         object model extends ModelBuilder {
             ...
         }
