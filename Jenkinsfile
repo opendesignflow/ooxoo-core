@@ -26,6 +26,7 @@ node {
         checkout scm
         sh "${mvnHome}/bin/mvn ${mavenOptions} clean"
         dir('gradle-build') {
+            sh 'chmod +x ./gradlew'
             sh './gradlew clean'
         }
     }
