@@ -14,9 +14,9 @@ class OoxooGradlePluginPluginTest {
     @Test fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("org.odfi.ooxoo.gradle.plugin.greeting")
+        project.plugins.apply("org.odfi.ooxoo")
 
         // Verify the result
-        assertNotNull(project.tasks.findByName("ooxoo"))
+        assertNotNull(project.tasks.findByName("generateOOXOO"))
     }
 }
