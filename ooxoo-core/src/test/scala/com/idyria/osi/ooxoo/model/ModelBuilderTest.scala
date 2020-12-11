@@ -24,9 +24,9 @@ package com.idyria.osi.ooxoo.model
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 import org.scalatest._
-
 import com.idyria.osi.ooxoo.model.writers._
 import com.idyria.osi.ooxoo.model.out.scala._
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.postfixOps
 
@@ -35,7 +35,7 @@ trait TestTrait {
 
 }
 
-class ModelBuilderTest extends FunSuite with GivenWhenThen {
+class ModelBuilderTest extends AnyFunSuite with GivenWhenThen {
 
 
     test("Create a simple model") {

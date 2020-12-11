@@ -23,6 +23,8 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
+
 import java.io.ByteArrayOutputStream
 
 @xelement(name = "RootTest")
@@ -49,7 +51,7 @@ class SomeModeledElement2 extends ElementBuffer {
  * All the tests in this class parse two any content elements, because only one might hide a state error in the parser
  *
  */
-class AnySupportTest extends FunSuite with GivenWhenThen {
+class AnySupportTest extends AnyFunSuite with GivenWhenThen {
 
   test("Streamin Any Content that does not match an existing model") {
 

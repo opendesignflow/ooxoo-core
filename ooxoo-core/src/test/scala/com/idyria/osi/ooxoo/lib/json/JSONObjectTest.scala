@@ -20,12 +20,13 @@
  */
 package com.idyria.osi.ooxoo.lib.json
 
-import org.scalatest.FunSuite
+
 import com.idyria.osi.ooxoo.core.buffers.structural.AnyElementBuffer
 import org.odfi.tea.logging.TeaLogging
 import org.odfi.tea.logging.TLogSource
+import org.scalatest.funsuite.AnyFunSuite
 
-class JSONObjectTest extends FunSuite with TLogSource {
+class JSONObjectTest extends AnyFunSuite with TLogSource {
   
   
   test("Basic JSONObject test") {

@@ -20,10 +20,11 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.compress
 
-import org.scalatest.FunSuite
 import com.idyria.osi.ooxoo.core.buffers.datatypes.compress.ZipString
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class CompressedBufferTest extends FunSuite {
+class CompressedBufferTest extends AnyFunSuite with  Matchers  {
   
   
   test("ZipString test") {

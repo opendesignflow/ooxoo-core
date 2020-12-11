@@ -20,16 +20,18 @@
  */
 package com.idyria.osi.ooxoo.core
 
-import org.scalatest.FunSuite
+
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
+import org.scalatest.funsuite.AnyFunSuite
+
 import java.io.ByteArrayOutputStream
 
-class StreamOutTest extends FunSuite {
+class StreamOutTest extends AnyFunSuite {
 
   @xelement
   class TestRoot extends ElementBuffer {

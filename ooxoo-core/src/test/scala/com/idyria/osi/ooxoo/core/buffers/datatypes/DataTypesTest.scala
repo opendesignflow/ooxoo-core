@@ -30,12 +30,14 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.core.utils._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
-
 import scala.language.reflectiveCalls
 
-class DataTypesTest extends FunSuite  with GivenWhenThen {
+class DataTypesTest extends AnyFunSuite with  Matchers   with GivenWhenThen {
 
   test("Int Buffer") {
 

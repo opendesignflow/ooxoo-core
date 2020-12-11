@@ -20,10 +20,11 @@
  */
 package com.idyria.osi.ooxoo.lib.json
 
-import org.scalatest.FunSuite
+
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
+
 import java.io.StringReader
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
@@ -31,6 +32,7 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.AnyXList
 import com.idyria.osi.ooxoo.core.buffers.structural.any
+
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.CharArrayWriter
@@ -38,7 +40,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import org.odfi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import org.scalatest.BeforeAndAfter
-
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.reflectiveCalls
 
@@ -134,7 +136,7 @@ object Action {
 /**
  * Main test
  */
-class JSONTest extends FunSuite with BeforeAndAfter {
+class JSONTest extends AnyFunSuite with BeforeAndAfter {
 
   after {
     

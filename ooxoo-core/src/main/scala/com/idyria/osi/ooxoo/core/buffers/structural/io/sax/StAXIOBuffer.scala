@@ -26,6 +26,7 @@ import java.io.StringReader
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
+
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
@@ -33,16 +34,19 @@ import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
 import org.odfi.tea.logging._
+
 import java.io.InputStreamReader
 import java.net.URL
 import java.io.InputStream
 import java.io.OutputStream
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
-import javanet.staxutils.IndentingXMLStreamWriter
+import com.sun.xml.txw2.output.IndentingXMLStreamWriter
+
 import javax.xml.namespace.NamespaceContext
 import scala.collection.convert.AsJavaConverters
 import javax.xml.transform.dom.DOMSource
 import org.w3c.dom.Node
+
 import java.io.StringWriter
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult

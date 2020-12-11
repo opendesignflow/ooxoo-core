@@ -31,10 +31,8 @@ import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
-
-
-
 import com.idyria.osi.ooxoo.core.utils._
+import org.scalatest.funsuite.AnyFunSuite
 
 
 
@@ -42,7 +40,7 @@ import com.idyria.osi.ooxoo.core.utils._
  * @author rleys
  *
  */
-class AnnotationsTest extends FunSuite  with GivenWhenThen {
+class AnnotationsTest extends AnyFunSuite  with GivenWhenThen {
   
     @xelement
     class TopClass {

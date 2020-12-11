@@ -21,20 +21,18 @@
 package com.idyria.osi.ooxoo.model
 
 import java.io._
- 
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
 import org.scalatest._
-
 import com.idyria.osi.ooxoo.model.writers._
 import com.idyria.osi.ooxoo.model.out.scala._
-
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.postfixOps
 import scala.jdk.javaapi.CollectionConverters._
 
 
-class TestModelCompiler extends FunSuite with GivenWhenThen {
+class TestModelCompiler extends AnyFunSuite with GivenWhenThen {
 
     test("Compiler test") {
 

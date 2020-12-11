@@ -11,3 +11,4 @@ ooxoo-db/
 .hydra/
 ***/.idea/*
 *.iml
+**/build/*

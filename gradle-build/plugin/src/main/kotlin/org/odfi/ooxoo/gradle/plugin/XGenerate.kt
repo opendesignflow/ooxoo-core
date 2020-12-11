@@ -52,6 +52,7 @@ abstract class XGenerate : DefaultTask() {
                     modelFile ->
 
                     println("Found Model to generate: "+modelFile)
+                    println("- Last modified: "+modelFile.lastModified())
 
                     // Get Output Dir
                     val targetDir = File(project.buildDir,"generated-sources")

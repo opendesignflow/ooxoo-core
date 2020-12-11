@@ -34,10 +34,9 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes.compress.ZipString
  * This trait contains all the language Wrappers and Conversions used in Model Builder.
  * It is separated to lighten real model management in ModelBuilder from convienience language
  */
-trait ModelBuilderLanguage extends ListeningSupport with Model{
+trait ModelBuilderLanguage extends ListeningSupport with Model {
 
- 
-  
+
   // Typing
   //------------------------------
 
@@ -45,14 +44,14 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
    * Types map is used to map type strings to actual Buffer implementation
    */
   var typesMap = Map[String, Class[_ <: Buffer]](
-      
-    ("string" -> classOf[XSDStringBuffer]), 
+
+    ("string" -> classOf[XSDStringBuffer]),
     ("cdata" -> classOf[CDataBuffer]),
-    
+
     ("sha256string" -> classOf[SHA256StringBuffer]),
     ("htmlstring" -> classOf[HTMLStringBuffer]),
     ("uuid" -> classOf[UUIDBuffer]),
-    
+
     ("file" -> classOf[FileBuffer]),
     ("class" -> classOf[GenericClassBuffer]),
     ("zipstring" -> classOf[ZipString]),
@@ -73,10 +72,13 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
     ("binary" -> classOf[BinaryBuffer]),
     ("doublebinary" -> classOf[DoubleBinaryBuffer]),
     ("intbinary" -> classOf[IntBinaryBuffer]),
-    
-    ("map" -> classOf[StringMapBuffer]))
-    
-    
+
+    ("map" -> classOf[StringMapBuffer]),
+
+
+    ("json" -> classOf[JSONBuffer]),
+    ("jsonvalue" -> classOf[JSONVBuffer]))
+
 
   def getType(str: String): Class[_ <: Buffer] = {
 
@@ -97,7 +99,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
     if (left.name.endsWith("Trait")) {
       left.isTrait = true
     }
-    
+
     def multiple(typeStr: String) = {
 
       @->("element.start", left)
@@ -138,7 +140,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
 
     }
 
-    def setMultiple(b:Boolean) : IsWordElementWrapper = {
+    def setMultiple(b: Boolean): IsWordElementWrapper = {
       left.setMultiple(b)
       this
     }
@@ -198,7 +200,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       this
 
     }
-    
+
     /**
      * Set type of element based on string
      */
@@ -234,7 +236,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       this
     }
 
-    def is(right: => Any): Element = { 
+    def is(right: => Any): Element = {
 
       //println("in is definition for Element")
 
@@ -286,9 +288,9 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       left.description = str
       this
     }
-    
+
     // Hierarchy Definition
-    def hierarchy(right: => Any) : IsWordElementWrapper = {
+    def hierarchy(right: => Any): IsWordElementWrapper = {
       @->("element.start", left)
 
       left.isHierarchyParent = true
@@ -302,13 +304,15 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
     /**
      * Default value
      */
-    def nativeType(b:Boolean) : IsWordElementWrapper = {
+    def nativeType(b: Boolean): IsWordElementWrapper = {
       left.nativeType = b
       this
     }
 
   }
-  implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(new Element(str,this))
+
+  implicit def elementToIsWordWrapping(str: String): IsWordElementWrapper = new IsWordElementWrapper(new Element(str, this))
+
   implicit def elementToIsWordWrapping(elt: Element): IsWordElementWrapper = new IsWordElementWrapper(elt)
 
   // Attribute Language
@@ -316,7 +320,9 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
   class IsWordAttributeWrapper(var left: Attribute) {
 
     def attribute(right: => Unit) = is(right)
+
     def attribute(right: String) = is(right)
+
     def attribute(right: Class[_ <: Buffer]) = is(right)
 
     def is(right: => Unit) = {
@@ -338,15 +344,15 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       //--------------------------
       right.contains(".") match {
         case true => left.classType = right
-        case false =>  left.classType = getType(right.trim().toLowerCase()).getCanonicalName
+        case false => left.classType = getType(right.trim().toLowerCase()).getCanonicalName
       }
 
 
       this
 
     }
-    
-     /**
+
+    /**
      * Set type of attribute based on string
      * Will force the Type to Integer
      */
@@ -354,13 +360,13 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
 
 
       left.idKey = true
-      left.classType =  getType("integer").getCanonicalName
+      left.classType = getType("integer").getCanonicalName
 
       this
 
     }
-    
-     /**
+
+    /**
      * Set type of attribute based on string
      */
     def generated: IsWordAttributeWrapper = {
@@ -371,7 +377,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       this
 
     }
-    
+
     def isGeneratedIDKey = {
       isIDKey
       generated
@@ -424,19 +430,16 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
       this
 
     }
-    
+
     /**
      * Default value
      */
-    def default(right:String) : IsWordAttributeWrapper = {
+    def default(right: String): IsWordAttributeWrapper = {
       left.default = right
       this
     }
 
 
-
-
-    
     /**
      * Set documentation on element
      */
@@ -480,5 +483,6 @@ trait ModelBuilderLanguage extends ListeningSupport with Model{
   }
 
   implicit def attributeToIsWordWrapping(attr: Attribute): IsWordAttributeWrapper = new IsWordAttributeWrapper(attr)
+
   implicit def attributeStrToAttributeWordWrapping(attr: String): AttributeWordAttributeWrapper = new AttributeWordAttributeWrapper(attr)
 }

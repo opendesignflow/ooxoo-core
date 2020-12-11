@@ -1,0 +1,155 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            name = 'Sonatype Nexus Snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+}
+
+plugins {
+    id 'scala'
+
+
+    // Publish
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.12.0'
+}
+
+// Versions
+//-----------------
+group = 'org.odfi.ooxoo'
+version = '3.4.2-SNAPSHOT'
+def scalaVersion = "2.13.4"
+
+// Sources
+//---------------
+sourceSets {
+    main {
+        scala {
+            srcDirs = ['src/main/scala', 'src/main/java']
+        }
+        java {
+            srcDirs = []
+        }
+    }
+}
+
+// Deps
+//-----------
+
+dependencies {
+
+
+    implementation "org.odfi:tea:3.4.1"
+
+    //  implementation "net.java.dev.stax-utils:stax-utils:20070216"
+    implementation "org.glassfish.jaxb:txw2:2.2.11"
+    implementation "org.atteo:evo-inflector:1.2.1"
+    implementation "org.apache.commons:commons-lang3:3.3.2"
+    implementation "org.eclipse:yasson:1.0.8"
+
+    implementation "org.apache.commons:commons-compress:1.20"
+    implementation "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
+    implementation "jakarta.json.bind:jakarta.json.bind-api:1.0.2"
+
+    implementation "org.scala-lang.modules:scala-parser-combinators_2.13:1.1.2"
+    implementation "org.scala-lang:scala-reflect:$scalaVersion"
+    implementation "org.scala-lang:scala-compiler:$scalaVersion"
+    implementation("org.scala-lang:scala-library:$scalaVersion")
+
+    testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
+    testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.3'
+    testImplementation 'org.scalatest:scalatest-shouldmatchers_2.13:3.2.3'
+}
+
+
+repositories {
+
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'Sonatype Nexus Snapshots'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'ODFI Releases'
+        url = 'https://www.opendesignflow.org/maven/repository/internal/'
+    }
+    maven {
+        name = 'ODFI Snapshots'
+        url = 'https://www.opendesignflow.org/maven/repository/snapshots/'
+    }
+    google()
+    jcenter()
+}
+
+publishing {
+    publications {
+
+        /*publishToMavenLocal(MavenPublication) {
+
+        }*/
+        pluginPublication(MavenPublication) {
+
+            // groupId    group
+            artifactId "ooxoo-core"
+            //version    version
+
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'OOXOO Core'
+                description = 'Core runtime for OOXOO'
+
+                //properties = [ ]
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'richnou'
+                        name = 'Richnou'
+                        email = 'leys.richard@gmail.com'
+                    }
+                }
+
+            }
+        }
+
+    }
+    repositories {
+        maven {
+
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            def releasesRepoUrl = "https://www.opendesignflow.org/maven/repository/internal/"
+            def snapshotsRepoUrl = "https://www.opendesignflow.org/maven/repository/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            // Credentials
+            def mavenOdfiPropertiesFile = new File(System.getProperty("user.home") + File.separator + ".gradle/odfi-maven.properties").getCanonicalFile()
+
+            if (mavenOdfiPropertiesFile.exists()) {
+                def keystoreProperties = new Properties()
+                keystoreProperties.load(new FileInputStream(mavenOdfiPropertiesFile))
+
+                credentials {
+                    username keystoreProperties["user"]
+                    password keystoreProperties["password"]
+                }
+            }
+        }
+    }
+}

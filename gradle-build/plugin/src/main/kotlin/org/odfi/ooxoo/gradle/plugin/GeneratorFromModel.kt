@@ -14,8 +14,9 @@ abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
 
         // Compile
         //-----------
-        println("Processing Model file: "+this.parameters.getModelFile())
+        println("Processing Model file (with reset): "+this.parameters.getModelFile())
 
+        ModelCompiler.resetCompiler()
         var modelInfos = ModelCompiler.compile(this.parameters.getModelFile()!!.get().asFile)
         var outputDir = this.parameters.getBuildOutput()!!.get().asFile
 

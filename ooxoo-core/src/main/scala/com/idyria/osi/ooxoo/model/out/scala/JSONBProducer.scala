@@ -702,10 +702,12 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
+    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue",
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
-  val nativeTypes = List("Double", "Integer", "Float", "Boolean","Int")
+  val nativeTypes = List("Double", "Integer", "Float", "Boolean","Int","javax.json.JsonObject", "javax.json.JsonValue")
 
   def typeMapping(input: String) = {
 
