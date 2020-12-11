@@ -92,7 +92,7 @@ publishing {
         /*publishToMavenLocal(MavenPublication) {
 
         }*/
-        pluginPublication(MavenPublication) {
+        publishToMavenLocal(MavenPublication) {
 
             // groupId    group
             artifactId "ooxoo-core"

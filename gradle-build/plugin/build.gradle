@@ -104,9 +104,9 @@ publishing {
         }*/
         pluginPublication(MavenPublication) {
 
-            // groupId    group
+             groupId    group
             artifactId "ooxoo-gradle-plugin"
-            //version    version
+            version    version
 
             from components.java
             versionMapping {

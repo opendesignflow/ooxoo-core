@@ -33,7 +33,7 @@ node {
 
     stage('Build & Test') {
         dir('gradle-build') {
-            sh './gradlew compileKotlin'
+            sh './gradlew build'
         }
         sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
 
@@ -50,7 +50,7 @@ node {
           sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
       }*/
             dir('gradle-build') {
-                sh './gradlew publishPluginMavenPublicationToMavenRepository'
+                sh './gradlew publish'
             }
             sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
 
