@@ -32,10 +32,11 @@ node {
     }
 
     stage('Build & Test') {
-        sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
         dir('gradle-build') {
             sh './gradlew compileKotlin'
         }
+        sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
+
     //junit '**/target/surefire-reports/TEST-*.xml'
     }
 
@@ -48,13 +49,13 @@ node {
 
           sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
       }*/
-            sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
-            step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/build/libs/*.jar', fingerprint: true])
-            step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
-
             dir('gradle-build') {
                 sh './gradlew publishPluginMavenPublicationToMavenRepository'
             }
+            sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
+            /*step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/build/libs/*.jar', fingerprint: true])
+            step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])*/
+
         }
 
         // Trigger sub builds on dev
