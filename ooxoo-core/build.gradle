@@ -15,7 +15,8 @@ plugins {
 
     // Publish
     id 'maven-publish'
-    id 'com.gradle.plugin-publish' version '0.12.0'
+    id "java-library"
+    //id 'com.gradle.plugin-publish' version '0.12.0'
 }
 
 // Versions
@@ -43,22 +44,22 @@ sourceSets {
 dependencies {
 
 
-    implementation "org.odfi:tea:3.4.1"
+    api "org.odfi:tea:3.4.1"
 
     //  implementation "net.java.dev.stax-utils:stax-utils:20070216"
-    implementation "org.glassfish.jaxb:txw2:2.2.11"
-    implementation "org.atteo:evo-inflector:1.2.1"
-    implementation "org.apache.commons:commons-lang3:3.3.2"
-    implementation "org.eclipse:yasson:1.0.8"
+    api "org.glassfish.jaxb:txw2:2.2.11"
+    api "org.atteo:evo-inflector:1.2.1"
+    api "org.apache.commons:commons-lang3:3.3.2"
+    api "org.eclipse:yasson:1.0.8"
 
-    implementation "org.apache.commons:commons-compress:1.20"
-    implementation "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
-    implementation "jakarta.json.bind:jakarta.json.bind-api:1.0.2"
+    api "org.apache.commons:commons-compress:1.20"
+    api "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
+    api "jakarta.json.bind:jakarta.json.bind-api:1.0.2"
 
-    implementation "org.scala-lang.modules:scala-parser-combinators_2.13:1.1.2"
-    implementation "org.scala-lang:scala-reflect:$scalaVersion"
-    implementation "org.scala-lang:scala-compiler:$scalaVersion"
-    implementation("org.scala-lang:scala-library:$scalaVersion")
+    api "org.scala-lang.modules:scala-parser-combinators_2.13:1.1.2"
+    api "org.scala-lang:scala-reflect:$scalaVersion"
+    api "org.scala-lang:scala-compiler:$scalaVersion"
+    api("org.scala-lang:scala-library:$scalaVersion")
 
     testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
     testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.3'
@@ -99,14 +100,14 @@ publishing {
             //version    version
 
             from components.java
-            versionMapping {
+            /*versionMapping {
                 usage('java-api') {
                     fromResolutionOf('runtimeClasspath')
                 }
                 usage('java-runtime') {
                     fromResolutionResult()
                 }
-            }
+            }*/
             pom {
                 name = 'OOXOO Core'
                 description = 'Core runtime for OOXOO'
