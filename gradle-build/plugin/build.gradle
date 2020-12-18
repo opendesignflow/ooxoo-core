@@ -41,6 +41,12 @@ repositories {
 
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 dependencies {
 
     //implementation "$group:ooxoo-core:$version"
