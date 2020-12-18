@@ -11,3 +11,5 @@ rootProject.name = 'ooxoo-gradle-plugin'
 include(':plugin')
 include(":core")
 project(":core").projectDir = new File("../ooxoo-core")
+include(":db")
+project(":db").projectDir = new File("../ooxoo-db")
