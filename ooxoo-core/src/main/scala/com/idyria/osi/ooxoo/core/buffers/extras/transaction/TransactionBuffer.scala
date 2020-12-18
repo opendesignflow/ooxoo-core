@@ -22,6 +22,8 @@ package com.idyria.osi.ooxoo.core.buffers.extras.transaction
 
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import org.odfi.tea.logging._
+
+import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.collection.mutable.Stack
 
@@ -195,7 +197,7 @@ object TransactionBuffer {
 class Transaction {
 
   /// State of the transaction
-  var state = Transaction.State.Stopped
+  var state: Transaction.State.Value = Transaction.State.Stopped
 
   /// The actions to be executed by the transaction
   var actions = List[PartialFunction[Transaction, Unit]]()
@@ -209,7 +211,7 @@ class Transaction {
   /**
    * The passed action closure will be executed on commit, with a reference to the current transaction passed
    */
-  def apply(action: PartialFunction[Transaction, Unit]) = {
+  def apply(action: PartialFunction[Transaction, Unit]): Unit = {
 
     // println("Recording transaction action: "+action.hashCode)
     if (!actions.contains(action))
@@ -222,7 +224,7 @@ class Transaction {
   /**
    * Change state to pending
    */
-  def begin() = {
+  def begin(): Unit = {
     this.state = Transaction.State.Pending
   }
 
@@ -230,7 +232,7 @@ class Transaction {
    * Commits all the registered action closures
    * Come back to previous state after because multiple commits per transaction can be issued
    */
-  def commit() = {
+  def commit(): Unit = {
 
     // Change State
     //-------------
@@ -282,7 +284,7 @@ class Transaction {
    * - Cache the Push
    * - Pull always returns nothing
    */
-  def block() = {
+  def block() : Unit = {
 
     // Change State
     //-------------
@@ -295,7 +297,7 @@ class Transaction {
    *  - Cache and stack the Push
    *  - Pull always returns the last value
    */
-  def buffer() = {
+  def buffer(): Unit = {
     // Change State
     //-------------
     this.state = Transaction.State.Buffering
@@ -305,7 +307,7 @@ class Transaction {
    * Discard Transaction
    * Discard is called at the end of a transaction to cleanup
    */
-  def discard() = {
+  def discard(): Unit = {
 
     //println("Discarding transaction with: "+actions.size+" actions")
 
@@ -394,7 +396,7 @@ object Transaction extends TLogSource {
   /**
    * Current Transactions Map, with stacked transactions for incremental transactions
    */
-  var currentTransactions = Map[Thread, Stack[Transaction]]()
+  var currentTransactions = Map[Thread, mutable.Stack[Transaction]]()
 
   implicit val defaultInitiator: AnyRef = null
 
@@ -423,7 +425,7 @@ object Transaction extends TLogSource {
 
         var transaction = new Transaction
         transaction.initiator = initiator
-        currentTransactions += (thread -> Stack(transaction))
+        currentTransactions += (thread -> mutable.Stack(transaction))
         return transaction
     }
 
@@ -473,7 +475,7 @@ object Transaction extends TLogSource {
 
         var transaction = new Transaction
         transaction.initiator = initiator
-        currentTransactions += (thread -> Stack(transaction))
+        currentTransactions += (thread -> mutable.Stack(transaction))
         return transaction
     }
 
@@ -485,13 +487,13 @@ object Transaction extends TLogSource {
   def join[T <: Any](cl: => T): T = {
 
     //-- Make the transaction pending
-    Transaction().begin
+    Transaction().begin()
 
     //-- Execute
     var res = cl
 
     //-- Commit
-    Transaction().commit
+    Transaction().commit()
 
     res
 
@@ -513,8 +515,8 @@ object Transaction extends TLogSource {
       case Some((th, tr)) =>
 
         // println("Found Transaction to discard for current Thread")
-        tr.head.discard
-        tr.pop
+        tr.head.discard()
+        tr.pop()
 
         // If no more transactions for thread, clean
         if (tr.size == 0)
@@ -542,14 +544,14 @@ object Transaction extends TLogSource {
 
     //-- Create transaction
     var transaction = Transaction.begin()
-    transaction.block
+    transaction.block()
 
     //-- Execute
     try {
       var res = cl
 
       //-- Commit
-      transaction.commit
+      transaction.commit()
 
       res
 
@@ -557,7 +559,7 @@ object Transaction extends TLogSource {
 
       //-- Always rollback in case of error
       case e: Throwable =>
-        transaction.cancel
+        transaction.cancel()
         throw e
     } finally {
 
@@ -575,14 +577,14 @@ object Transaction extends TLogSource {
 
     //-- Create transaction
     var transaction = Transaction.begin()
-    transaction.buffer
+    transaction.buffer()
 
     //-- Execute
     try {
       var res = cl
 
       //-- Commit
-      transaction.commit
+      transaction.commit()
 
       res
 
@@ -590,7 +592,7 @@ object Transaction extends TLogSource {
 
       //-- Always rollback in case of error
       case e: Throwable =>
-        transaction.cancel
+        transaction.cancel()
         throw e
     } finally {
 

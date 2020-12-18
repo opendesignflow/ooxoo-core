@@ -27,7 +27,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import com.idyria.osi.ooxoo.core.utils.ReflectUtilsTrait
 import org.odfi.tea.logging.TeaLogging
 import org.odfi.tea.listeners.ListeningSupport
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 
 /**
  * Just a type marker

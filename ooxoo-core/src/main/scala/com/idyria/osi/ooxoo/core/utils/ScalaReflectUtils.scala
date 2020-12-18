@@ -15,7 +15,7 @@ import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.IntegerBuffer
 

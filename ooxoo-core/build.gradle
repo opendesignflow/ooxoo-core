@@ -54,6 +54,9 @@ dependencies {
 
     api "org.apache.commons:commons-compress:1.20"
     api "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
+    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+    api group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.0.0'
+
     api "jakarta.json.bind:jakarta.json.bind-api:1.0.2"
 
     api "org.scala-lang.modules:scala-parser-combinators_2.13:1.1.2"
