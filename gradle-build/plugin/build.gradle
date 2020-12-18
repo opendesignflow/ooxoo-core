@@ -43,7 +43,8 @@ repositories {
 
 dependencies {
 
-    implementation "$group:ooxoo-core:$version"
+    //implementation "$group:ooxoo-core:$version"
+    implementation project(":core")
 
     // Align versions of all Kotlin components
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
