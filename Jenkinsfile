@@ -35,7 +35,7 @@ node {
         dir('gradle-build') {
             sh './gradlew build'
         }
-        sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
+       // sh "${mvnHome}/bin/mvn ${mavenOptions}  -DskipTests=false install"
 
     //junit '**/target/surefire-reports/TEST-*.xml'
     }
@@ -52,7 +52,7 @@ node {
             dir('gradle-build') {
                 sh './gradlew publish'
             }
-            sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
+            //sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true deploy"
 
         //step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/build/libs/*.jar', fingerprint: true])
         //step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
@@ -75,9 +75,9 @@ node {
   // EOF Downstream
   } else {
         stage('Package') {
-            sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true package"
-            step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/target/*.jar', fingerprint: true])
-            step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
+            //sh "${mvnHome}/bin/mvn ${mavenOptions} -DskipTests=true package"
+            //step([$class: 'ArtifactArchiver', artifacts: '**/ooxoo-core/target/*.jar', fingerprint: true])
+            //step([$class: 'ArtifactArchiver', artifacts: '**/maven-ooxoo-plugin/target/*.jar', fingerprint: true])
 
             dir('gradle-build') {
                 sh './gradlew jar'
