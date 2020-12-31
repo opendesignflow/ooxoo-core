@@ -30,7 +30,7 @@ pluginBundle {
 }
 
 group = 'org.odfi.ooxoo'
-version = '3.4.2-SNAPSHOT'
+version = gradle.ext.has("version") ?  gradle.ext.version :  "dev"
 
 repositories {
 

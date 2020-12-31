@@ -7,6 +7,11 @@
  * in the user manual at https://docs.gradle.org/6.7/userguide/multi_project_builds.html
  */
 
+gradle.ext.version = "3.4.2-SNAPSHOT"
+gradle.ext.branch = System.getenv("BRANCH_NAME")
+if (gradle.ext.branch!=null && gradle.ext.branch=="release") {
+    gradle.ext.version = gradle.ext.version.replace("-SNAPSHOT","")
+}
 rootProject.name = 'ooxoo-gradle-plugin'
 include(':plugin')
 include(":core")

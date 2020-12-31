@@ -22,7 +22,7 @@ plugins {
 // Versions
 //-----------------
 group = 'org.odfi.ooxoo'
-version = '3.4.2-SNAPSHOT'
+version = gradle.ext.has("version") ?  gradle.ext.version :  "dev"
 def scalaVersion = "2.13.4"
 
 // Sources

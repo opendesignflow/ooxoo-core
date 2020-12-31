@@ -40,7 +40,7 @@ node {
     //junit '**/target/surefire-reports/TEST-*.xml'
     }
 
-    if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
+    if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'release') {
         stage('Deploy') {
      /*configFileProvider(
           [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
