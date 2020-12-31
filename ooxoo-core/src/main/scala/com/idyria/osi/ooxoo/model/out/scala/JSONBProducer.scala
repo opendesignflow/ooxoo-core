@@ -698,6 +698,7 @@ object JSONBProducer {
   val typesMap = Map(
     classOf[XSDStringBuffer].getCanonicalName -> "String",
     classOf[IntegerBuffer].getCanonicalName -> "Int",
+    classOf[LongBuffer].getCanonicalName -> "Long",
     classOf[DoubleBuffer].getCanonicalName -> "Double",
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
@@ -707,7 +708,7 @@ object JSONBProducer {
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
-  val nativeTypes = List("Double", "Integer", "Float", "Boolean","Int","javax.json.JsonObject", "javax.json.JsonValue")
+  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean","Int","javax.json.JsonObject", "javax.json.JsonValue")
 
   def typeMapping(input: String) = {
 
