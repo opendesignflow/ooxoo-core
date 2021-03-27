@@ -21,12 +21,11 @@
 package com.idyria.osi.ooxoo.model.out.scala
 
 import java.util.UUID
-
 import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.model._
-import javax.json.bind.annotation.{JsonbProperty, JsonbTransient}
+import jakarta.json.bind.annotation.{JsonbProperty, JsonbTransient}
 import org.atteo.evo.inflector.English
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
