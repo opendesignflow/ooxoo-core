@@ -25,8 +25,14 @@ jobs:
         env:
           BRANCH_NAME: ${{ github.ref }}
 
-      - name: Publish to ODFI OSS
+      - name: Publish Core and Plugin to ODFI OSS
         run: cd gradle-build && chmod +x gradlew && ./gradlew publish :core:publish :db:publish
+        env:
+          BRANCH_NAME: ${{ github.ref }}
+          PUBLISH_USERNAME: ${{ secrets.PUBLISH_USERNAME }}
+          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
+      - name: Publish DB to ODFI OSS
+        run: cd gradle-build && chmod +x gradlew && ./gradlew :db:publish
         env:
           BRANCH_NAME: ${{ github.ref }}
           PUBLISH_USERNAME: ${{ secrets.PUBLISH_USERNAME }}
