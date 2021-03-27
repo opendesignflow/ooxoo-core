@@ -10,6 +10,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.ref }}
+      PUBLISH_USERNAME: ${{ secrets.PUBLISH_USERNAME }}
+      PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v2
@@ -21,19 +25,17 @@ jobs:
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Build with Gradle
-        run: cd gradle-build && chmod +x gradlew && ./gradlew build
-        env:
-          BRANCH_NAME: ${{ github.ref }}
+        run: chmod +x gradlew && ./gradlew build
+        working-directory: gradle-build
 
       - name: Publish Core and Plugin to ODFI OSS
-        run: cd gradle-build && chmod +x gradlew && ./gradlew publish :core:publish :db:publish
-        env:
-          BRANCH_NAME: ${{ github.ref }}
-          PUBLISH_USERNAME: ${{ secrets.PUBLISH_USERNAME }}
-          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew :core:publish
+        working-directory: gradle-build
+
+      - name: Publish Plugin to ODFI OSS
+        run: chmod +x gradlew && ./gradlew :plugin:publish
+        working-directory: gradle-build
+
       - name: Publish DB to ODFI OSS
-        run: cd gradle-build && chmod +x gradlew && ./gradlew :db:publish
-        env:
-          BRANCH_NAME: ${{ github.ref }}
-          PUBLISH_USERNAME: ${{ secrets.PUBLISH_USERNAME }}
-          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew :db:publish
+        working-directory: gradle-build
