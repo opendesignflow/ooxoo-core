@@ -7,7 +7,6 @@ target
 *~*
 *.*~*
 *.versionsBackup
-ooxoo-db/
 .hydra/
 ***/.idea/*
 *.iml
