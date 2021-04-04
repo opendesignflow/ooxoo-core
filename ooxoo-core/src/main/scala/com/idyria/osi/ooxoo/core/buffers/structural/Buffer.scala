@@ -26,7 +26,7 @@ package com.idyria.osi.ooxoo.core.buffers.structural
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
 import java.util.concurrent.locks.ReentrantLock
 import scala.reflect.ClassTag
-import jakarta.persistence.Transient
+import javax.persistence.Transient
 
 /**
  *

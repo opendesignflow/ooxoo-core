@@ -53,18 +53,27 @@ dependencies {
 
     // Common JAXB Stuff
     //---------------
-    //  implementation "net.java.dev.stax-utils:stax-utils:20070216"
-    api "org.glassfish.jaxb:txw2:2.2.11"
-    api "org.atteo:evo-inflector:1.2.1"
-    api "org.apache.commons:commons-lang3:3.3.2"
+
+    // Special Buffer types like HTML string, compresssing buffer
+    api "org.apache.commons:commons-lang3:3.12.0"
     api "org.apache.commons:commons-compress:1.20"
 
-    // JSON API and Impl for Jakarta
+    // Stax indenting output
+    api "org.glassfish.jaxb:txw2:3.0.0"
+
+    // Producer
+    //--------------
+
+    // Library to make words plurals
+    api "org.atteo:evo-inflector:1.2.2"
+
+
+    // JSON API and Impl for javax
     //----------------
 
-    api "org.eclipse:yasson:2.0.2"
-    api 'jakarta.json:jakarta.json-api:2.0.0'
-    api "jakarta.json.bind:jakarta.json.bind-api:1.0.2"
+    api "org.eclipse:yasson:1.0.9"
+    //api 'javax.json:javax.json-api:2.0.0'
+    //api "javax.json.bind:javax.json.bind-api:1.0.2"
 
 
     // GSON
@@ -75,9 +84,9 @@ dependencies {
     // JPA Interfaces
     //-----------------
     api "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
-    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
-    api group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.0.0'
-
+    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
+   // api group: 'javax.persistence', name: 'javax.persistence-api', version: '3.0.0'
+    api group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
 
     // Scala
     //---------------

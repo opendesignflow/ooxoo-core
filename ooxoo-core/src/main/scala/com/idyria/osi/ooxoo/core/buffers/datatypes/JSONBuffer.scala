@@ -1,7 +1,7 @@
 package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
-import jakarta.json.{Json, JsonObject}
+import javax.json.{Json, JsonObject}
 
 import java.io.StringReader
 import java.net.URI

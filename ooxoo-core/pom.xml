@@ -121,8 +121,8 @@
         </dependency>
         <!-- JSON-B API -->
         <dependency>
-            <groupId>jakarta.json.bind</groupId>
-            <artifactId>jakarta.json.bind-api</artifactId>
+            <groupId>javax.json.bind</groupId>
+            <artifactId>javax.json.bind-api</artifactId>
             <version>1.0.2</version>
         </dependency>
 

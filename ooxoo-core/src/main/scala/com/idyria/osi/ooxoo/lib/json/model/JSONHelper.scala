@@ -8,12 +8,12 @@ import java.util.{Base64, UUID}
 import com.google.gson.annotations.{Expose, SerializedName}
 import com.google.gson.reflect.TypeToken
 import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
-import jakarta.json.JsonObject
-import jakarta.json.bind.annotation.JsonbProperty
-import jakarta.json.bind.{JsonbBuilder, JsonbConfig}
-import jakarta.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
-import jakarta.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
-import jakarta.json.stream.{JsonGenerator, JsonParser}
+import javax.json.JsonObject
+import javax.json.bind.annotation.JsonbProperty
+import javax.json.bind.{JsonbBuilder, JsonbConfig}
+import javax.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
+import javax.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
+import javax.json.stream.{JsonGenerator, JsonParser}
 
 import scala.reflect.ClassTag
 

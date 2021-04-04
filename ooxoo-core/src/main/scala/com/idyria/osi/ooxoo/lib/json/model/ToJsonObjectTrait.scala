@@ -1,6 +1,6 @@
 package com.idyria.osi.ooxoo.lib.json.model
 
-import jakarta.json.Json
+import javax.json.Json
 
 import java.io.StringReader
 
