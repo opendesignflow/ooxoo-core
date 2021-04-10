@@ -254,7 +254,8 @@ import scala.language.implicitConversions
             }
 
             //-- Imported Traits
-            var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
+            // Make sure traits list are unique (no double imports)
+            var traits = element.traits.filterNot(t => t.toString == element.classType.toString).map(_.toString).distinct match {
                 case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
                 case _                                   => ""
             }
