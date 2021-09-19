@@ -68,7 +68,7 @@ abstract class UserDataBufferType[BT <: AbstractDataBuffer[_]](implicit tag: Cla
   //-----------
   def equals(a: Any, b: Any) = {
     (a == b) ||
-      ((a != null) && (b != null) && (a.equals(b)))
+      ((a != null) && (b != null) && (a==(b)))
   }
 
   def hashCode(o: Any) = o.hashCode()
