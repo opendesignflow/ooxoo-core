@@ -3,20 +3,14 @@
  */
 package com.idyria.osi.ooxoo.core.utils
 
-import scala.annotation.Annotation
-import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-
 import java.lang.reflect._
 
-import org.odfi.tea.logging.TLog
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 import javax.persistence.Transient
-import com.idyria.osi.ooxoo.core.buffers.structural.Buffer
 import com.idyria.osi.ooxoo.core.buffers.datatypes.IntegerBuffer
 
 trait ReflectUtilsTrait {

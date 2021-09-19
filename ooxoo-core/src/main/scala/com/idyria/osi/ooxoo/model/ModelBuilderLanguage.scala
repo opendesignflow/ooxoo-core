@@ -156,7 +156,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model {
      * "Element" ofType("string") is ("An element contanining certain informations")
      *
      */
-    def is(right: String): IsWordElementWrapper = {
+    /*def is(right: String): IsWordElementWrapper = {
 
       left.classType match {
 
@@ -178,7 +178,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model {
 
       this
 
-    }
+    }*/
 
     /**
      * Set type of element based on string
@@ -216,7 +216,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model {
     /**
      * Set Enumeration type
      */
-    def enum(values: String*): IsWordElementWrapper = {
+    def valueEnum(values: String*): IsWordElementWrapper = {
 
       @->("element.start", left)
 

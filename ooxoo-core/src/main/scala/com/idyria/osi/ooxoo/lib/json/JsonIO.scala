@@ -23,22 +23,13 @@ package com.idyria.osi.ooxoo.lib.json
 import com.idyria.osi.ooxoo.core.buffers.structural.io.BaseIOBuffer
 import org.odfi.tea.logging.TLogSource
 import java.io.Reader
-import scala.util.parsing.combinator.RegexParsers
-import scala.io.Source
-import scala.util.parsing.input.StreamReader
 import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement_base
-import java.io.PrintStream
 import java.io.CharArrayWriter
 import java.io.PrintWriter
-import java.net.URLEncoder
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute_base
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
-import java.io.ByteArrayOutputStream
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
-import scala.collection.mutable.ArrayStack
 
-class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource with RegexParsers {
+class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = null) extends BaseIOBuffer with TLogSource /* with RegexParsers */{
 
     /**
      * Prefix attribute name with _a_ to avoid conflicts with elements
@@ -55,10 +46,11 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
     // Language
     //---------------
-    def top = "{" ~> jsonHierarchy <~ "}" ^^ {
+    /*
+    def top: Parser[List[DataUnit]] = "{" ~> jsonHierarchy <~ "}" ^^ {
 
         r =>
-            //println(s"In Top Matcher: ")
+
 
             r.foreach {
                 du =>
@@ -66,10 +58,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
                     super.streamIn(du)
             }
 
-            /*r.foreach {
-        du =>
-          println(s"DatUnit: "+du.element.name)
-      }*/
+
             r
     }
 
@@ -280,29 +269,22 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
             du :: (fl :+ DataUnit.closeHierarchy)*/
             fl
-    }
+    }*/
 
     override def streamIn = {
 
         // XML input must be provided
         require(this.stringInput != null)
 
-        /* parseAll(top, StreamReader(stringInput)) match {
-      case Success(result, _) => println(s"Done Parsing JSon")
-      case failure: NoSuccess =>
 
-        println(s"Error: " + failure)
-      //scala.sys.error(failure.msg)
-    }*/
-
-        top(StreamReader(stringInput)) match {
+        /*top(StreamReader(stringInput)) match {
             case Success(result, _) =>
             //println(s"Done Parsing JSon")
             case failure: NoSuccess =>
 
                 //println(s"Error: " + failure)
                 scala.sys.error(failure.toString)
-        }
+        }*/
 
     }
 

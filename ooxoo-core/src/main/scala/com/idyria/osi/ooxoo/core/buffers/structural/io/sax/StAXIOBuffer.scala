@@ -212,7 +212,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
       }
 
       //-- Close already if non hierarchical and set the value if some
-      if (!du.getHierarchical) {
+      if (!du.getHierarchical()) {
         //  println(s"Stax: Closing already!")
 
         //-- With text content

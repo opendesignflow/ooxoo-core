@@ -23,8 +23,6 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-import scala.annotation.StaticAnnotation
-import scala.reflect.runtime.universe._
 
 import java.lang.reflect._
 

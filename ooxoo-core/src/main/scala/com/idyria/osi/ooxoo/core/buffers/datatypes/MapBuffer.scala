@@ -27,7 +27,6 @@ import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
 import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import com.idyria.osi.ooxoo.core.buffers.structural.xcontent
 import com.idyria.osi.ooxoo.core.buffers.structural.xelement
-import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
 /**
@@ -172,7 +171,7 @@ object MapBuffer {
   def apply[T <: Buffer](cl: => T) = new MapBuffer({ du => cl})
   
 }
-class DataMapBuffer[K <: AbstractDataBuffer[_],V <: Buffer](var keyCreateClosure: ( () => K),var valueCreateClosure: (DataUnit => V)) extends scala.collection.mutable.HashMap[K, V] with BaseBufferTrait {
+class DataMapBuffer[K <: AbstractDataBuffer[_],V <: Buffer](var keyCreateClosure: ( () => K),var valueCreateClosure: (DataUnit => V)) extends scala.collection.mutable.LinkedHashMap[K, V] with BaseBufferTrait {
 
   
   @xelement(name = "Entry")

@@ -192,7 +192,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             //println("Calling streamout on element: " + value.hashCode())
 
             value.appendBuffer(ioChain)
-            value.streamOut
+            value.streamOut()
           case None =>
         }
 
@@ -218,7 +218,7 @@ trait VerticalBuffer extends BaseBufferTrait with HierarchicalBuffer with TLogSo
             //println("Calling streamout on element: " + value.hashCode())
 
             value.appendBuffer(ioChain)
-            value.streamOut
+            value.streamOut()
           case None =>
         }
 

@@ -21,7 +21,6 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
 
 trait AnyBufferTrait extends Buffer {

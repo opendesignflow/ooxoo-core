@@ -94,7 +94,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     // Unstack element
     if (elementsStack.size > 0) {
 
-      elementsStack.pop
+      elementsStack.pop()
     }
   }
 

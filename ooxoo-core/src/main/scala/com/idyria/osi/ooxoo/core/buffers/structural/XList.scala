@@ -21,23 +21,15 @@
 package com.idyria.osi.ooxoo.core.buffers.structural
 
 
-import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo.core.buffers.structural.io.IOBuffer
-import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
-
 import scala.reflect._
-import java.lang.reflect.ParameterizedType
+
 
 import scala.language.implicitConversions
 import org.odfi.tea.logging._
 import com.idyria.osi.ooxoo.core.buffers.structural.io.IOTransparentBuffer
 
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.AbstractBuffer
 import scala.collection.mutable.ArrayBuffer
 import com.idyria.osi.ooxoo.core.buffers.id.ElementWithID
-
-import scala.collection.mutable.ListBuffer
 
 /**
   *

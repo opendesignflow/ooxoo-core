@@ -20,10 +20,6 @@
  */
 package com.idyria.osi.ooxoo.core.buffers.structural
 
-import scala.annotation.Annotation
-import scala.annotation.StaticAnnotation
-import scala.reflect.runtime.universe._
-import com.idyria.osi.ooxoo.core.utils.ScalaReflectUtils
 
 import java.lang.reflect._
 
