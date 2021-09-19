@@ -26,16 +26,16 @@ jobs:
 
       - name: Build with Gradle
         run: chmod +x gradlew && ./gradlew build
-        working-directory: gradle-build
+        working-directory: .
 
       - name: Publish Core and Plugin to ODFI OSS
         run: chmod +x gradlew && ./gradlew :core:publish
-        working-directory: gradle-build
+        working-directory: .
 
       - name: Publish Plugin to ODFI OSS
         run: chmod +x gradlew && ./gradlew :plugin:publish
-        working-directory: gradle-build
+        working-directory: .
 
       - name: Publish DB to ODFI OSS
         run: chmod +x gradlew && ./gradlew :db:publish
-        working-directory: gradle-build
+        working-directory: .
