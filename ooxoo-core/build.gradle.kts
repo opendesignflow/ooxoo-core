@@ -56,7 +56,7 @@ dependencies {
 
     // ODFI Deps
     //--------------
-    api ("org.odfi:tea:4.0.0-SNAPSHOT")
+    api ("org.odfi:tea:4.0.0")
 
     // Common JAXB Stuff
     //---------------
