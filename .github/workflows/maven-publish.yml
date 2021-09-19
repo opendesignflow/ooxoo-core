@@ -29,13 +29,13 @@ jobs:
         working-directory: .
 
       - name: Publish Core and Plugin to ODFI OSS
-        run: chmod +x gradlew && ./gradlew :core:publish
+        run: chmod +x gradlew && ./gradlew :ooxoo-core:publish
         working-directory: .
 
       - name: Publish Plugin to ODFI OSS
-        run: chmod +x gradlew && ./gradlew :plugin:publish
+        run: chmod +x gradlew && ./gradlew :gradle-ooxoo-plugin:publish
         working-directory: .
 
       - name: Publish DB to ODFI OSS
-        run: chmod +x gradlew && ./gradlew :db:publish
+        run: chmod +x gradlew && ./gradlew :ooxoo-db:publish
         working-directory: .
