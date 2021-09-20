@@ -105,7 +105,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
       // Cache, but no value already
       case _ if (pullDataUnit == null) =>
 
-        logFine("Pulling and caching value")
+        logFine[TransactionBuffer]("Pulling and caching value")
 
         // Pull, cache and return
         // Register to Transaction if not already
@@ -116,7 +116,7 @@ class TransactionBuffer extends BaseBufferTrait with TLogSource {
       // Return Cached value
       case _ =>
 
-        logFine("Returning cached value")
+        logFine[TransactionBuffer]("Returning cached value")
         this.pullDataUnit
 
     }
@@ -421,7 +421,7 @@ object Transaction extends TLogSource {
 
       case None =>
 
-        logFine("-- Creating transaction for Thread --")
+        logFine[TransactionBuffer]("-- Creating transaction for Thread --")
 
         var transaction = new Transaction
         transaction.initiator = initiator
@@ -471,7 +471,7 @@ object Transaction extends TLogSource {
 
       case None =>
 
-        logFine("-- Creating transaction for Thread --")
+        logFine[TransactionBuffer]("-- Creating transaction for Thread --")
 
         var transaction = new Transaction
         transaction.initiator = initiator

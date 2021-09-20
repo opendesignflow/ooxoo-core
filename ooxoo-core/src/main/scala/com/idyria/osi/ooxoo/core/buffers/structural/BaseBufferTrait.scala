@@ -36,9 +36,9 @@ import javax.persistence.Transient
  *
  * To be implented by subclasses:
  *
- * 	<ul>
- * 		<li>createDataUnit : DataUnit</li>
- *  </ul>
+ * <ul>
+ * <li>createDataUnit : DataUnit</li>
+ * </ul>
  *
  * @author rleys
  *
@@ -76,8 +76,8 @@ trait BaseBufferTrait extends Buffer {
       return buffer
     this.nextBuffer = buffer
 
-   /* if (buffer != null)
-      buffer.setPreviousBuffer(this)*/
+    /* if (buffer != null)
+       buffer.setPreviousBuffer(this)*/
 
     buffer
 
@@ -220,15 +220,15 @@ trait BaseBufferTrait extends Buffer {
     // Pass
     if (this.previousBuffer != null)
       this.previousBuffer <= du
-      
-   
+
+
   }
-  
+
   /**
    * Post Streamin call is made by the implementations, because streamin end depends on the type of element currently being read
    */
   def postStreamIn = {
-    
+
   }
 
 }

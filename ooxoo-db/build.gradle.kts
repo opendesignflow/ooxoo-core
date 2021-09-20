@@ -45,7 +45,7 @@ tasks.javadoc {
 
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
-    scalaCompileOptions.additionalParameters = listOf("-Ytasty-reader")
+    //scalaCompileOptions.additionalParameters = listOf("-Ytasty-reader")
 }
 
 dependencies {

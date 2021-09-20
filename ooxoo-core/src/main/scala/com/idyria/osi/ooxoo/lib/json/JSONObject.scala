@@ -87,7 +87,7 @@ class JSONObject extends TTreeBuilder[JSONNode] {
 
   // Language
   //------------
-  implicit def listToNode(lst: List[Any]) = {
+  implicit def listToNode(lst: List[Any]) : BuilderObjectNode = {
     
     // Create Node
     val objNode = new BuilderObjectNode
@@ -101,12 +101,14 @@ class JSONObject extends TTreeBuilder[JSONNode] {
 
   }
 
-  implicit def stringToNode(str: String) = {
-    pushNode(new StringValueNode(str))
+  implicit def stringToNode(str: String) : StringValueNode = {
+    val n = new StringValueNode(str)
+    pushNode(n)
+    n
 
   }
 
-  implicit def clToNode(cl: => Any) = {
+  implicit def clToNode(cl: => Any) : BuilderObjectNode = {
     println("Create node")
     new BuilderObjectNode {
       pushNode(this)

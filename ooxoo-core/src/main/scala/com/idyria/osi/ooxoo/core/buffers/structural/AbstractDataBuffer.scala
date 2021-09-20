@@ -8,12 +8,12 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -33,22 +33,22 @@ import scala.reflect.ClassTag
  * For example, all the implementations of default XSD data types are data buffers
  * A data buffer requires the implementation of string de/serialisation for streamOut
  *
- *
- *
  * @author rleys
  *
  */
-abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLogSource with ListeningSupport with Serializable{
+abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLogSource with ListeningSupport with Serializable {
 
   var data: DT = _
+
   def dataToString: String
+
   def dataFromString(str: String): DT
 
   type dataType = DT
 
   // Value Update
   //----------
-  def onDataUpdate(cl:  => Unit) = {
+  def onDataUpdate(cl: => Unit) = {
     //println(s"Registering data update on: "+hashCode())
     this.on("data.update")(cl)
   }
@@ -58,12 +58,12 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
     this.@->("data.update")
   }
 
-  
+
   def isNotNull = data match {
     case null => false
     case other => true
   }
-  
+
   // Data Set
   //------------------
 
@@ -111,8 +111,8 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
 
     // Create Empty Data Unit
     //------------------
-    var du = new DataUnit
-    du.setValue(this.dataToString)
+    var du = DataUnit()
+    du.value = this.dataToString
 
     // Try to add element/attribute content if implementation class has some
     //--------------
@@ -135,8 +135,8 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
 
     this.dataFromString(du.value) match {
       case null =>
-      case res => 
-        //this.data = res
+      case res =>
+      //this.data = res
     }
 
   }
@@ -158,7 +158,7 @@ abstract class AbstractDataBuffer[DT: ClassTag] extends BaseBufferTrait with TLo
     }*/
 
     //-- Add Value
-    du.setValue(this.dataToString)
+    du.value = this.dataToString
 
     //-- Pass
     //println("Passing to super")

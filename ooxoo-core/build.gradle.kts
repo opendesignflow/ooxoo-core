@@ -1,11 +1,11 @@
-
-
 plugins {
-    id ("scala")
+
+    id("scala")
+    id("com.github.maiflai.scalatest") version "0.31"
 
     // Publish
-    id ("maven-publish")
-    id ("java-library")
+    id("maven-publish")
+    id("java-library")
 
 }
 
@@ -45,7 +45,7 @@ tasks.javadoc {
 
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
-    scalaCompileOptions.additionalParameters = listOf("-Ytasty-reader")
+    scalaCompileOptions.additionalParameters = listOf("-rewrite", "-source", "3.0-migration")
 }
 
 
@@ -56,55 +56,54 @@ dependencies {
 
     // ODFI Deps
     //--------------
-    api ("org.odfi:tea:4.0.0")
+    api("org.odfi:tea:4.0.1")
 
     // Common JAXB Stuff
     //---------------
 
     // Special Buffer types like HTML string, compresssing buffer
-    api ("org.apache.commons:commons-lang3:3.12.0")
-    api ("org.apache.commons:commons-compress:1.21")
+    api("org.apache.commons:commons-lang3:3.12.0")
+    api("org.apache.commons:commons-compress:1.21")
 
     // Stax indenting output
-    api ("org.glassfish.jaxb:txw2:3.0.1")
+    api("org.glassfish.jaxb:txw2:3.0.1")
 
     // Producer
     //--------------
 
     // Library to make words plurals
-    api ("org.atteo:evo-inflector:1.3")
+    api("org.atteo:evo-inflector:1.3")
 
 
     // JSON API and Impl for javax
     //----------------
 
-    api ("org.eclipse:yasson:1.0.9")
+    api("org.eclipse:yasson:1.0.9")
     //api 'javax.json:javax.json-api:2.0.0'
     //api "javax.json.bind:javax.json.bind-api:1.0.2"
 
 
     // GSON
     //---------------
-    api ("com.google.code.gson:gson:2.8.8")
+    api("com.google.code.gson:gson:2.8.8")
 
 
     // JPA Interfaces
     //-----------------
-    api ("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
+    api("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
     // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
-   // api group: 'javax.persistence', name: 'javax.persistence-api', version: '3.0.0'
-    api( "javax.persistence:javax.persistence-api:2.2")
+    // api group: 'javax.persistence', name: 'javax.persistence-api', version: '3.0.0'
+    api("javax.persistence:javax.persistence-api:2.2")
 
-    // Scala
+    // Scala Tests
     //---------------
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
-    /*api "org.scala-lang:scala-reflect:$scalaVersion"
-    api "org.scala-lang:scala-compiler:$scalaVersion"
-    api("org.scala-lang:scala-library:$scalaVersion")*/
 
-   /* testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
-    testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.6'
-    testImplementation 'org.scalatest:scalatest-shouldmatchers_2.13:3.2.6'*/
+    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.9")
+    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.9")
+    testImplementation("com.vladsch.flexmark:flexmark-all:0.35.10")
+
+
 }
 
 

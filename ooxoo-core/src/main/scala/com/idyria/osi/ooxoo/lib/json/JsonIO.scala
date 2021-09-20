@@ -451,7 +451,7 @@ class JsonIO(var stringInput: Reader = null, var outputArray: CharArrayWriter = 
 
             case (close, hier, element, value) =>
 
-                logFine(s"Not Supported construct: " + element)
+                logFine[JsonIO](s"Not Supported construct: " + element)
         }
 
         // Pass it on

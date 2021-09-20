@@ -57,7 +57,6 @@ trait Buffer {
   // Streamout/in Interface
   //---------------------------------
 
-  
 
   /**
    * Pushs a data unit coming from previous buffer in chain
@@ -102,10 +101,10 @@ trait Buffer {
   /**
    * streamIn a data unit from the next buffer
    */
-  def streamIn(du: DataUnit) : Unit
+  def streamIn(du: DataUnit): Unit
 
   /**
-   *  Alias for streamIn
+   * Alias for streamIn
    */
   def <=(du: DataUnit) = streamIn(du)
 
@@ -133,6 +132,7 @@ trait Buffer {
     this.pushRight(dataUnit)
     this.pushLeft(dataUnit)
   }
+
   def push: Unit = push(null)
 
   /**
@@ -184,11 +184,13 @@ trait Buffer {
     du
 
   }
+
   def pull(): DataUnit = this.pull(DataUnit())
-  
+
   def pullRight = pull()
-  def pullRight(du:DataUnit) = pull(du)
-  
+
+  def pullRight(du: DataUnit) = pull(du)
+
   /**
    * Request value pull from right buffer
    * If we have someone on the left, respond using pull(dataUnit)
@@ -211,8 +213,8 @@ trait Buffer {
 
   }
 
-  def pullLeft : DataUnit = pullLeft(DataUnit())
-  
+  def pullLeft: DataUnit = pullLeft(DataUnit())
+
   // Buffer Chain Management
   //-------------------------------
 
@@ -291,6 +293,7 @@ trait Buffer {
 
   /**
    * Inserts a buffer after this buffer
+   *
    * @return The inserted buffer
    */
   def insertNextBuffer(buffer: Buffer): Buffer
@@ -358,40 +361,42 @@ trait Buffer {
 
   /**
    * Sets the provided buffer at the head of the buffer chain
+   *
    * @return The inserted buffer
    */
   def prependBuffer(buffer: Buffer): Buffer
 
   /**
    * Inserts the provided buffer before this buffer
+   *
    * @return The inserted buffer
    */
   def insertPreviousBuffer(buffer: Buffer): Buffer
 
   // Buffer Type Search
   //--------------
-  def findBufferType[T <: Buffer](implicit tag : ClassTag[T]) : Option[T] = {
-    
-    var res : Option[T] = None
-    this.foreachNextBuffer {
-        case b: T =>
+  def findBufferType[T <: Buffer](implicit tag: ClassTag[T]): Option[T] = {
 
-          res = Some(b)
-        case _ => 
-      
+    var res: Option[T] = None
+    this.foreachNextBuffer {
+      case b: T =>
+
+        res = Some(b)
+      case _ =>
+
     }
-  
-   res
-    
+
+    res
+
   }
   // IO Chain
   //----------
-  
+
   /**
    * Run Some code with the IOChain of another buffer (transfer and clean)
    */
-  def withIOChain(buffer: Buffer)(cl : => Any) : Unit = {
-    
+  def withIOChain(buffer: Buffer)(cl: => Any): Unit = {
+
     buffer.getIOChain match {
       case Some(io) =>
         this.appendBuffer(io)
@@ -399,13 +404,14 @@ trait Buffer {
         this.cleanIOChain
       case None => cl
     }
-    
+
   }
-  
+
   @Transient
   var cleanLock = new ReentrantLock
 
   def lockIO = cleanLock.lock()
+
   def unlockIO = cleanLock.unlock()
 
   /**
@@ -414,7 +420,7 @@ trait Buffer {
   def cleanIOChain = {
 
     if (this.getPreviousBuffer == null && cleanLock.getHoldCount() == 0) {
-      
+
       //println("Clean IO from "+getClass)
       this.foreachNextBuffer {
         case io: IOBuffer =>

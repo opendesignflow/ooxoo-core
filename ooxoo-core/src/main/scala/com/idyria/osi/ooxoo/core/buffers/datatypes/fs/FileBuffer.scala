@@ -28,47 +28,49 @@ import scala.language.implicitConversions
 
 class FileBuffer extends AbstractDataBuffer[File] {
 
-    def this(str: String) = {
-        this();
-        //println("File Buffer constructor: "+str)
-        str match {
-            case null =>
-            case s    => this.data = dataFromString(s)
-        }
-
-    }
-    def dataFromString(str: String) = {
-       // println("FIle Data from String: " + str)
-        this.data = new File(new URI(str).getPath)
-
-        this.data
-    }
-    def dataToString = data match {
-        case null  => ""
-        case other => this.data.toURI().toString()
+  def this(str: String) = {
+    this();
+    //println("File Buffer constructor: "+str)
+    str match {
+      case null =>
+      case s => this.data = dataFromString(s)
     }
 
-    override def toString: String = {
-        data match {
-            case null  => ""
-            case other => other.toString
-        }
+  }
+
+  def dataFromString(str: String) = {
+    // println("FIle Data from String: " + str)
+    this.data = new File(new URI(str).getPath)
+
+    this.data
+  }
+
+  def dataToString = data match {
+    case null => ""
+    case other => this.data.toURI().toString()
+  }
+
+  override def toString: String = {
+    data match {
+      case null => ""
+      case other => other.toString
     }
+  }
 
 }
 
 object FileBuffer {
 
-    implicit def fToB(f: File) = {
-        val b = new FileBuffer
-        b.set(f)
-        b
-    }
+  implicit def fToB(f: File): FileBuffer = {
+    val b = new FileBuffer
+    b.set(f)
+    b
+  }
 
-    implicit def sToB(f: String) = {
-        val b = new FileBuffer(f)
-        b
-    }
+  implicit def sToB(f: String): FileBuffer = {
+    val b = new FileBuffer(f)
+    b
+  }
 
-    implicit def bToF(f: FileBuffer) = f.data
+  implicit def bToF(f: FileBuffer): File = f.data
 }

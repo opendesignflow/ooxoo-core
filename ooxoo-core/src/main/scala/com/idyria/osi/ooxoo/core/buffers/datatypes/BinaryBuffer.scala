@@ -106,7 +106,7 @@ class IntBinaryBuffer extends AbstractDataBuffer[Array[Int]] {
 
 object IntBinaryBuffer {
 
-  implicit def convertIntArrayToBuffer(arr: Array[Int]) = {
+  implicit def convertIntArrayToBuffer(arr: Array[Int]) : IntBinaryBuffer = {
 
     var b = new IntBinaryBuffer
     b.set(arr)
@@ -114,7 +114,7 @@ object IntBinaryBuffer {
 
   }
 
-  implicit def convertBufferToIntArray(b: IntBinaryBuffer) = {
+  implicit def convertBufferToIntArray(b: IntBinaryBuffer) :Array[Int]= {
 
     b.data
 
@@ -166,7 +166,7 @@ class DoubleBinaryBuffer extends AbstractDataBuffer[Array[Double]] {
 
 object DoubleBinaryBuffer {
 
-  implicit def convertArrayToBuffer(arr: Array[Double]) = {
+  implicit def convertArrayToBuffer(arr: Array[Double]) : DoubleBinaryBuffer = {
 
     var b = new DoubleBinaryBuffer
     b.set(arr)
@@ -174,7 +174,7 @@ object DoubleBinaryBuffer {
 
   }
 
-  implicit def convertBufferToArray(b: DoubleBinaryBuffer) = {
+  implicit def convertBufferToArray(b: DoubleBinaryBuffer) : Array[Double] = {
 
     b.data
 

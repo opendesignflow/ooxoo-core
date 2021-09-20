@@ -69,7 +69,7 @@ class ModelBuilderTest extends AnyFunSuite with GivenWhenThen {
 
                   "TestElement" is {
                     
-                    "TestEnum" enum("A","B","C","D")
+                    "TestEnum" valueEnum("A","B","C","D")
                     
                   }
                   

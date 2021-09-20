@@ -212,7 +212,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
       }
 
       //-- Close already if non hierarchical and set the value if some
-      if (!du.getHierarchical()) {
+      if (!du.hierarchical) {
         //  println(s"Stax: Closing already!")
 
         //-- With text content
@@ -347,7 +347,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
         }
 
         //-- send
-        logFine(s"Produced element DataUnit: " + du.element.name);
+        logFine[StAXIOBuffer](s"Produced element DataUnit: " + du.element.name);
         this.streamIn(du)
 
         //-- Send attributes if any
@@ -362,7 +362,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
             du.value = reader.getAttributeValue(i)
 
             //-- send
-            logFine(s"Produced attribute DataUnit: " + du.attribute.name);
+            logFine[StAXIOBuffer](s"Produced attribute DataUnit: " + du.attribute.name);
             this.streamIn(du)
           }
         }
@@ -371,7 +371,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
       //---------------
       else if (reader.isEndElement()) {
 
-        logInfo("Sending End element for: " + reader.getName())
+        logInfo[StAXIOBuffer]("Sending End element for: " + reader.getName())
 
         // Just send an empty data unit with hiearchical = false
         var closeDU = new DataUnit

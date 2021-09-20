@@ -26,7 +26,7 @@ import org.hibernate.boot.MetadataSources
 import javax.persistence.EntityManager
 import scala.jdk.CollectionConverters._
 
-class RegisteredHibernate(val configMap: Map[String, String])  {
+class RegisteredHibernate(val configMap: Map[String, String]) {
 
   //-- Prepare Registry Builder
   val registryBuilder = new StandardServiceRegistryBuilder()
@@ -50,19 +50,19 @@ class RegisteredHibernate(val configMap: Map[String, String])  {
         val sessionFactory = metadataSource.buildMetadata().buildSessionFactory();
 
 
-       entityManager = Some(sessionFactory.createEntityManager())
+        entityManager = Some(sessionFactory.createEntityManager())
         entityManager.get
     }
   }
-  
+
   def invalidateManager = this.entityManager = None
-  
-  def registerEntity(cl:Class[_]) = {
+
+  def registerEntity(cl: Class[_]) = {
     invalidateManager
     this.metadataSource.addAnnotatedClass(cl)
   }
-  
-  def registerPackage(p:Package) = {
+
+  def registerPackage(p: Package) = {
     invalidateManager
     this.metadataSource.addPackage(p)
   }
@@ -76,16 +76,16 @@ object OOXOOHibernate {
 
   var classes = List[Class[_]]()
   var packages = List[Package]()
-  
+
   // Apply Config
   //----------------
   def createEntityManager(configMap: Map[String, String]) = {
 
-   val h = new RegisteredHibernate(configMap)
-   packages.foreach(h.registerPackage)
-   classes.foreach(h.registerEntity)
-   hibernates = hibernates :+ h
-   h
+    val h = new RegisteredHibernate(configMap)
+    packages.foreach(h.registerPackage)
+    classes.foreach(h.registerEntity)
+    hibernates = hibernates :+ h
+    h
 
   }
 
@@ -93,22 +93,23 @@ object OOXOOHibernate {
     println("Registering Model: " + n)
     val cl = Thread.currentThread().getContextClassLoader.loadClass(n)
     hibernates.foreach {
-      h => 
+      h =>
         h.registerEntity(cl)
     }
-    
+
     classes = classes :+ cl
   }
-  def registerPackage(p:Package) = {
+
+  def registerPackage(p: Package) = {
     println("Registering Package: " + p)
-    
+
     hibernates.foreach {
-      h => 
+      h =>
         h.registerPackage(p)
     }
-    
+
     packages = packages :+ p
   }
-  
+
 
 }

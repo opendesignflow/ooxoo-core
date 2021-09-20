@@ -48,7 +48,7 @@ class SHA256StringBuffer extends XSDStringBuffer {
 
 object SHA256StringBuffer {
   
-  implicit def convertFromStringToSHA256Buffer(str:String) = {
+  implicit def convertFromStringToSHA256Buffer(str:String) : SHA256StringBuffer = {
     
     var b = new SHA256StringBuffer
     b.set(str)

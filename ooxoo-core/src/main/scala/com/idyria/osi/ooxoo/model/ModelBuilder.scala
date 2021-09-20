@@ -61,7 +61,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
    */
   onWith("element.start") {
 
-    elt: Element =>
+    (elt: Element) =>
 
       //println("Inside element.start for "+elt.name)
 
@@ -87,7 +87,7 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
 
   }
 
-  onWith("element.end") { elt: Element =>
+  onWith("element.end") {( elt: Element) =>
 
     // println("Inside element.end for "+elt.name)
 
@@ -321,8 +321,8 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
   // Attribute Creation/Editing
   //---------------------
 
-  implicit val defaultDesc = { "" }
-  def attribute(name: String)(implicit desc: String): Attribute = {
+
+  def attribute(name: String) : Attribute = {
 
     // Create Attribute
     var attr = new Attribute(name)
@@ -330,24 +330,24 @@ trait ModelBuilder extends ElementBuffer with ModelBuilderLanguage {
     attr
 
     // Set Description
-    attr.description = desc
+    //attr.description = desc
 
     attr
   }
 
-  def -@(name: String)(implicit desc: String): Attribute = attribute(name)(desc)
+  def -@(name: String): Attribute = attribute(name)
 
-  def attribute(attr: IsWordAttributeWrapper)(implicit desc: String): Attribute = {
+  def attribute(attr: IsWordAttributeWrapper): Attribute = {
 
     // Set Description
-    attr.left.description = desc
+    //attr.left.description = desc
 
     attr.left
 
   }
 
   onWith("attribute.add") {
-    attribute: Attribute =>
+    (attribute: Attribute) =>
 
       // Add only if not already added
       // Fail if no elements on stack

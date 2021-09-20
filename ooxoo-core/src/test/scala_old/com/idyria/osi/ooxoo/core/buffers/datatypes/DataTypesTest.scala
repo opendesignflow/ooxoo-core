@@ -22,14 +22,11 @@ package com.idyria.osi.ooxoo.core.buffers.datatypes
 
 import java.io.StringReader
 import java.io.StringWriter
-import org.scalatest._
 import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural.XList
 import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural._
-import com.idyria.osi.ooxoo.core.utils._
+import org.scalatest.GivenWhenThen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -231,6 +228,19 @@ class DataTypesTest extends AnyFunSuite with  Matchers   with GivenWhenThen {
     assertResult(4)(reread.mapContent.size)
   }
 
+  class StartStoppedRunningEnum extends EnumerationBuffer {
+
+    type StartStoppedRunningEnum = Value
+    val stopped = Value("stopped")
+    val running = Value("running")
+    val closed = Value("closed")
+    def selectstopped: Unit = this select this.stopped
+    def selectrunning: Unit = this select this.running
+    def selectclosed: Unit = this select this.closed
+    // val A, B, C, D = Value
+
+  }
+
   @xelement
   class EnumContainer extends ElementBuffer {
 
@@ -241,16 +251,7 @@ class DataTypesTest extends AnyFunSuite with  Matchers   with GivenWhenThen {
     var attr: TestEnum = new TestEnum
 
     @xattribute(name = "attr2")
-    var attr2 = new com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer {
-
-      type state = Value
-      val stopped = Value("stopped")
-      val running = Value("running")
-      val closed = Value("closed")
-      def selectstopped: Unit = this select this.stopped
-      def selectrunning: Unit = this select this.running
-      def selectclosed: Unit = this select this.closed
-    }
+    var attr2 = new StartStoppedRunningEnum
 
   }
 

@@ -48,7 +48,7 @@ object xelement_base {
     //println(s"CL: "+baseClass.getSimpleName);
     var firstName = baseClass.getSimpleName.replaceAll("\\$.*", "")
     var cl: Class[_] = baseClass
-    do {
+    while(cl != null) {
 
       // Get Annotation and instanciate base object
       //--------------------
@@ -96,17 +96,17 @@ object xelement_base {
           var xelement = this.findXElementOnClass(interface) match {
             case Some(elt) =>
               return elt
-            case None => 
-              
+            case None =>
+
           }
-         
+
       }
 
       // Next superclass ?
       //-----------------
       cl = cl.getSuperclass
+    }
 
-    } while (cl != null)
 
     return null
 
@@ -153,7 +153,7 @@ object xelement_base {
 
   }
 
-  def apply(source: AnyRef): xelement_base = this(source.getClass)
+  def apply(source: AnyRef): xelement_base = this (source.getClass)
 
   def apply(source: Field): xelement_base = {
 

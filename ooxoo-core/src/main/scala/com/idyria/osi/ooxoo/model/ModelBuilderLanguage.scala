@@ -386,7 +386,7 @@ trait ModelBuilderLanguage extends ListeningSupport with Model {
     /**
      * Set Enumeration type
      */
-    def enum(values: String*): IsWordAttributeWrapper = {
+    def valueEnum(values: String*): IsWordAttributeWrapper = {
 
       @->("attribute.add", left)
 
