@@ -582,17 +582,17 @@ import scala.jdk.CollectionConverters._
         if (!element.isTrait || element.traitSeparateFromObject != null) {
 
           //-- Add From URL Factory
-          out <<
+          /*out <<
             s"""
 def apply(url : java.net.URL) = {
 
   
 }
 
-"""
+"""*/
 
           //-- Add From String factory
-          out <<
+          /*out <<
             s"""
 
 def apply(xml : String) = {
@@ -600,7 +600,7 @@ def apply(xml : String) = {
 
   
 }
-"""
+"""*/
         }
         try {
 
