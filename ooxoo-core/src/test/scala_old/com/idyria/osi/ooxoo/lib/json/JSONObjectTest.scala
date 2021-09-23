@@ -27,37 +27,37 @@ import org.odfi.tea.logging.TLogSource
 import org.scalatest.funsuite.AnyFunSuite
 
 class JSONObjectTest extends AnyFunSuite with TLogSource {
-  
-  
+
+
   test("Basic JSONObject test") {
-    
+
     tlogEnableFull[JsonIO]
-    
+
     val top = new JSONObject {
-      
+
       "top" :: {
-         
-       // println("Top creation")
+
+        // println("Top creation")
         "a" :: {
-           //println("A creation")
+          //println("A creation")
           "c" :: "Hello"
         }
-        
+
         "b" :: {
-          
-           "d" *:: List("Hello",0,1,3.0)
-          
+
+          "d" *:: List("Hello", 0, 1, 3.0)
+
           //"d" [0,1]
         }
       }
     }
-    
+
     //val top = new AnyElementBuffer with JSonUtilTrait
     //top.name = "hello"
     val result = top.toJSON
-    println("Result: "+result)
-    
-     assertResult(""""top":{"a":{"c":"Hello"},"b":{}}""")(result)
-    
+    println("Result: " + result)
+
+    assertResult(""""top":{"a":{"c":"Hello"},"b":{}}""")(result)
+
   }
 }

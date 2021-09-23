@@ -6,18 +6,19 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlin_version: String by extra("1.5.10")
+val kotlin_version: String by extra("1.5.30")
 
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
-    id ("java-gradle-plugin")
+    id("java-gradle-plugin")
+
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    id ("org.jetbrains.kotlin.jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.30"
 
     // Publish
-    id ("maven-publish")
-    id ("com.gradle.plugin-publish") version ("0.13.0")
+    id("maven-publish")
+    id("com.gradle.plugin-publish") version ("0.13.0")
 }
 pluginBundle {
     website = "https://github.com/opendesignflow/ooxoo-core"
@@ -49,23 +50,23 @@ tasks.javadoc {
 dependencies {
 
     //implementation "$group:ooxoo-core:$version"
-    implementation (project(":ooxoo-core"))
+    implementation(project(":ooxoo-generator"))
 
     // Align versions of all Kotlin components
-    implementation (platform("org.jetbrains.kotlin:kotlin-bom"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
-    implementation ("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
 
     // Use the Kotlin test library.
-    testImplementation ("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     // Use the Kotlin JUnit integration.
-    testImplementation ("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 }
 
 gradlePlugin {
@@ -78,6 +79,13 @@ gradlePlugin {
         }
     }
 }
+
+/*
+tasks.getAt("compileScala").dependsOn.remove("compileJava")
+tasks.getAt("compileKotlin").dependsOn("compileScala")
+tasks.withType<ScalaCompile>().configureEach {
+    this.ja
+}*/
 /*
 gradlePlugin {
     // Define the plugin

@@ -1,12 +1,7 @@
 package org.odfi.ooxoo.gradle.plugin
 
-import com.idyria.osi.ooxoo.model.ModelCompiler
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.plugins.scala.ScalaPluginExtension
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import java.io.File

@@ -54,7 +54,9 @@ class Test extends ElementBuffer {
   var attr1: XSDStringBuffer = null
 
   @xelement(name = "MultipleElement")
-  var MultipleElement = XList { new XSDStringBuffer }
+  var MultipleElement = XList {
+    new XSDStringBuffer
+  }
 
   @xelement(name = "SubTest")
   var subTest: SubTest = null
@@ -69,8 +71,11 @@ class Test extends ElementBuffer {
     val stopped = Value("stopped")
     val running = Value("running")
     val closed = Value("closed")
+
     def selectstopped: Unit = this select this.stopped
+
     def selectrunning: Unit = this select this.running
+
     def selectclosed: Unit = this select this.closed
   }
 
@@ -110,7 +115,7 @@ class SubSubTest extends ElementBuffer {
 @xelement(name = "Path")
 class Path extends com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer with com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer {
 
-} 
+}
 
 @xelement(name = "Action")
 class Action extends com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer with com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer {
@@ -122,10 +127,14 @@ class Action extends com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuff
   val join = Value("join")
 
   def selectstop: Unit = this select this.stop
+
   def selectsuspend: Unit = this select this.suspend
+
   def selectresume: Unit = this select this.resume
+
   def selectjoin: Unit = this select this.join
 }
+
 object Action {
 
   def apply() = new Action
@@ -139,14 +148,14 @@ object Action {
 class JSONTest extends AnyFunSuite with BeforeAndAfter {
 
   after {
-    
-	 TLog.resetLevels
-    
+
+    TLog.resetLevels
+
   }
-  
-  
-  
-  var input = """{
+
+
+  var input =
+    """{
       
       "Test" : {
 		  	"_@attr1" : "AttributeValue",
@@ -173,7 +182,8 @@ class JSONTest extends AnyFunSuite with BeforeAndAfter {
    */
   test("Simple Input Parse") {
 
-    var input2 = """{
+    var input2 =
+      """{
       
       "Test" : {
        
@@ -222,7 +232,7 @@ class JSONTest extends AnyFunSuite with BeforeAndAfter {
     //--------------------
 
     // Top
-    println(s"Testing on "+top.simpleElement.hashCode()+" -> "+top.simpleElement.toString)
+    println(s"Testing on " + top.simpleElement.hashCode() + " -> " + top.simpleElement.toString)
     assertResult("/local/home/rleys/git/extoll2/tourmalet-tester/www-inputdata/i2c.sscript")(top.simpleElement.toString)
 
     assertResult("AttributeValue")(top.attr1.toString)
@@ -278,18 +288,18 @@ class JSONTest extends AnyFunSuite with BeforeAndAfter {
     top.streamOut()
 
     var res = io.finish
-    
+
     println(s"Result: " + io.finish)
-    
+
     // Checks
     //--------------
-    
+
     //-- Unbalanced braces
-    var lbc = res.count(_=='{')
-    var rbc = res.count(_=='}')
-    assertResult(lbc,"Left and Right curly braces must not be unbalanced")(rbc)
-    println(s"Found ${res.count(_=='{')} {")
-    println(s"Found ${res.count(_=='}')} }")
+    var lbc = res.count(_ == '{')
+    var rbc = res.count(_ == '}')
+    assertResult(lbc, "Left and Right curly braces must not be unbalanced")(rbc)
+    println(s"Found ${res.count(_ == '{')} {")
+    println(s"Found ${res.count(_ == '}')} }")
 
   }
 

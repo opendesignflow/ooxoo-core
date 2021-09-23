@@ -702,7 +702,7 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
-    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
+    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonStructure",
     classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue",
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )

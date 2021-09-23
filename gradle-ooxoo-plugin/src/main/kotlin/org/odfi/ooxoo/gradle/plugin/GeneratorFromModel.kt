@@ -1,11 +1,8 @@
 package org.odfi.ooxoo.gradle.plugin
 
-import com.idyria.osi.ooxoo.model.ModelCompiler
-import com.idyria.osi.ooxoo.model.producers
 import com.idyria.osi.ooxoo.model.writers.FileWriters
 import org.gradle.workers.WorkAction
 import java.io.File
-import kotlin.reflect.full.primaryConstructor
 
 abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
 
@@ -62,7 +59,7 @@ abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
 
     companion object {
 
-        fun produceModel(compiler:ModelCompiler,modelFile:File,outputDir:File) {
+        fun produceModel(compiler: ModelCompiler, modelFile:File, outputDir:File) {
 
             // Compile
             //-----------
@@ -76,9 +73,9 @@ abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
             // Produce for all defined producers
             //---------------
             modelInfos?.let {
-                modelInfos ->
+                mif ->
 
-                modelInfos.producers()?.let {
+                mif.producers()?.let {
                     producersDef ->
 
                     producersDef.value.forEach {

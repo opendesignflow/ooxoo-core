@@ -18,5 +18,6 @@ pluginManagement {
 
 include(":gradle-ooxoo-plugin")
 include(":ooxoo-core")
+include(":ooxoo-generator")
 include(":ooxoo-db")
 

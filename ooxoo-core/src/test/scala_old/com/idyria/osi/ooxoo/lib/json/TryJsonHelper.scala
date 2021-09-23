@@ -10,15 +10,15 @@ object TryJsonHelper extends App {
   class TestModel {
 
     @JsonbProperty
-    var id : String = _
+    var id: String = _
 
   }
 
   val res = JSONHelper.createJSONB.fromJson(
     """{
       |"id": "test"
-      |}""".stripMargin,classOf[TestModel])
+      |}""".stripMargin, classOf[TestModel])
 
-  println("Res: "+res)
+  println("Res: " + res)
 
 }

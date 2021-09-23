@@ -1,6 +1,10 @@
 package com.idyria.osi.ooxoo.lib.json.model
 
-import java.io.{File, FileOutputStream, FileReader, InputStream, InputStreamReader}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
+import java.io.{File, FileOutputStream, FileReader, InputStream, InputStreamReader, Reader}
 import java.lang.reflect.{Field, Method, Type}
 import java.time.Instant
 import java.util
@@ -8,13 +12,14 @@ import java.util.{Base64, UUID}
 import com.google.gson.annotations.{Expose, SerializedName}
 import com.google.gson.reflect.TypeToken
 import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
-import javax.json.JsonObject
+import com.idyria.osi.ooxoo.lib.json.yaml.JsonValueDeserialiser
+
+import javax.json.{JsonObject, JsonValue}
 import javax.json.bind.annotation.JsonbProperty
 import javax.json.bind.{JsonbBuilder, JsonbConfig}
 import javax.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
 import javax.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
 import javax.json.stream.{JsonGenerator, JsonParser}
-
 import scala.reflect.ClassTag
 
 
@@ -61,6 +66,27 @@ object JSONHelper {
   }
 
   /**
+   * Creates a Jackson Mapper that can parse YAML into JSONB compatible object hierarchies
+   *
+   * @return
+   */
+  def createJacksonYAMLReader = {
+    val mapper = new ObjectMapper(new YAMLFactory)
+    mapper.findAndRegisterModules()
+
+    val m = new SimpleModule()
+    m.addDeserializer(classOf[JsonValue], new JsonValueDeserialiser)
+    mapper.registerModule(m)
+    mapper
+  }
+
+  def fromYAML[T](r: Reader)(implicit tag: ClassTag[T]) : T = {
+
+    val mapper = createJacksonYAMLReader
+    mapper.readValue(r,tag.runtimeClass).asInstanceOf[T]
+  }
+
+  /**
    * Returns A Populared Copy of this Object!!!
    *
    * @param f
@@ -93,7 +119,7 @@ object JSONHelper {
    */
   def fromJSONStreamArray[T](is: InputStream)(implicit tag: ClassTag[T]): Array[T] = {
 
-   // var istType = new java.util.ArrayList[T]() {}.getClass.getGenericSuperclass
+    // var istType = new java.util.ArrayList[T]() {}.getClass.getGenericSuperclass
 
     jsonb.fromJson[Array[T]](new InputStreamReader(is, "UTF-8"), tag.newArray(0).getClass)
   }
@@ -186,8 +212,8 @@ object JSONHelper {
     def serialize(src: UUID, typeOfSrc: Type, context: JsonSerializationContext) = new JsonPrimitive(src.toString)
   }
 
-  class  UUIDJsonBSerDes extends JsonbDeserializer[UUID] with JsonbSerializer[UUID] {
-    override def deserialize(jsonParser: JsonParser, deserializationContext: DeserializationContext, `type`: Type): UUID =  {
+  class UUIDJsonBSerDes extends JsonbDeserializer[UUID] with JsonbSerializer[UUID] {
+    override def deserialize(jsonParser: JsonParser, deserializationContext: DeserializationContext, `type`: Type): UUID = {
       UUID.fromString(jsonParser.getString)
     }
 
