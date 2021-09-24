@@ -12,7 +12,7 @@ import java.util.{Base64, UUID}
 import com.google.gson.annotations.{Expose, SerializedName}
 import com.google.gson.reflect.TypeToken
 import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
-import com.idyria.osi.ooxoo.lib.json.yaml.JsonValueDeserialiser
+import com.idyria.osi.ooxoo.lib.json.yaml.{JsonObjectDeserialiser, JsonValueDeserialiser}
 
 import javax.json.{JsonObject, JsonValue}
 import javax.json.bind.annotation.JsonbProperty
@@ -76,6 +76,7 @@ object JSONHelper {
 
     val m = new SimpleModule()
     m.addDeserializer(classOf[JsonValue], new JsonValueDeserialiser)
+    m.addDeserializer(classOf[JsonObject],new JsonObjectDeserialiser)
     mapper.registerModule(m)
     mapper
   }

@@ -4,7 +4,7 @@ import com.google.gson.annotations.{Expose, SerializedName}
 import com.idyria.osi.ooxoo.lib.json.model.JSONHelper
 
 import java.io.StringReader
-import javax.json.JsonValue
+import javax.json.{JsonObject, JsonValue}
 import javax.json.bind.annotation.JsonbProperty
 import scala.beans.BeanProperty
 
@@ -28,6 +28,13 @@ class TestClassForYAML {
   @BeanProperty
   var value: JsonValue = _
 
+
+  @JsonbProperty("json")
+  @SerializedName("json")
+  @Expose
+  @BeanProperty
+  var json: JsonObject = _
+
 }
 
 object TestYAMLJsonParser extends App {
@@ -50,6 +57,8 @@ object TestYAMLJsonParser extends App {
       """.stripMargin
 
 
+  // Parse Definitions without embedded Json
+  //-------------------------------
   val parsed = JSONHelper.fromYAML[TestClassForYAML](new StringReader(testPackageShort))
   assert(parsed.name=="TestName")
 
@@ -60,4 +69,18 @@ object TestYAMLJsonParser extends App {
 
   val parsedString = JSONHelper.fromYAML[TestClassForYAML](new StringReader(testPackageWithSTR))
   println("HTTP: "+parsedString.value.toString)
+
+
+  // Parse with subprojects
+  //----------------------------
+  val testPackageWithJson =
+  """|name: TestName
+     |json:
+     |  name: subname
+     |id: test
+      """.stripMargin
+
+  val parsedWithJson = JSONHelper.fromYAML[TestClassForYAML](new StringReader(testPackageWithJson))
+  assert(parsedWithJson.id=="test")
+  assert(parsedWithJson.json!=null)
 }

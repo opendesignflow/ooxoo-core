@@ -38,24 +38,6 @@ class JsonValueDeserialiser extends com.fasterxml.jackson.databind.deser.std.Std
         Json.createValue(p.getDoubleValue)
       case other => Json.createValue(p.getText)
     }
-
-    /*token match {
-
-      case s : JsonToken if (s.id() == JsonToken.VALUE_NULL.id()) =>
-        JsonValue.NULL
-      case s : JsonToken if (s.isBoolean) =>
-
-        if (s.asString().toBoolean) {
-          JsonValue.TRUE
-        } else {
-          JsonValue.FALSE
-        }
-        Json.createValue(1)
-      case s : JsonToken if (s.id() == JsonToken.VALUE_NUMBER_INT.id()) =>
-        Json.createValue(s.asString().toInt)
-      case other =>
-        Json.createValue("OK")
-    }*/
-    //this.deserialize(p,ctxt)
+    
   }
 }
