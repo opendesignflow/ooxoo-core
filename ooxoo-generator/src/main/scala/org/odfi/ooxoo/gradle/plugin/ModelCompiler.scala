@@ -56,7 +56,7 @@ class ModelCompiler {
   val compiler = new IDCompiler
 
   // Search for CP for ooxoo library itself
-  val mexPath = java.lang.Class.forName("com.idyria.osi.ooxoo.model.ModelCompiler").getProtectionDomain.getCodeSource.getLocation
+  val mexPath = java.lang.Class.forName("org.odfi.ooxoo.gradle.plugin.ModelCompiler").getProtectionDomain.getCodeSource.getLocation
   compiler.addClasspathURL(mexPath)
 
   //-- If Classloader is an URL classLoader, add all its urls to the compiler
