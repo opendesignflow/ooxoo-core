@@ -275,10 +275,14 @@ import scala.jdk.CollectionConverters._
       }
 
       //-- Imported Traits
-      var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
+      /*var traits = element.traits.filterNot(t => t.toString == element.classType.toString) match {
         case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
         case _ => ""
-      }
+      }*/
+      var traits = element.traits.filterNot(t => t.toString == element.classType.toString).map(_.toString) /*match {
+        case traitsList if (traitsList.size > 0) => traitsList.map(model.splitName(_)._2).mkString(" with ", " with ", " ")
+        case _ => ""
+      }*/
 
       // var parents = for( p <- current.parent if(current.parent!=null))
 
@@ -293,13 +297,19 @@ import scala.jdk.CollectionConverters._
       //   - If imported, create classType from source
       //------------------
       var classType = element.importSource match {
-        case null => "Object" //element.classType
+        case null => "" //element.classType
         case source => canonicalClassName(model, source)
 
       }
 
+      val allextends = (List(classType) ::: traits.toList).filter(_.nonEmpty)
+      val allextendsString = allextends match {
+        case empty if (empty.isEmpty) => ""
+        case other => other.mkString("extends "," with "," ")
+      }
+
       out <<
-        s"""$classOrTrait ${className} extends $classType $traits {
+        s"""$classOrTrait ${className} $allextendsString {
             """
 
       //-- Attributes
@@ -702,7 +712,7 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
-    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonStructure",
+    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
     classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue",
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
