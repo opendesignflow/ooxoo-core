@@ -67,8 +67,8 @@ publishing {
             from(components["java"])
 
             pom {
-                name.set("OOXOO Core")
-                description.set("Core runtime for OOXOO")
+                name.set("OOXOO Generator")
+                description.set("Genererator compiler interface to call the model generators")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
