@@ -21,12 +21,11 @@
 
 package org.odfi.ooxoo.gradle.plugin
 
-import com.idyria.osi.ooxoo.model.*
+import com.idyria.osi.ooxoo.model.{Model, ModelBuilder, ModelProducer, Writer, producers}
 import org.odfi.tea.compile.IDCompiler
 
 import java.io.{File, PrintWriter, StringWriter}
 import java.net.URLClassLoader
-import scala.io.*
 
 
 /**
@@ -230,25 +229,7 @@ class ModelCompiler {
    * Produce an already compiled file
    */
   def produce(modelInfos: ModelInfos, producer: ModelProducer, out: Writer): Unit = {
-
-    modelInfos.model.produce(producer,out)
-    //println("Produce compiled model: "+modelInfos.name)
-    /*
-        //imain.bindValue(s"${modelInfos.name}",modelInfos)
-        imain.bind("producer", producer)
-        imain.bind("writer", out)
-        imain.interpret(s"""${modelInfos.name}.name match { case null => ${modelInfos.name}.name = "${modelInfos.name}"; case _ => ;}""")
-        /* imain.interpret(s"""
-    println("Model infos "+${modelInfos.name})
-    //try {
-            if (${modelInfos.name}.name==null) {
-        ${modelInfos.name}.name = "${modelInfos.name}"
-            }
-    //} catch {
-    //    case e : Throwable =>
-    //}
-            """)*/
-        imain.interpret(s"${modelInfos.name}.produce(producer,writer)")*/
+    modelInfos.model.produce(producer, out)
   }
 
 }
