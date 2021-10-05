@@ -54,7 +54,7 @@ dependencies {
     // ODFI Deps
     //--------------
     api(project(":ooxoo-core"))
-    api("org.odfi:tea-compiler_3:4.1.0-SNAPSHOT")
+    api("org.odfi:tea-compiler_3:4.1.1")
 
 }
 

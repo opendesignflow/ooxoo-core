@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlin_version: String by extra("1.5.30")
+val kotlin_version: String by extra("1.5.31")
 
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
@@ -14,7 +14,7 @@ plugins {
 
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.5.31"
 
     // Publish
     id("maven-publish")

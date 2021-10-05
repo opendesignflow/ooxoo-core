@@ -56,7 +56,7 @@ dependencies {
 
     // ODFI Deps
     //--------------
-    api("org.odfi:tea_2.13:4.1.0-SNAPSHOT")
+    api("org.odfi:tea_2.13:4.1.1")
 
     // Common JAXB Stuff
     //---------------
@@ -103,8 +103,8 @@ dependencies {
     // Scala Tests
     //---------------
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.0")
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.0")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.10")
     testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.10")
     testImplementation("com.vladsch.flexmark:flexmark-all:0.62.2")
