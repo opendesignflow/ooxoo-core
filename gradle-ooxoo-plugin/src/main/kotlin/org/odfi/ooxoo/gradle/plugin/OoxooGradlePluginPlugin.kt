@@ -29,8 +29,8 @@ class OoxooGradlePluginPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         // Register a task
-        project.tasks.register("generateOOXOO" , XGenerate::class.java) { task ->
-
+        project.tasks.register("ooxooGenerate" , XGenerate::class.java) { task ->
+            task.group = "ooxoo"
             /*
 
 

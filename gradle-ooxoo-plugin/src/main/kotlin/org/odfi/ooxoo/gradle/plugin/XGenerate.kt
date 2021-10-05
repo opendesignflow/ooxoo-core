@@ -21,8 +21,9 @@ abstract class XGenerate : DefaultTask() {
 
     @TaskAction
     open fun generate() {
-        println("Generating for Model: " + project.buildDir)
-        println("Worker: " + getWorkerExecutor())
+
+        logger.info("Generating for Model: " + project.buildDir)
+        logger.info("Worker: " + getWorkerExecutor())
 
         // Work queue
         var workQueue = getWorkerExecutor()?.noIsolation()
@@ -39,7 +40,6 @@ abstract class XGenerate : DefaultTask() {
         compiler.compiler().setCompilerOutput(ooxooCompilerOutputFile)
 
 
-
         // Look for main Source folder with all soruces
         //ScalaPluginConvention
         var sPlugin = project.convention.getPlugin<JavaPluginConvention>(JavaPluginConvention::class.java)
@@ -48,9 +48,9 @@ abstract class XGenerate : DefaultTask() {
 
             // Source set and Directories
             //-------------
-            println("Source set: ${it.key} -> ${it.value}")
+            logger.info("Source set: ${it.key} -> ${it.value}")
             it.value.allSource.srcDirs.forEach {
-                println("- dir: " + it.path)
+                logger.info("- dir: " + it.path)
             }
 
             // On Main, generate sources
@@ -62,8 +62,8 @@ abstract class XGenerate : DefaultTask() {
 
                         modelFile ->
 
-                    println("Found Model to generate: " + modelFile)
-                    println("- Last modified: " + modelFile.lastModified())
+                    logger.info("Found Model to generate: " + modelFile)
+                    logger.info("- Last modified: " + modelFile.lastModified())
 
                     // Get Output Dir
                     val targetDir = File(project.buildDir, "generated-sources")
@@ -77,12 +77,8 @@ abstract class XGenerate : DefaultTask() {
                         parameters.getModelFile()?.set(modelFile)
 
                     }*/
-
-
                 }
             }
         }
-
-
     }
 }
