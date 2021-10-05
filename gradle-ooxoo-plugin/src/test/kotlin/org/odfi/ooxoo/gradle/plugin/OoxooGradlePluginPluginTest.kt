@@ -17,6 +17,6 @@ class OoxooGradlePluginPluginTest {
         project.plugins.apply("org.odfi.ooxoo")
 
         // Verify the result
-        assertNotNull(project.tasks.findByName("generateOOXOO"))
+        assertNotNull(project.tasks.findByName("ooxooGenerate"))
     }
 }
