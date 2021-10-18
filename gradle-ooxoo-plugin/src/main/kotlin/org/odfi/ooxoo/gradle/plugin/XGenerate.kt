@@ -35,7 +35,7 @@ abstract class XGenerate : DefaultTask() {
         val compiler = ModelCompiler()
 
         // Set Compiler output from project
-        val ooxooCompilerOutputFile = File(project.buildDir, "classes/scala")
+        val ooxooCompilerOutputFile = File(project.buildDir, "classes/ooxoo")
         ooxooCompilerOutputFile.mkdirs()
         compiler.compiler().setCompilerOutput(ooxooCompilerOutputFile)
 
