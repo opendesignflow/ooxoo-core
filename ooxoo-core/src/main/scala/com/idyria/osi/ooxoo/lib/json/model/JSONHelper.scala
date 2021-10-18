@@ -3,23 +3,25 @@ package com.idyria.osi.ooxoo.lib.json.model
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.google.gson
 
-import java.io.{File, FileOutputStream, FileReader, InputStream, InputStreamReader, Reader}
+import java.io.{File, FileOutputStream, FileReader, InputStream, InputStreamReader, Reader, StringReader}
 import java.lang.reflect.{Field, Method, Type}
 import java.time.Instant
 import java.util
 import java.util.{Base64, UUID}
 import com.google.gson.annotations.{Expose, SerializedName}
 import com.google.gson.reflect.TypeToken
-import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
+import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonArray, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
 import com.idyria.osi.ooxoo.lib.json.yaml.{JsonObjectDeserialiser, JsonValueDeserialiser}
 
-import javax.json.{JsonObject, JsonValue}
+import javax.json.{Json, JsonObject, JsonString, JsonValue}
 import javax.json.bind.annotation.JsonbProperty
 import javax.json.bind.{JsonbBuilder, JsonbConfig}
 import javax.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
 import javax.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
 import javax.json.stream.{JsonGenerator, JsonParser}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.reflect.ClassTag
 
 
@@ -54,6 +56,7 @@ object JSONHelper {
       .setExclusionStrategies(new JacksonAndDocumentExclusionStrategy)
       .registerTypeHierarchyAdapter(classOf[Array[Byte]], new JSONHelper.ByteArrayToBase64TypeAdapter())
       .registerTypeHierarchyAdapter(classOf[UUID], new JSONHelper.UUIDTypeAdapter())
+      .registerTypeHierarchyAdapter(classOf[JsonValue], new JSONHelper.JsonValueTypeAdapter())
 
   }
 
@@ -238,6 +241,61 @@ object JSONHelper {
       )
       instant
 
+
+    }
+  }
+
+  class JsonValueTypeAdapter extends JsonSerializer[JsonValue] with JsonDeserializer[JsonValue] {
+
+    def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): JsonValue = {
+      json match {
+        case json if (json.isJsonPrimitive) =>
+          json.getAsJsonPrimitive match {
+            case str if (str.isString) => Json.createValue(str.getAsString)
+            case b if (b.isBoolean) => if (b.getAsBoolean) JsonValue.TRUE else JsonValue.FALSE
+            case double if (double.isNumber && double.getAsString.contains(".")) => Json.createValue(double.getAsDouble)
+            case long if (long.isNumber) => Json.createValue(long.getAsLong)
+            //case long if (str.isString) => Json.createValue(str.getAsString)
+            // case double if (str.isString) => Json.createValue(str.getAsString)
+            case other => sys.error("Primitive not supported: " + other)
+          }
+        case json if (json.isJsonObject) => Json.createReader(new StringReader(json.toString)).readObject()
+        case json if (json.isJsonArray && json.getAsJsonArray.size() > 0) => Json.createReader(new StringReader(json.toString)).readArray()
+        case other => null
+      }
+    }
+
+    def serialize(src: JsonValue, typeOfSrc: Type, context: JsonSerializationContext) = {
+      src.getValueType match {
+        case JsonValue.ValueType.STRING => new JsonPrimitive(src.asInstanceOf[JsonString].getString)
+        case JsonValue.ValueType.NUMBER if (src.toString.contains(".")) => new JsonPrimitive(src.toString.toDouble)
+        case JsonValue.ValueType.NUMBER => new JsonPrimitive(src.toString.toLong)
+        case JsonValue.ValueType.TRUE => new JsonPrimitive(true)
+        case JsonValue.ValueType.FALSE => new JsonPrimitive(false)
+        case JsonValue.ValueType.ARRAY =>
+          //println("InARR")
+          val arr = new JsonArray()
+          src.asJsonArray().asScala.foreach {
+            elt =>
+              arr.add(context.serialize(elt))
+          }
+          arr
+        case JsonValue.ValueType.OBJECT =>
+          // println("InObj")
+          val obj = new gson.JsonObject()
+          val srcJson = src.asJsonObject()
+          srcJson.keySet().forEach {
+            key =>
+              obj.add(key, context.serialize(srcJson.get(key)))
+          }
+          // obj.addProperty("hello","World")
+          obj
+        //createGSON.toJsonTree(src.asJsonObject().toString)
+        //context.serialize(src.asJsonObject().toString)
+        case other => sys.error("Not supported Object or Array")
+        // case JsonValue.ValueType.OBJECT =>  createGSON.newJsonReader(new StringReader(src.toString))
+
+      }
 
     }
   }
