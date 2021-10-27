@@ -25,6 +25,7 @@ import com.idyria.osi.ooxoo.core.buffers.datatypes._
 import com.idyria.osi.ooxoo.core.buffers.datatypes.id.UUIDBuffer
 import com.idyria.osi.ooxoo.core.buffers.structural._
 import com.idyria.osi.ooxoo.model._
+
 import javax.json.bind.annotation.{JsonbProperty, JsonbTransient}
 import org.atteo.evo.inflector.English
 
@@ -63,7 +64,7 @@ class JSONBProducer extends ModelProducer {
     if (cleanForbidden) {
       forbiddenKeyWords.contains(res) match {
         case true => res =
-          //res + "_"
+        //res + "_"
           s"""`$res`"""
         case false =>
       }
@@ -305,7 +306,7 @@ import scala.jdk.CollectionConverters._
       val allextends = (List(classType) ::: traits.toList).filter(_.nonEmpty)
       val allextendsString = allextends match {
         case empty if (empty.isEmpty) => ""
-        case other => other.mkString("extends "," with "," ")
+        case other => other.mkString("extends ", " with ", " ")
       }
 
       out <<
@@ -368,8 +369,9 @@ import scala.jdk.CollectionConverters._
               case null => "null"
               case str if (str.toString == "_build_") => s"${attributeType}.build"
               case str if (str.toString == "_instance_") => s"${attributeType}()"
+              case str if (attributeType == "String") =>
+                s""""$str""""
               case defaultValue =>
-
                 s"""$defaultValue"""
               //s"""${resolvedType}.convertFromString("$defaultValue")"""
             }
@@ -472,18 +474,23 @@ import scala.jdk.CollectionConverters._
               val fieldNameSingularUpperFirst = resolvedName._2.take(1).toUpperCase + resolvedName._2.drop(1).mkString
               out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
               out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
-              out <<
-                s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
+
+              if (JSONBProducer.typeIsNative(resolvedType)) {
+                out <<
+                  s"""var ${fieldName} : Array[$resolvedType] = _
                         """
-              if (!element.nativeType) {
+              } else {
+                out <<
+                  s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
+                        """
                 out <<
                   s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
                       """
+                out <<
+                  s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.asScala.toList
+                      """
               }
 
-              out <<
-                s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.asScala.toList
-                      """
 
             case _ =>
 
@@ -496,6 +503,8 @@ import scala.jdk.CollectionConverters._
                 case null => "null"
                 case str if (str.toString == "_build_") => s"${resolvedType}.build"
                 case str if (str.toString == "_instance_") => s"${resolvedType}()"
+                case str if (resolvedType == "String") =>
+                  s""""$str""""
                 case defaultValue =>
                   s"""$defaultValue"""
               }
@@ -591,26 +600,6 @@ import scala.jdk.CollectionConverters._
         //---------------
         if (!element.isTrait || element.traitSeparateFromObject != null) {
 
-          //-- Add From URL Factory
-          /*out <<
-            s"""
-def apply(url : java.net.URL) = {
-
-  
-}
-
-"""*/
-
-          //-- Add From String factory
-          /*out <<
-            s"""
-
-def apply(xml : String) = {
-  
-
-  
-}
-"""*/
         }
         try {
 
@@ -717,7 +706,8 @@ object JSONBProducer {
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
-  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean","Int","javax.json.JsonObject", "javax.json.JsonValue")
+  //"String",
+  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean", "Int", "javax.json.JsonObject", "javax.json.JsonValue")
 
   def typeMapping(input: String) = {
 
@@ -733,7 +723,7 @@ object JSONBProducer {
   def typeIsNative(t: String) = {
 
     //println("Checking type: "+t+" -> "+nativeTypes.find( test => test == t).isDefined)
-    nativeTypes.find( test => test == t).isDefined
+    nativeTypes.exists(test => test == t)
   }
 
   def constructorMapping(input: String) = {
