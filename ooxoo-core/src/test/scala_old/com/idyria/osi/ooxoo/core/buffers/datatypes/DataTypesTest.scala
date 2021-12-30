@@ -18,14 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.core.buffers.datatypes
+package org.odfi.ooxoo.core.buffers.datatypes
+
+import org.odfi.ooxoo.core.buffers.datatypes.{DataMapBuffer, DateTimeBuffer, DoubleBuffer, EnumerationBuffer, FloatBuffer, IntegerBuffer, LongBuffer, MapBuffer}
 
 import java.io.StringReader
 import java.io.StringWriter
-import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.XList
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import org.odfi.ooxoo.core.buffers.structural.{ElementBuffer, VerticalBuffer, XList}
+import org.odfi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import org.scalatest.GivenWhenThen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

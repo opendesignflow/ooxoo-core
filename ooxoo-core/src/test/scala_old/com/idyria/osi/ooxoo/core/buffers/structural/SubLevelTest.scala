@@ -18,9 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.core.buffers.structural
+package org.odfi.ooxoo.core.buffers.structural
 
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import org.odfi.ooxoo.core.buffers.structural.{ElementBuffer, XList, xelement}
+import org.odfi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

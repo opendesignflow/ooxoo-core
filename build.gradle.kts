@@ -1,18 +1,20 @@
 // Versions
 //-----------------
 var scalaMajorVersion by extra("2.13")
-var scalaMinorVersion by extra("6")
+var scalaMinorVersion by extra("7")
 val scalaVersion by extra {
     "$scalaMajorVersion.$scalaMinorVersion"
 }
 
 // Project version
-var lib_version by extra("4.0.6-SNAPSHOT")
+var lib_version by extra("4.9.0-SNAPSHOT")
 var branch by extra { System.getenv("BRANCH_NAME") }
 if (System.getenv().getOrDefault("BRANCH_NAME", "dev").contains("release")) {
     lib_version = lib_version.replace("-SNAPSHOT", "")
 }
 
+// Deps
+val teaVersion by extra("5.0.0-SNAPSHOT")
 
 group = "org.odfi.ooxoo"
 version = lib_version

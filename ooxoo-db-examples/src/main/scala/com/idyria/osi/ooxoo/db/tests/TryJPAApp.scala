@@ -1,18 +1,18 @@
-package com.idyria.osi.ooxoo.db.tests
+package org.odfi.ooxoo.db.tests
 
 import org.h2.tools.Server
 import org.hibernate.cfg.AvailableSettings
 
-import com.idyria.osi.ooxoo.hibernate.OOXOOHibernate
-import com.idyria.osi.ooxoo.db.tests.jpa.TryJPAConfig
+import org.odfi.ooxoo.hibernate.OOXOOHibernate
+import org.odfi.ooxoo.db.tests.jpa.TryJPAConfig
 import scala.util.Random
-import com.idyria.osi.ooxoo.db.tests.jpa.TryJPAConfigUser
+import org.odfi.ooxoo.db.tests.jpa.TryJPAConfigUser
 
 object TryJPAApp extends App {
 
   println("Test TryJPAApp")
 
-  com.idyria.osi.ooxoo.db.tests.jpa.registerModels
+  org.odfi.ooxoo.db.tests.jpa.registerModels
 
   //-- Create H2 Mem db config
   val server = Server.createWebServer("-webPort", "50100").start();
@@ -59,7 +59,7 @@ object TryJPAApp extends App {
 
   // Search for Values < 500
   //----------
-  val q = entityManager.createQuery("SELECT c FROM com.idyria.osi.ooxoo.db.tests.jpa.TryJPAConfig AS c WHERE c.value<=500")
+  val q = entityManager.createQuery("SELECT c FROM org.odfi.ooxoo.db.tests.jpa.TryJPAConfig AS c WHERE c.value<=500")
 
   println("Results count: " + q.getResultList.size())
 
@@ -67,7 +67,7 @@ object TryJPAApp extends App {
   println("First: " + first.value + " -> " + first.users.size)
   
   //-- First With a user
-  val q2 = entityManager.createQuery("SELECT c FROM com.idyria.osi.ooxoo.db.tests.jpa.TryJPAConfig AS c WHERE c.users.size>0")
+  val q2 = entityManager.createQuery("SELECT c FROM org.odfi.ooxoo.db.tests.jpa.TryJPAConfig AS c WHERE c.users.size>0")
   println("First config with an user: "+q2.getResultList.get(0).asInstanceOf[TryJPAConfig].users.size())
   // println("Value set: " + jpaConfig.valueOption)
 

@@ -1,13 +1,10 @@
-package com.idyria.osi.ooxoo.core.buffers.extras.transaction
+package org.odfi.ooxoo.core.buffers.extras.transaction
 
+import org.odfi.ooxoo.core.buffers.datatypes.LongBuffer
 import org.scalatest.BeforeAndAfterEach
-import com.idyria.osi.ooxoo.core.buffers.structural.BaseBufferTrait
 import org.scalatest.GivenWhenThen
 import org.odfi.tea.listeners.ListeningSupport
-
-import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo.core.buffers.datatypes.LongBuffer
-
+import org.odfi.ooxoo.core.buffers.structural.{BaseBufferTrait, DataUnit}
 import org.odfi.tea.logging.TLog
 import org.scalatest.matchers.should.Matchers
 /*

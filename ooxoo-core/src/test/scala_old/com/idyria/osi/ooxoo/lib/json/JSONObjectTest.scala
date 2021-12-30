@@ -18,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.lib.json
+package org.odfi.ooxoo.lib.json
 
-
-import com.idyria.osi.ooxoo.core.buffers.structural.AnyElementBuffer
+import org.odfi.ooxoo.core.buffers.structural.AnyElementBuffer
+import org.odfi.ooxoo.lib.json.{JSONObject, JsonIO}
 import org.odfi.tea.logging.TeaLogging
 import org.odfi.tea.logging.TLogSource
 import org.scalatest.funsuite.AnyFunSuite

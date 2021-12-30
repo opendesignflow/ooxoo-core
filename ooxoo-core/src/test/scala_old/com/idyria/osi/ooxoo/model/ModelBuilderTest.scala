@@ -18,14 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.model
+package org.odfi.ooxoo.model
 
 
-import com.idyria.osi.ooxoo.core.buffers.datatypes._
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
-import org.scalatest._
-import com.idyria.osi.ooxoo.model.writers._
-import com.idyria.osi.ooxoo.model.out.scala._
+import org.odfi.ooxoo.core.buffers.datatypes.*
+import org.odfi.ooxoo.core.buffers.structural.io.sax.*
+import org.scalatest.*
+import org.odfi.ooxoo.model.writers.*
+import org.odfi.ooxoo.model.out.scala.*
+import org.odfi.ooxoo.model.ModelBuilder
+import org.odfi.ooxoo.model.out.scala.ScalaProducer
+import org.odfi.ooxoo.model.writers.StdoutWriter
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.postfixOps
@@ -109,7 +112,7 @@ class ModelBuilderTest extends AnyFunSuite with GivenWhenThen {
 
                 "env:Header" is {
 
-                    withTrait("com.idyria.osi.ooxoo.model.TestTrait")
+                    withTrait("org.odfi.ooxoo.model.TestTrait")
 
                     withDescription {
                         "SOAP Protocol Header"
@@ -152,7 +155,7 @@ class ModelBuilderTest extends AnyFunSuite with GivenWhenThen {
 
         And("A scala producer")
         var scalaProducer = new ScalaProducer
-        scalaProducer.targetPackage = "com.idyria.osi.ooxoo.model.test"
+        scalaProducer.targetPackage = "org.odfi.ooxoo.model.test"
 
         And("A Stdout writer")
         var writer = new StdoutWriter

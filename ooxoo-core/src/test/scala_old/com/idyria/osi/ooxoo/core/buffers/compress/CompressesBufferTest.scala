@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.core.buffers.compress
+package org.odfi.ooxoo.core.buffers.compress
 
-import com.idyria.osi.ooxoo.core.buffers.datatypes.compress.ZipString
+import org.odfi.ooxoo.core.buffers.datatypes.compress.ZipString
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

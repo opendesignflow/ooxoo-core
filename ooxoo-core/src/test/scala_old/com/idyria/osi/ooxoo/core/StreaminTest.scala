@@ -21,18 +21,14 @@
 /**
  *
  */
-package com.idyria.osi.ooxoo.core
+package org.odfi.ooxoo.core
 
 import java.io.StringReader
 import java.io.StringWriter
-
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.XList
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural._
+import org.odfi.ooxoo.core.buffers.structural.*
+import org.odfi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import org.odfi.ooxoo.core.buffers.structural.{ElementBuffer, VerticalBuffer, XList, xattribute, xelement, xelement_base}
+import org.odfi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

@@ -1,3 +1,6 @@
+val teaVersion: String by rootProject.extra
+var scalaMajorVersion: String by rootProject.extra
+
 plugins {
 
     id("scala")
@@ -42,19 +45,17 @@ tasks.javadoc {
 
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
-   // scalaCompileOptions.additionalParameters = listOf("-rewrite", "-source", "3.0-migration")
+    // scalaCompileOptions.additionalParameters = listOf("-rewrite", "-source", "3.0-migration")
 }
 
 
 dependencies {
 
 
-    var scalaMajorVersion by extra("3")
-
     // ODFI Deps
     //--------------
     api(project(":ooxoo-core"))
-    api("org.odfi:tea-compiler_3:4.1.1")
+    api("org.odfi:tea-compiler_3:$teaVersion")
 
 }
 

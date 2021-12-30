@@ -1,6 +1,6 @@
 
 
-import com.idyria.osi.ooxoo.model.out.scala._
+import org.odfi.ooxoo.model.out.scala._
 
 @producers(Array(
     new producer(value=classOf[ScalaProducer])

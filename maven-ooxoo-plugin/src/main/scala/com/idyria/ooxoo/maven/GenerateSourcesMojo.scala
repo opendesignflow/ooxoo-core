@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.maven
+package org.odfi.ooxoo.maven
 
 import java.util
 
@@ -34,9 +34,9 @@ import org.apache.maven.reporting.MavenReportException*/
 
 import org.apache.maven.plugins.annotations._
 
-import com.idyria.osi.ooxoo.model._
-import com.idyria.osi.ooxoo.model.out.scala._
-import com.idyria.osi.ooxoo.model.writers._
+import org.odfi.ooxoo.model._
+import org.odfi.ooxoo.model.out.scala._
+import org.odfi.ooxoo.model.writers._
 
 import java.io._
 import scala.io.Source

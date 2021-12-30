@@ -1,6 +1,6 @@
 package org.odfi.ooxoo.gradle.plugin
 
-import com.idyria.osi.ooxoo.model.writers.FileWriters
+import org.odfi.ooxoo.model.writers.FileWriters
 import org.gradle.workers.WorkAction
 import java.io.File
 

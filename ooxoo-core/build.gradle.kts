@@ -1,11 +1,17 @@
+val teaVersion: String by rootProject.extra
+var scalaMajorVersion: String by rootProject.extra
+
+
 plugins {
 
-    id("scala")
-    id("com.github.maiflai.scalatest") version "0.31"
+
 
     // Publish
     id("maven-publish")
     id("java-library")
+
+    id("scala")
+    id("com.github.maiflai.scalatest") version "0.31"
 
 }
 
@@ -18,10 +24,12 @@ sourceSets {
     main {
         scala {
             srcDir("src/main/java")
+            srcDir("src/main/scala")
         }
 
         java {
             this.setSrcDirs(emptyList<File>())
+            //srcDir("src/main/java")
         }
     }
 }
@@ -29,13 +37,17 @@ sourceSets {
 // Deps
 //-----------
 java {
+    /*targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
+    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11*/
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
         vendor.set(JvmVendorSpec.ADOPTOPENJDK)
     }
-    // withJavadocJar()
-    withSourcesJar()
+    withJavadocJar()
+//    withSourcesJar()
 }
+
+
 
 tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
@@ -45,6 +57,10 @@ tasks.javadoc {
 
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
+    this.targetCompatibility = "11"
+    //this.scalaCompileOptions.
+    //scalaCompileOptions.ta
+    //scalaCompileOptions.additionalParameters = listOf( "-target:11", "-Xtarget:11")
     //scalaCompileOptions.additionalParameters = listOf("-rewrite", "-source", "3.0-migration")
 }
 
@@ -52,11 +68,10 @@ tasks.withType<ScalaCompile>().configureEach {
 dependencies {
 
 
-    var scalaMajorVersion by extra("3")
-
     // ODFI Deps
     //--------------
-    api("org.odfi:tea_2.13:4.1.1")
+    api("org.odfi:tea_$scalaMajorVersion:$teaVersion")
+    //api("org.odfi:tea_3:$teaVersion")
 
     // Common JAXB Stuff
     //---------------
@@ -77,38 +92,47 @@ dependencies {
 
     // JSON API and Impl for javax
     //----------------
+    //api("org.eclipse:yasson:1.0.9")
+    //api("org.glassfish:javax.json:1.1.4")
+    api("jakarta.json:jakarta.json-api:1.1.6")
+    api("jakarta.json.bind:jakarta.json.bind-api:1.0.2")
 
-    api("org.eclipse:yasson:1.0.9")
-    val jacksonVersion = "2.12.5"
+
+
+    val jacksonVersion = "2.13.1"
     api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 
-    //api 'javax.json:javax.json-api:2.0.0'
-    //api "javax.json.bind:javax.json.bind-api:1.0.2"
-
 
     // GSON
     //---------------
-    api("com.google.code.gson:gson:2.8.8")
+    api("com.google.code.gson:gson:2.8.9")
 
 
-    // JPA Interfaces
+
+    // JPA/javax Interfaces
     //-----------------
-    api("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
+    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
+   // api("javax.persistence:javax.persistence-api:3.0.0")
+    api("javax.persistence:javax.persistence-api:2.2")
+    // api("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
+
     // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
     // api group: 'javax.persistence', name: 'javax.persistence-api', version: '3.0.0'
-    api("javax.persistence:javax.persistence-api:2.2")
+   // api("javax.persistence:javax.persistence-api:2.2")
 
     // Scala Tests
     //---------------
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.10")
     testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.10")
     testImplementation("com.vladsch.flexmark:flexmark-all:0.62.2")
-
+    testRuntimeOnly("org.eclipse:yasson:1.0.8")
+// https://mvnrepository.com/artifact/org.glassfish/javax.json
+    //testRuntimeOnly("org.glassfish:javax.json:1.1.4")
 
 }
 

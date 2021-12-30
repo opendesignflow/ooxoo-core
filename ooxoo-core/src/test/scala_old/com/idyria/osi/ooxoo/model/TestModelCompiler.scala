@@ -18,18 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.model
+package org.odfi.ooxoo.model
 
-import java.io._
-import com.idyria.osi.ooxoo.core.buffers.datatypes._
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
-import org.scalatest._
-import com.idyria.osi.ooxoo.model.writers._
-import com.idyria.osi.ooxoo.model.out.scala._
+import java.io.*
+import org.odfi.ooxoo.core.buffers.datatypes.*
+import org.odfi.ooxoo.core.buffers.structural.io.sax.*
+import org.scalatest.*
+import org.odfi.ooxoo.model.writers.*
+import org.odfi.ooxoo.model.out.scala.*
+import org.odfi.ooxoo.model.out.scala.ScalaProducer
+import org.odfi.ooxoo.model.writers.StdoutWriter
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.postfixOps
-import scala.jdk.javaapi.CollectionConverters._
+import scala.jdk.javaapi.CollectionConverters.*
 
 
 class TestModelCompiler extends AnyFunSuite with GivenWhenThen {
@@ -53,7 +55,7 @@ class TestModelCompiler extends AnyFunSuite with GivenWhenThen {
         // Prepare
         //------------------
         var scalaProducer = new ScalaProducer
-        scalaProducer.targetPackage = "com.idyria.osi.ooxoo.model.test"
+        scalaProducer.targetPackage = "org.odfi.ooxoo.model.test"
         var writer = new StdoutWriter
 
         ModelCompiler.produce(new File("src/test/scala/com/idyria/osi/ooxoo/model/SOAP.xmodel"),scalaProducer,writer)

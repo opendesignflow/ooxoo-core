@@ -18,11 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.core.buffers.structural
+package org.odfi.ooxoo.core.buffers.structural
 
-import com.idyria.osi.ooxoo.core.buffers.datatypes._
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax._
-import org.scalatest._
+import org.odfi.ooxoo.core.buffers.datatypes.*
+import org.odfi.ooxoo.core.buffers.structural.io.sax.*
+import org.odfi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import org.odfi.ooxoo.core.buffers.structural
+import org.odfi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import org.odfi.ooxoo.core.buffers.structural.{AnyAttributeBuffer, AnyElementBuffer, AnyXList, ElementBuffer, any, xattribute, xelement}
+import org.scalatest.*
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.ByteArrayOutputStream
@@ -121,8 +125,8 @@ class AnySupportTest extends AnyFunSuite with GivenWhenThen {
 
   test("Streamin Any Content that matches an existing model") {
 
-    AnyXList(classOf[SomeModeledElement])
-    AnyXList(classOf[SomeModeledElement2])
+    structural.AnyXList(classOf[SomeModeledElement])
+    structural.AnyXList(classOf[SomeModeledElement2])
 
     Given("A Simple XML Document, with Any Content matching a model class")
     //---------------------------------

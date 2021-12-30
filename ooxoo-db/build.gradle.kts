@@ -1,3 +1,7 @@
+val teaVersion: String by rootProject.extra
+var scalaMajorVersion: String by rootProject.extra
+
+
 plugins {
     id ("scala")
 
@@ -52,8 +56,8 @@ dependencies {
 
 
     api (project(":ooxoo-core"))
-    api ("org.hibernate:hibernate-core:5.5.7.Final")
-    api ("com.h2database:h2:1.4.200")
+    //implementation ("org.hibernate:hibernate-core:5.6.2.Final")
+    implementation ("com.h2database:h2:2.0.202")
 
     /*testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
     testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.6'

@@ -21,7 +21,8 @@
 
 package org.odfi.ooxoo.gradle.plugin
 
-import com.idyria.osi.ooxoo.model.{Model, ModelBuilder, ModelProducer, Writer, producers}
+import org.odfi.ooxoo.model.Writer
+import org.odfi.ooxoo.model.{Model, ModelBuilder, ModelProducer, Writer, producers}
 import org.odfi.tea.compile.IDCompiler
 
 import java.io.{File, PrintWriter, StringWriter}
@@ -149,7 +150,7 @@ class ModelCompiler {
        case None =>
 
          ("", s"""
- import com.idyria.osi.ooxoo.model._
+ import org.odfi.ooxoo.model._
 
  $inputModel
              """)

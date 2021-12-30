@@ -43,8 +43,8 @@ The package also provides a Transaction Class and singleton to manage the living
 
 
 	
-		import com.idyria.osi.ooxoo.core.buffers.datatypes._
-		import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
+		import org.odfi.ooxoo.core.buffers.datatypes._
+		import org.odfi.ooxoo.core.buffers.extras.transaction._
 
 		// Create a LongBuffer to work with a long
 		var longBuffer = Buffer(10)
@@ -65,8 +65,8 @@ The package also provides a Transaction Class and singleton to manage the living
 
 - Cancel/Rollback
 
-		import com.idyria.osi.ooxoo.core.buffers.datatypes._
-		import com.idyria.osi.ooxoo.core.buffers.extras.transaction._
+		import org.odfi.ooxoo.core.buffers.datatypes._
+		import org.odfi.ooxoo.core.buffers.extras.transaction._
 
 		// Create a LongBuffer to work with a long
 		var longBuffer = Buffer(10)

@@ -18,27 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.lib.json
-
-
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.XList
+package org.odfi.ooxoo.lib.json
 
 import java.io.StringReader
-import com.idyria.osi.ooxoo.core.buffers.structural.XList
-import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.DataUnit
-import com.idyria.osi.ooxoo.core.buffers.structural.AnyXList
-import com.idyria.osi.ooxoo.core.buffers.structural.any
+import org.odfi.ooxoo.core.buffers.datatypes.{EnumerationBuffer, XSDStringBuffer}
 
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.CharArrayWriter
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
 import org.odfi.tea.logging.TLog
-import com.idyria.osi.ooxoo.core.buffers.structural.VerticalBuffer
+import org.odfi.ooxoo.core.buffers.structural.{AnyXList, DataUnit, ElementBuffer, VerticalBuffer, XList, any, xattribute, xelement}
+import org.odfi.ooxoo.lib.json.JsonIO
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -65,7 +55,7 @@ class Test extends ElementBuffer {
   var action: Action = new Action
 
   @xelement(name = "enumelt")
-  var enumelt = new com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer {
+  var enumelt = new EnumerationBuffer {
 
     type state = Value
     val stopped = Value("stopped")
@@ -113,12 +103,12 @@ class SubSubTest extends ElementBuffer {
 }
 
 @xelement(name = "Path")
-class Path extends com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer with com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer {
+class Path extends XSDStringBuffer with ElementBuffer {
 
 }
 
 @xelement(name = "Action")
-class Action extends com.idyria.osi.ooxoo.core.buffers.datatypes.EnumerationBuffer with com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer {
+class Action extends EnumerationBuffer with ElementBuffer {
 
   type Action = Value
   val stop = Value("stop")

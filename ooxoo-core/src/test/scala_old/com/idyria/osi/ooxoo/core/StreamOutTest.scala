@@ -18,15 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package com.idyria.osi.ooxoo.core
+package org.odfi.ooxoo.core
 
-
-import com.idyria.osi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.XList
-import com.idyria.osi.ooxoo.core.buffers.structural.xelement
-import com.idyria.osi.ooxoo.core.buffers.datatypes.XSDStringBuffer
-import com.idyria.osi.ooxoo.core.buffers.structural.xattribute
-import com.idyria.osi.ooxoo.core.buffers.structural.ElementBuffer
+import org.odfi.ooxoo.core.buffers.datatypes.XSDStringBuffer
+import org.odfi.ooxoo.core.buffers.structural.io.sax.StAXIOBuffer
+import org.odfi.ooxoo.core.buffers.structural.{ElementBuffer, XList, xattribute, xelement}
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.ByteArrayOutputStream

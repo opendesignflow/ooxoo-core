@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlin_version: String by extra("1.5.31")
+val kotlinVersion: String by extra("1.6.0")
 
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
@@ -14,11 +14,11 @@ plugins {
 
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
 
     // Publish
     id("maven-publish")
-    id("com.gradle.plugin-publish") version ("0.13.0")
+    id("com.gradle.plugin-publish") version ("0.18.0")
 }
 pluginBundle {
     website = "https://github.com/opendesignflow/ooxoo-core"
@@ -26,10 +26,6 @@ pluginBundle {
 
     //tags = ["xml", "scala", "json", "jsonb", "generator", "marshall", "unmarshall"]
 }
-
-/*
-group = 'org.odfi.ooxoo'
-version = gradle.ext.has("version") ? gradle.ext.version : "dev"*/
 
 
 java {
@@ -51,6 +47,7 @@ dependencies {
 
     //implementation "$group:ooxoo-core:$version"
     implementation(project(":ooxoo-generator"))
+    api("org.eclipse:yasson:1.0.10")
 
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -59,7 +56,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
 
     // Use the Kotlin test library.
@@ -79,48 +76,6 @@ gradlePlugin {
         }
     }
 }
-
-/*
-tasks.getAt("compileScala").dependsOn.remove("compileJava")
-tasks.getAt("compileKotlin").dependsOn("compileScala")
-tasks.withType<ScalaCompile>().configureEach {
-    this.ja
-}*/
-/*
-gradlePlugin {
-    // Define the plugin
-    plugins {
-        ooxooPlugin {
-            id = "org.odfi.ooxoo"
-            implementationClass = "org.odfi.ooxoo.gradle.plugin.OoxooGradlePluginPlugin"
-            displayName = "OOXOO Gradle Plugin"
-            description = "Plugin to generate Scala/JsonB Models from Scala Data Model DSL"
-        }
-
-
-    }
-}*/
-
-// Add a source set for the functional test suite
-/*sourceSets {
-    functionalTest {
-    }
-}
-gradlePlugin.testSourceSets(sourceSets.functionalTest)
-configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)*/
-
-// Add a task to run the functional tests
-/*tasks.register('functionalTest', Test) {
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
-}
-
-tasks.named('check') {
-    // Run the functional tests as part of `check`
-    dependsOn(tasks.functionalTest)
-}*/
-
-
 
 publishing {
     publications {
