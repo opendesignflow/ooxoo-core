@@ -14,7 +14,7 @@ if (System.getenv().getOrDefault("BRANCH_NAME", "dev").contains("release")) {
 }
 
 // Deps
-val teaVersion by extra("5.0.0-SNAPSHOT")
+val teaVersion by extra("5.0.0")
 
 group = "org.odfi.ooxoo"
 version = lib_version
@@ -37,11 +37,11 @@ allprojects {
         }
         maven {
             name = "ODFI Releases"
-            url = uri("https://www.opendesignflow.org/maven/repository/internal/")
+            url = uri("https://repo.opendesignflow.org/maven/repository/internal/")
         }
         maven {
             name = "ODFI Snapshots"
-            url = uri("https://www.opendesignflow.org/maven/repository/snapshots/")
+            url = uri("https://repo.opendesignflow.org/maven/repository/snapshots/")
         }
         maven {
             url = uri("https://repo.triplequote.com/libs-release/")
