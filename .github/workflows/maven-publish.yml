@@ -37,7 +37,7 @@ jobs:
         working-directory: .
 
       - name: Publish Plugin to ODFI OSS
-        run: chmod +x gradlew && ./gradlew :gradle-ooxoo-plugin:publish
+        run: chmod +x gradlew && ./gradlew :gradle-ooxoo-plugin:publishPluginMavenPublicationToMavenRepository
         working-directory: .
 
       - name: Publish DB to ODFI OSS
