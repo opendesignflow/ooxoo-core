@@ -25,7 +25,7 @@ import org.odfi.ooxoo.core.buffers.datatypes._
 import org.odfi.ooxoo.core.buffers.structural._
 import org.odfi.ooxoo.model._
 
-import javax.persistence._
+import jakarta.persistence._
 
 /**
  * This Producer creates scala class implementations for the models

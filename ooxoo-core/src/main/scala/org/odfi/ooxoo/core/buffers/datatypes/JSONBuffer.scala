@@ -2,7 +2,7 @@ package org.odfi.ooxoo.core.buffers.datatypes
 
 import org.odfi.ooxoo.core.buffers.structural.AbstractDataBuffer
 
-import javax.json.{Json, JsonObject}
+import jakarta.json.{Json, JsonObject}
 import java.io.StringReader
 import java.net.URI
 

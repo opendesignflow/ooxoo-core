@@ -16,12 +16,12 @@ import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonArr
 import org.odfi.ooxoo.lib.json.yaml.JsonObjectDeserialiser
 import org.odfi.ooxoo.lib.json.yaml.{JsonObjectDeserialiser, JsonValueDeserialiser}
 
-import javax.json.{Json, JsonObject, JsonString, JsonValue}
-import javax.json.bind.annotation.JsonbProperty
-import javax.json.bind.{JsonbBuilder, JsonbConfig}
-import javax.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
-import javax.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
-import javax.json.stream.{JsonGenerator, JsonParser}
+import jakarta.json.{Json, JsonObject, JsonString, JsonValue}
+import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.json.bind.{JsonbBuilder, JsonbConfig}
+import jakarta.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
+import jakarta.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
+import jakarta.json.stream.{JsonGenerator, JsonParser}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.reflect.ClassTag
 

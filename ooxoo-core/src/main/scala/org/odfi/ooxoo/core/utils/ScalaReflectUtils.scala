@@ -4,7 +4,7 @@ package org.odfi.ooxoo.core.utils
 import org.odfi.ooxoo.core.buffers.datatypes.IntegerBuffer
 import org.odfi.ooxoo.core.buffers.structural.{AbstractDataBuffer, xattribute, xattribute_base, xelement, xelement_base}
 import java.lang.reflect.Field
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 
 
 trait ReflectUtilsTrait {

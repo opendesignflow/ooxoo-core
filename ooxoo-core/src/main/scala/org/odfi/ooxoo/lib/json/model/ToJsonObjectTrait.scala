@@ -1,6 +1,6 @@
 package org.odfi.ooxoo.lib.json.model
 
-import javax.json.Json
+import jakarta.json.Json
 
 import java.io.StringReader
 

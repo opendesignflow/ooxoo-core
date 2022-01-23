@@ -1,6 +1,6 @@
 package org.odfi.ooxoo.lib.json
 
-import javax.json.JsonValue
+import jakarta.json.JsonValue
 
 class TestClassForYAML {
 

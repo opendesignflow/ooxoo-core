@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 
 import java.io.{StringReader, StringWriter}
-import javax.json.{Json, JsonObject, JsonValue}
+import jakarta.json.{Json, JsonObject, JsonValue}
 
 
 class JsonObjectDeserialiser extends StdDeserializer[JsonObject](classOf[JsonObject]) {
