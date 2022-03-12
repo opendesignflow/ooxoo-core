@@ -578,6 +578,9 @@ out.outdent*/
           }
 
         } catch {
+          case e: ClassNotFoundException =>
+            println(s"Could not find class ${element.classType} for ${element.name}")
+            e.printStackTrace()
           case e: Throwable =>
             e.printStackTrace()
         }
@@ -591,7 +594,7 @@ out.outdent*/
       // Output Sub Elements
       //---------------------
       out.finish
-      element.elements.foreach(writeElement(_))
+      element.elements.foreach(writeElement)
     }
 
     // Start on top elements
