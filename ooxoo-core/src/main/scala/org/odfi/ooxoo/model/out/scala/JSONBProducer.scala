@@ -61,17 +61,24 @@ class JSONBProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     if (cleanForbidden) {
-      forbiddenKeyWords.contains(res) match {
+      if (/*res.contains(".") || */forbiddenKeyWords.contains(res)) {
+        res =
+        //res + "_"
+          s"""`$res`"""
+      }
+      /*forbiddenKeyWords.contains(res) match {
         case true => res =
         //res + "_"
           s"""`$res`"""
         case false =>
-      }
+      }*/
     }
 
 
+
     // Replace - with _
-    res.replace('-', '_')
+    res.replace('-', '_').replace('.', '_')
+
 
   }
 
