@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlinVersion: String by extra("1.6.0")
+val kotlinVersion: String by extra("1.6.10")
 
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
@@ -14,7 +14,7 @@ plugins {
 
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
 
     // Publish
     id("maven-publish")
@@ -47,7 +47,7 @@ dependencies {
 
     //implementation "$group:ooxoo-core:$version"
     implementation(project(":ooxoo-generator"))
-    api("org.eclipse:yasson:1.0.10")
+    api("org.eclipse:yasson:2.0.4")
 
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
