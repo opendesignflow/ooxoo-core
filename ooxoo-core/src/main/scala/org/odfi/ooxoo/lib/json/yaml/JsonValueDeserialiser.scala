@@ -3,13 +3,13 @@ package org.odfi.ooxoo.lib.json.yaml
 import com.fasterxml.jackson.core.{JsonParser, JsonToken, JsonTokenId}
 import com.fasterxml.jackson.databind.DeserializationContext
 
-import javax.json.{Json, JsonValue}
+import jakarta.json.{Json, JsonValue}
 
 class JsonValueDeserialiser extends com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer[JsonValue](classOf[JsonValue]) {
   /*override def deserialize(p: JsonParser, ctxt: DeserializationContext): JsonValue = {
     println("IN DESER")
     ctxt.
-    javax.json.Json.createValue("OK")
+    jakarta.json.Json.createValue("OK")
     // new JsonString("OK")
   }*/
 

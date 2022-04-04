@@ -20,7 +20,7 @@
  */
 package org.odfi.ooxoo.core.buffers.structural
 
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 
 trait VerticalBufferWithParentReference[PT <: ElementBuffer] extends VerticalBuffer {
   

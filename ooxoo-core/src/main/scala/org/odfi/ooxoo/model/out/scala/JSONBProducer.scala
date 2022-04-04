@@ -27,7 +27,7 @@ import org.odfi.ooxoo.core.buffers.structural.{AbstractDataBuffer, VerticalBuffe
 import org.odfi.ooxoo.model._
 
 import java.util.UUID
-import javax.json.bind.annotation.{JsonbProperty, JsonbTransient}
+import jakarta.json.bind.annotation.{JsonbProperty, JsonbTransient}
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 /**
@@ -61,17 +61,24 @@ class JSONBProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     if (cleanForbidden) {
-      forbiddenKeyWords.contains(res) match {
+      if (/*res.contains(".") || */forbiddenKeyWords.contains(res)) {
+        res =
+        //res + "_"
+          s"""`$res`"""
+      }
+      /*forbiddenKeyWords.contains(res) match {
         case true => res =
         //res + "_"
           s"""`$res`"""
         case false =>
-      }
+      }*/
     }
 
 
+
     // Replace - with _
-    res.replace('-', '_')
+    res.replace('-', '_').replace('.', '_')
+
 
   }
 
@@ -700,13 +707,13 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
-    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
-    classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue",
+    classOf[JSONBuffer].getCanonicalName -> "jakarta.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "jakarta.json.JsonValue",
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
   //"String",
-  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean", "Int", "javax.json.JsonObject", "javax.json.JsonValue")
+  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean", "Int", "jakarta.json.JsonObject", "jakarta.json.JsonValue")
 
   def typeMapping(input: String) = {
 

@@ -4,8 +4,8 @@ import com.google.gson.annotations.{Expose, SerializedName}
 import org.odfi.ooxoo.lib.json.model.JSONHelper
 
 import java.io.StringReader
-import javax.json.{JsonObject, JsonValue}
-import javax.json.bind.annotation.JsonbProperty
+import jakarta.json.{JsonObject, JsonValue}
+import jakarta.json.bind.annotation.JsonbProperty
 import scala.beans.BeanProperty
 
 class TestClassForYAML {

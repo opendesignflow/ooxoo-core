@@ -57,7 +57,7 @@ dependencies {
 
     api (project(":ooxoo-core"))
     //implementation ("org.hibernate:hibernate-core:5.6.2.Final")
-    implementation ("com.h2database:h2:2.0.202")
+    implementation ("com.h2database:h2:2.1.210")
 
     /*testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
     testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.6'

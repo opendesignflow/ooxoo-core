@@ -4,7 +4,7 @@ import com.google.gson.annotations.{Expose, SerializedName}
 import org.odfi.ooxoo.lib.json.model.JSONHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-import javax.json.bind.annotation.JsonbProperty
+import jakarta.json.bind.annotation.JsonbProperty
 import scala.beans.BeanProperty
 
 

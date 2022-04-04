@@ -81,7 +81,7 @@ dependencies {
     api("org.apache.commons:commons-compress:1.21")
 
     // Stax indenting output
-    api("org.glassfish.jaxb:txw2:3.0.1")
+    api("org.glassfish.jaxb:txw2:3.0.2")
 
     // Producer
     //--------------
@@ -92,14 +92,12 @@ dependencies {
 
     // JSON API and Impl for javax
     //----------------
-    //api("org.eclipse:yasson:1.0.9")
-    //api("org.glassfish:javax.json:1.1.4")
-    api("jakarta.json:jakarta.json-api:1.1.6")
-    api("jakarta.json.bind:jakarta.json.bind-api:1.0.2")
+    api("jakarta.json:jakarta.json-api:2.0.1")
+    api("jakarta.json.bind:jakarta.json.bind-api:2.0.0")
 
 
 
-    val jacksonVersion = "2.13.1"
+    val jacksonVersion = "2.13.2"
     api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
@@ -107,32 +105,30 @@ dependencies {
 
     // GSON
     //---------------
-    api("com.google.code.gson:gson:2.8.9")
-
-
+    api("com.google.code.gson:gson:2.9.0")
 
     // JPA/javax Interfaces
     //-----------------
-    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
-   // api("javax.persistence:javax.persistence-api:3.0.0")
-    api("javax.persistence:javax.persistence-api:2.2")
-    // api("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
+    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+    api("jakarta.persistence:jakarta.persistence-api:3.0.0")
+    //api("jakarta.persistence:jakarta.persistence-api:2.2")
+    // api("org.hibernate.jakarta.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
 
-    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
-    // api group: 'javax.persistence', name: 'javax.persistence-api', version: '3.0.0'
-   // api("javax.persistence:javax.persistence-api:2.2")
+    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+    // api group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.0.0'
+   // api("jakarta.persistence:jakarta.persistence-api:2.2")
 
     // Scala Tests
     //---------------
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.10")
-    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.10")
-    testImplementation("com.vladsch.flexmark:flexmark-all:0.62.2")
-    testRuntimeOnly("org.eclipse:yasson:1.0.8")
-// https://mvnrepository.com/artifact/org.glassfish/javax.json
-    //testRuntimeOnly("org.glassfish:javax.json:1.1.4")
+    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.11")
+    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.11")
+    testImplementation("com.vladsch.flexmark:flexmark-all:0.64.0")
+    testRuntimeOnly("org.eclipse:yasson:2.0.4")
+// https://mvnrepository.com/artifact/org.glassfish/jakarta.json
+    //testRuntimeOnly("org.glassfish:jakarta.json:1.1.4")
 
 }
 

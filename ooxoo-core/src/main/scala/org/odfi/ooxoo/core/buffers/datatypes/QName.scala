@@ -29,7 +29,7 @@ class QName(localPart:String) extends XSDStringBuffer {
 
     // QName wrapper
     //-------------
-    var qname =  javax.xml.namespace.QName.valueOf(localPart) 
+    var qname =  javax.xml.namespace.QName.valueOf(localPart)
 
     data = localPart
 

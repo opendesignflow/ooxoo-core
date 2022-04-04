@@ -27,7 +27,7 @@ import org.odfi.ooxoo.core.utils.{ReflectUtilsTrait, ScalaReflectUtils}
 import org.odfi.tea.logging.TeaLogging
 import org.odfi.tea.listeners.ListeningSupport
 
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 
 /**
  * Just a type marker

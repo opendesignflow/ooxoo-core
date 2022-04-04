@@ -26,7 +26,7 @@ package org.odfi.ooxoo.core.buffers.structural
 import org.odfi.ooxoo.core.buffers.structural.io.IOBuffer
 
 import scala.beans.BeanProperty
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 
 /**
  * The Base Buffer class is a default implementation providing Buffer infrastructure.
