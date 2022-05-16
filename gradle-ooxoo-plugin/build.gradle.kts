@@ -47,7 +47,8 @@ dependencies {
 
     //implementation "$group:ooxoo-core:$version"
     implementation(project(":ooxoo-generator"))
-    api("org.eclipse:yasson:2.0.4")
+    //api("org.eclipse:yasson:2.0.4")
+    //api("org.eclipse:yasson:2.0.4")
 
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

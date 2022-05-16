@@ -27,7 +27,7 @@ import org.odfi.ooxoo.core.buffers.structural.{AbstractDataBuffer, VerticalBuffe
 import org.odfi.ooxoo.model._
 
 import java.util.UUID
-import jakarta.json.bind.annotation.{JsonbProperty, JsonbTransient}
+
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 /**
@@ -61,7 +61,7 @@ class JSONBProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     if (cleanForbidden) {
-      if (/*res.contains(".") || */forbiddenKeyWords.contains(res)) {
+      if ( /*res.contains(".") || */ forbiddenKeyWords.contains(res)) {
         res =
         //res + "_"
           s"""`$res`"""
@@ -208,6 +208,16 @@ name match {
 
     println("Producing JSONB Interface...")
 
+    // Determine if javax or jakarta namespace
+    // Defaults to jakarta if not specified otherwise
+    val (isJavax, jsonBPropertyClass, jsonBTransientClass) = if (model.parameter("javax").isDefined) {
+      (true,"javax.json.bind.annotation.JsonbProperty",
+        "javax.json.bind.annotation.JsonbTransient")
+    } else {
+      (false,"jakarta.json.bind.annotation.JsonbProperty",
+        "jakarta.json.bind.annotation.JsonbTransient")
+    }
+
     // Try to find Target Package from model
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
@@ -260,8 +270,8 @@ name match {
       //-- Import
       out <<
         s"""
-import ${classOf[JsonbProperty].getCanonicalName}
-import ${classOf[JsonbTransient].getCanonicalName}
+import $jsonBPropertyClass
+import $jsonBTransientClass
 import ${classOf[BeanProperty].getCanonicalName}
 import ${classOf[BooleanBeanProperty].getCanonicalName}
 import com.google.gson.annotations.SerializedName
@@ -345,7 +355,7 @@ import scala.jdk.CollectionConverters._
         }
 
         //-- Type
-        val attributeType = JSONBProducer.typeMapping(attribute.classType)
+        val attributeType = JSONBProducer.typeMapping(attribute.classType,isJavax)
 
         //-- Field
         attribute.maxOccurs match {
@@ -430,15 +440,15 @@ import scala.jdk.CollectionConverters._
           var resolvedType = element.imported.data.booleanValue() match {
 
             case true if (element.importSource == null) =>
-              JSONBProducer.typeMapping(model.splitName(element.classType.toString)._2)
+              JSONBProducer.typeMapping(model.splitName(element.classType.toString)._2,isJavax)
 
             case true if (element.importSource != null) =>
 
-              JSONBProducer.typeMapping(s"${canonicalClassName(model, element.importSource)}")
+              JSONBProducer.typeMapping(s"${canonicalClassName(model, element.importSource)}",isJavax)
 
             // Resolved Type is in the targetpackage, and is the canonical name of the subelement
             case _ =>
-              JSONBProducer.typeMapping(s"${canonicalClassName(model, element)}")
+              JSONBProducer.typeMapping(s"${canonicalClassName(model, element)}",isJavax)
 
           }
 
@@ -707,17 +717,34 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
-    classOf[JSONBuffer].getCanonicalName -> "jakarta.json.JsonObject",
-    classOf[JSONVBuffer].getCanonicalName -> "jakarta.json.JsonValue",
+
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
+  val jakartaTypesMap = typesMap ++ Map(
+    classOf[JSONBuffer].getCanonicalName -> "jakarta.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "jakarta.json.JsonValue")
+
+  val javaxTypesMap = typesMap ++ Map(
+    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue")
+
   //"String",
-  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean", "Int", "jakarta.json.JsonObject", "jakarta.json.JsonValue")
+  val nativeTypes = List("Double",
+    "Long",
+    "Integer",
+    "Float",
+    "Boolean",
+    "Int",
+    "jakarta.json.JsonObject",
+    "jakarta.json.JsonValue",
+    "javax.json.JsonObject",
+    "javax.json.JsonValue")
 
-  def typeMapping(input: String) = {
+  def typeMapping(input: String , javax : Boolean) = {
 
-    typesMap.get(input) match {
+    val targetMap = if (javax) javaxTypesMap else jakartaTypesMap
+    targetMap.get(input) match {
       case Some(mappedType) =>
         mappedType
       case None =>

@@ -90,11 +90,20 @@ dependencies {
     api("org.atteo:evo-inflector:1.3")
 
 
-    // JSON API and Impl for javax
+    // JSON API and Impl for jakarta and javax
     //----------------
-    api("jakarta.json:jakarta.json-api:2.0.1")
-    api("jakarta.json.bind:jakarta.json.bind-api:2.0.0")
 
+    // Jakarta namespace
+    api("jakarta.json:jakarta.json-api:2.1.0")
+    api("jakarta.json.bind:jakarta.json.bind-api:3.0.0")
+
+    // Javax namespace
+    api("javax.json:javax.json-api:1.1.4")
+    api("javax.json.bind:javax.json.bind-api:1.0")
+
+
+   // compileOnly("jakarta.json:jakarta.json-api:1.1.6")
+   // compileOnly("jakarta.json.bind:jakarta.json.bind-api:1.0.2")
 
 
     val jacksonVersion = "2.13.2"
@@ -110,25 +119,23 @@ dependencies {
     // JPA/javax Interfaces
     //-----------------
     // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
-    api("jakarta.persistence:jakarta.persistence-api:3.0.0")
-    //api("jakarta.persistence:jakarta.persistence-api:2.2")
-    // api("org.hibernate.jakarta.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
+    api("jakarta.persistence:jakarta.persistence-api:3.1.0")
+    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
+    api("javax.persistence:javax.persistence-api:2.2")
 
-    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
-    // api group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.0.0'
-   // api("jakarta.persistence:jakarta.persistence-api:2.2")
 
     // Scala Tests
     //---------------
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.11")
-    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.11")
+    testImplementation("org.scalatest:scalatest-funsuite_2.13:3.2.12")
+    testImplementation("org.scalatest:scalatest-shouldmatchers_2.13:3.2.12")
     testImplementation("com.vladsch.flexmark:flexmark-all:0.64.0")
+
     testRuntimeOnly("org.eclipse:yasson:2.0.4")
 // https://mvnrepository.com/artifact/org.glassfish/jakarta.json
-    //testRuntimeOnly("org.glassfish:jakarta.json:1.1.4")
+    testRuntimeOnly("org.glassfish:jakarta.json:1.1.4")
 
 }
 

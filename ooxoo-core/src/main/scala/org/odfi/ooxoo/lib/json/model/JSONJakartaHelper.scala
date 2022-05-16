@@ -13,19 +13,19 @@ import java.util.{Base64, UUID}
 import com.google.gson.annotations.{Expose, SerializedName}
 import com.google.gson.reflect.TypeToken
 import com.google.gson.{ExclusionStrategy, FieldAttributes, GsonBuilder, JsonArray, JsonDeserializationContext, JsonDeserializer, JsonElement, JsonPrimitive, JsonSerializationContext, JsonSerializer}
-import org.odfi.ooxoo.lib.json.yaml.javax.{JsonObjectDeserialiser, JsonValueDeserialiser}
 
-import javax.json.{Json, JsonObject, JsonString, JsonValue}
-import javax.json.bind.annotation.JsonbProperty
-import javax.json.bind.{JsonbBuilder, JsonbConfig}
-import javax.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
-import javax.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
-import javax.json.stream.{JsonGenerator, JsonParser}
+import jakarta.json.{Json, JsonObject, JsonString, JsonValue}
+import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.json.bind.{JsonbBuilder, JsonbConfig}
+import jakarta.json.bind.config.{BinaryDataStrategy, PropertyNamingStrategy, PropertyOrderStrategy, PropertyVisibilityStrategy}
+import jakarta.json.bind.serializer.{DeserializationContext, JsonbDeserializer, JsonbSerializer, SerializationContext}
+import jakarta.json.stream.{JsonGenerator, JsonParser}
+import org.odfi.ooxoo.lib.json.yaml.jakarta.{JsonObjectDeserialiser, JsonValueDeserialiser}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.reflect.ClassTag
 
 
-object JSONHelper {
+object JSONJakartaHelper {
 
   lazy val jsonBConfig = new JsonbConfig
   jsonBConfig.withBinaryDataStrategy(BinaryDataStrategy.BASE_64_URL)

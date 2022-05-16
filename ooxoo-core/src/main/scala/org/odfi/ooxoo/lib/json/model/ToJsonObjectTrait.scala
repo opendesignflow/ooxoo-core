@@ -1,8 +1,9 @@
 package org.odfi.ooxoo.lib.json.model
 
-import jakarta.json.Json
+
 
 import java.io.StringReader
+
 
 trait ToJsonObjectTrait {
 
@@ -12,6 +13,10 @@ trait ToJsonObjectTrait {
   }
 
   def toJsonObject = {
-    Json.createReader(new StringReader(toString)).readObject()
+    jakarta.json.Json.createReader(new StringReader(toString)).readObject()
+  }
+
+  def toLegacyJsonObject = {
+    javax.json.Json.createReader(new StringReader(toString)).readObject()
   }
 }

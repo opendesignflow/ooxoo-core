@@ -1,8 +1,7 @@
-package org.odfi.ooxoo.lib.json.yaml
+package org.odfi.ooxoo.lib.json.yaml.jakarta
 
-import com.fasterxml.jackson.core.{JsonParser, JsonToken, JsonTokenId}
+import com.fasterxml.jackson.core.{JsonParser, JsonTokenId}
 import com.fasterxml.jackson.databind.DeserializationContext
-
 import jakarta.json.{Json, JsonValue}
 
 class JsonValueDeserialiser extends com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer[JsonValue](classOf[JsonValue]) {

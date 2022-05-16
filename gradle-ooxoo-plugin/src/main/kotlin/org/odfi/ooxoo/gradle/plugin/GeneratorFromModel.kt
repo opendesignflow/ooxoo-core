@@ -2,6 +2,7 @@ package org.odfi.ooxoo.gradle.plugin
 
 import org.odfi.ooxoo.model.writers.FileWriters
 import org.gradle.workers.WorkAction
+import scala.Tuple2
 import java.io.File
 
 abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
@@ -59,7 +60,7 @@ abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
 
     companion object {
 
-        fun produceModel(compiler: ModelCompiler, modelFile:File, outputDir:File) {
+        fun produceModel(compiler: ModelCompiler, modelFile:File, outputDir:File,config:OOXOOExtension?) {
 
             // Compile
             //-----------
@@ -92,6 +93,15 @@ abstract class GeneratorFromModel : WorkAction<XModelProducerParameters> {
                         producerOutputDir.mkdirs()
 
                         var out = FileWriters(producerOutputDir)
+
+                        // Config
+                        //--------
+                        config?.let {
+                            if (it.javax.get()) {
+
+                                modelInfos.model().parameter(Tuple2("javax","true"))
+                            }
+                        }
 
                         // Produce
                         //---------------
