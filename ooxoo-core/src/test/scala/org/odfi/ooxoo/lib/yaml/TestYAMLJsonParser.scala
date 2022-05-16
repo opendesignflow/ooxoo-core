@@ -1,11 +1,11 @@
-package org.odfi.ooxoo.lib.json.yaml
+package org.odfi.ooxoo.lib.yaml
 
 import com.google.gson.annotations.{Expose, SerializedName}
+import jakarta.json.{JsonObject, JsonValue}
+import jakarta.json.bind.annotation.JsonbProperty
 import org.odfi.ooxoo.lib.json.model.JSONHelper
 
 import java.io.StringReader
-import jakarta.json.{JsonObject, JsonValue}
-import jakarta.json.bind.annotation.JsonbProperty
 import scala.beans.BeanProperty
 
 class TestClassForYAML {

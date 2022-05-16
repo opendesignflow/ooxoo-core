@@ -37,8 +37,7 @@ sourceSets {
 // Deps
 //-----------
 java {
-    /*targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
-    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11*/
+
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
         vendor.set(JvmVendorSpec.ADOPTOPENJDK)
@@ -58,10 +57,7 @@ tasks.javadoc {
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
     this.targetCompatibility = "11"
-    //this.scalaCompileOptions.
-    //scalaCompileOptions.ta
     //scalaCompileOptions.additionalParameters = listOf( "-target:11", "-Xtarget:11")
-    //scalaCompileOptions.additionalParameters = listOf("-rewrite", "-source", "3.0-migration")
 }
 
 
