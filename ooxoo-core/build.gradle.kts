@@ -129,7 +129,7 @@ dependencies {
     testImplementation("org.scalatest:scalatest-shouldmatchers_2.13:3.2.12")
     testImplementation("com.vladsch.flexmark:flexmark-all:0.64.0")
 
-    testRuntimeOnly("org.eclipse:yasson:2.0.4")
+    testRuntimeOnly("org.eclipse:yasson:1.0.11")
 // https://mvnrepository.com/artifact/org.glassfish/jakarta.json
     testRuntimeOnly("org.glassfish:jakarta.json:1.1.4")
 
