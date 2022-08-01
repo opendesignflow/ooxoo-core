@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlinVersion: String by extra("1.6.10")
+val kotlinVersion: String by extra("1.7.0")
 
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
@@ -14,7 +14,7 @@ plugins {
 
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.0"
 
     // Publish
     id("maven-publish")
@@ -31,7 +31,7 @@ pluginBundle {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
-        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
+        vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     // withJavadocJar()
     withSourcesJar()

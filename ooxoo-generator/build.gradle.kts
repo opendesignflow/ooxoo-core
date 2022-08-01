@@ -31,7 +31,7 @@ sourceSets {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
-        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
+        vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     // withJavadocJar()
     withSourcesJar()

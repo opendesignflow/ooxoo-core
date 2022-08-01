@@ -101,15 +101,9 @@ class JSONBProducer extends ModelProducer {
       case name if (name.matches(".*s")) => name
       case _ => English.plural(name)
     }
-
-    /*
-name match {
-  case name if (name.matches(".*[aeiou]s")) => name+"es"
-  case name if (name.matches(".*s")) => name
-  case name if (name.matches(".*e")) => name+"s"
-  case _ => name+"es"
-}*/
   }
+
+
 
   def canonicalClassName(model: Model, element: Element): String = {
 
@@ -402,7 +396,7 @@ import scala.jdk.CollectionConverters._
       out.outdent
 
       // Sub Elements in Hierarchy case are inheriting present type, so don't write them as structural children
-      if (element.isHierarchyParent == false) {
+      if (!element.isHierarchyParent) {
 
         //-- Enumeration
         //-------------------------
@@ -488,25 +482,49 @@ import scala.jdk.CollectionConverters._
               val fieldName = cleanName(makePlural(resolvedName._2))
               val fieldNameUpperFirst = fieldNameNotCleaned.take(1).toUpperCase + fieldNameNotCleaned.drop(1).mkString
               val fieldNameSingularUpperFirst = resolvedName._2.take(1).toUpperCase + resolvedName._2.drop(1).mkString
+
               out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
               out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
 
+              out <<
+                s"""var ${fieldName} : Array[$resolvedType] = Array()
+                        """
+
               if (JSONBProducer.typeIsNative(resolvedType)) {
+
+
                 out <<
-                  s"""var ${fieldName} : Array[$resolvedType] = _
-                        """
+                  s"""def add${fieldNameSingularUpperFirst}(v:$resolvedType) = {$fieldName = ${fieldName} :+ v;v}
+                      """
+
+
               } else {
+
                 out <<
-                  s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
-                        """
-                out <<
-                  s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
+                  s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; $fieldName = ${fieldName} :+ r;r}
                       """
-                out <<
-                  s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.asScala.toList
-                      """
+
               }
 
+              out <<
+                s"""def addAll${fieldNameUpperFirst}(seq:Iterable[$resolvedType]) = {$fieldName = ${fieldName} :++ seq;this}
+                    """
+
+              out <<
+                s"""def setAll${fieldNameUpperFirst}(arr:Array[$resolvedType]) = {$fieldName = arr;this}
+                    """
+
+              out <<
+                s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.toList
+                      """
+
+              out <<
+                s"""def remove${fieldNameSingularUpperFirst}(elt:$resolvedType) = { $fieldName = ${fieldName}.filter(_!=elt);this}
+                      """
+
+              out <<
+                s"""def clear${fieldNameUpperFirst} = { $fieldName = Array();this}
+                      """
 
             case _ =>
 
@@ -553,29 +571,34 @@ import scala.jdk.CollectionConverters._
               // Add Utilities onlu for non native types
               //----------------
               if (!JSONBProducer.typeIsNative(resolvedType)) {
+
                 //-- Add Only auto creating Getter
                 out << s"""@JsonbTransient"""
                 out <<
                   s"""def ${cleanName(resolvedName._2, false)}OrCreate : $resolvedType =  $getterContent
                         """
 
-                //-- Add "Option" getter to test presence of element
-                resolvedType match {
-                  case native if (JSONBProducer.typeIsNative(resolvedType)) =>
 
-                    out << s"""@JsonbTransient"""
-                    out <<
-                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = Some($fieldName)
-                        """
-                  case other =>
-
-                    out << s"""@JsonbTransient"""
-                    out <<
-                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
-                        """
-
-                }
               }
+
+              //-- Add "Option" getter to test presence of element
+              if (!JSONBProducer.typeIsNative(resolvedType) || resolvedType=="String") {
+                out << s"""@JsonbTransient"""
+                out <<
+                  s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
+                    """
+              }
+
+              /*
+              resolvedType match {
+                case native if (JSONBProducer.typeIsNative(resolvedType)) =>
+
+                  out << s"""@JsonbTransient"""
+                  out <<
+                    s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = Some($fieldName)
+                      """
+                case other =>
+              }*/
 
 
           }
@@ -736,6 +759,7 @@ object JSONBProducer {
     "Float",
     "Boolean",
     "Int",
+    "String",
     "jakarta.json.JsonObject",
     "jakarta.json.JsonValue",
     "javax.json.JsonObject",
@@ -756,7 +780,7 @@ object JSONBProducer {
   def typeIsNative(t: String) = {
 
     //println("Checking type: "+t+" -> "+nativeTypes.find( test => test == t).isDefined)
-    nativeTypes.exists(test => test == t)
+    nativeTypes.contains(t)
   }
 
   def constructorMapping(input: String) = {

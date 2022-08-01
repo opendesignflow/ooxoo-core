@@ -40,7 +40,7 @@ java {
 
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
-        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
+        vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     withJavadocJar()
 //    withSourcesJar()
@@ -57,7 +57,7 @@ tasks.javadoc {
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
     this.targetCompatibility = "11"
-    //scalaCompileOptions.additionalParameters = listOf( "-target:11", "-Xtarget:11")
+    //scalaCompileOptions.additionalParameters = listOf( "-Yretain-trees")
 }
 
 
@@ -102,7 +102,7 @@ dependencies {
    // compileOnly("jakarta.json.bind:jakarta.json.bind-api:1.0.2")
 
 
-    val jacksonVersion = "2.13.2"
+    val jacksonVersion = "2.13.3"
     api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
@@ -125,8 +125,8 @@ dependencies {
     //api ("org.scala-lang.modules:scala-parser-combinators_$scalaMajorVersion:2.0.0")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.scalatest:scalatest-funsuite_2.13:3.2.12")
-    testImplementation("org.scalatest:scalatest-shouldmatchers_2.13:3.2.12")
+    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.12")
+    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.12")
     testImplementation("com.vladsch.flexmark:flexmark-all:0.64.0")
 
     testRuntimeOnly("org.eclipse:yasson:1.0.11")
