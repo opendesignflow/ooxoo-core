@@ -2,6 +2,7 @@ package org.odfi.ooxoo.gradle.plugin
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import java.io.File
@@ -12,6 +13,9 @@ abstract class XGenerate : DefaultTask() {
 
     @Inject
     abstract fun getWorkerExecutor(): WorkerExecutor?
+
+    @Input
+    var extensionConfig : OOXOOExtension? = null
 
     /*@Inject
     abstract fun getInputModelFile() : RegularFileProperty*/
@@ -70,7 +74,7 @@ abstract class XGenerate : DefaultTask() {
                     targetDir.mkdirs()
 
                     // Submit
-                    GeneratorFromModel.produceModel(compiler, modelFile, targetDir)
+                    GeneratorFromModel.produceModel(compiler, modelFile, targetDir,this.extensionConfig)
                     /*workQueue?.submit(GeneratorFromModel::class.java) { parameters ->
 
                         parameters.getBuildOutput()?.set(targetDir)

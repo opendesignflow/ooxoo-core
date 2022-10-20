@@ -27,7 +27,7 @@ import org.odfi.ooxoo.core.buffers.structural.{AbstractDataBuffer, VerticalBuffe
 import org.odfi.ooxoo.model._
 
 import java.util.UUID
-import jakarta.json.bind.annotation.{JsonbProperty, JsonbTransient}
+
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 /**
@@ -61,7 +61,7 @@ class JSONBProducer extends ModelProducer {
 
     // Prefix with _ is the name is a keyword
     if (cleanForbidden) {
-      if (/*res.contains(".") || */forbiddenKeyWords.contains(res)) {
+      if ( /*res.contains(".") || */ forbiddenKeyWords.contains(res)) {
         res =
         //res + "_"
           s"""`$res`"""
@@ -101,15 +101,9 @@ class JSONBProducer extends ModelProducer {
       case name if (name.matches(".*s")) => name
       case _ => English.plural(name)
     }
-
-    /*
-name match {
-  case name if (name.matches(".*[aeiou]s")) => name+"es"
-  case name if (name.matches(".*s")) => name
-  case name if (name.matches(".*e")) => name+"s"
-  case _ => name+"es"
-}*/
   }
+
+
 
   def canonicalClassName(model: Model, element: Element): String = {
 
@@ -208,6 +202,16 @@ name match {
 
     println("Producing JSONB Interface...")
 
+    // Determine if javax or jakarta namespace
+    // Defaults to jakarta if not specified otherwise
+    val (isJavax, jsonBPropertyClass, jsonBTransientClass) = if (model.parameter("javax").isDefined) {
+      (true,"javax.json.bind.annotation.JsonbProperty",
+        "javax.json.bind.annotation.JsonbTransient")
+    } else {
+      (false,"jakarta.json.bind.annotation.JsonbProperty",
+        "jakarta.json.bind.annotation.JsonbTransient")
+    }
+
     // Try to find Target Package from model
     //------------------
     this.targetPackage = model.parameter("scalaProducer.targetPackage") match {
@@ -260,8 +264,8 @@ name match {
       //-- Import
       out <<
         s"""
-import ${classOf[JsonbProperty].getCanonicalName}
-import ${classOf[JsonbTransient].getCanonicalName}
+import $jsonBPropertyClass
+import $jsonBTransientClass
 import ${classOf[BeanProperty].getCanonicalName}
 import ${classOf[BooleanBeanProperty].getCanonicalName}
 import com.google.gson.annotations.SerializedName
@@ -345,7 +349,7 @@ import scala.jdk.CollectionConverters._
         }
 
         //-- Type
-        val attributeType = JSONBProducer.typeMapping(attribute.classType)
+        val attributeType = JSONBProducer.typeMapping(attribute.classType,isJavax)
 
         //-- Field
         attribute.maxOccurs match {
@@ -392,7 +396,7 @@ import scala.jdk.CollectionConverters._
       out.outdent
 
       // Sub Elements in Hierarchy case are inheriting present type, so don't write them as structural children
-      if (element.isHierarchyParent == false) {
+      if (!element.isHierarchyParent) {
 
         //-- Enumeration
         //-------------------------
@@ -430,15 +434,15 @@ import scala.jdk.CollectionConverters._
           var resolvedType = element.imported.data.booleanValue() match {
 
             case true if (element.importSource == null) =>
-              JSONBProducer.typeMapping(model.splitName(element.classType.toString)._2)
+              JSONBProducer.typeMapping(model.splitName(element.classType.toString)._2,isJavax)
 
             case true if (element.importSource != null) =>
 
-              JSONBProducer.typeMapping(s"${canonicalClassName(model, element.importSource)}")
+              JSONBProducer.typeMapping(s"${canonicalClassName(model, element.importSource)}",isJavax)
 
             // Resolved Type is in the targetpackage, and is the canonical name of the subelement
             case _ =>
-              JSONBProducer.typeMapping(s"${canonicalClassName(model, element)}")
+              JSONBProducer.typeMapping(s"${canonicalClassName(model, element)}",isJavax)
 
           }
 
@@ -478,25 +482,49 @@ import scala.jdk.CollectionConverters._
               val fieldName = cleanName(makePlural(resolvedName._2))
               val fieldNameUpperFirst = fieldNameNotCleaned.take(1).toUpperCase + fieldNameNotCleaned.drop(1).mkString
               val fieldNameSingularUpperFirst = resolvedName._2.take(1).toUpperCase + resolvedName._2.drop(1).mkString
+
               out << s"""@JsonbProperty("${makePlural(resolvedName._2)}")"""
               out << s"""@SerializedName("${makePlural(resolvedName._2)}")"""
 
+              out <<
+                s"""var ${fieldName} : Array[$resolvedType] = Array()
+                        """
+
               if (JSONBProducer.typeIsNative(resolvedType)) {
+
+
                 out <<
-                  s"""var ${fieldName} : Array[$resolvedType] = _
-                        """
+                  s"""def add${fieldNameSingularUpperFirst}(v:$resolvedType) = {$fieldName = ${fieldName} :+ v;v}
+                      """
+
+
               } else {
+
                 out <<
-                  s"""var ${fieldName} = new java.util.ArrayList[$resolvedType]()
-                        """
-                out <<
-                  s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; ${fieldName}.add(r);r}
+                  s"""def add${fieldNameSingularUpperFirst} = {val r = new $resolvedType; $fieldName = ${fieldName} :+ r;r}
                       """
-                out <<
-                  s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.asScala.toList
-                      """
+
               }
 
+              out <<
+                s"""def addAll${fieldNameUpperFirst}(seq:Iterable[$resolvedType]) = {$fieldName = ${fieldName} :++ seq;this}
+                    """
+
+              out <<
+                s"""def setAll${fieldNameUpperFirst}(arr:Array[$resolvedType]) = {$fieldName = arr;this}
+                    """
+
+              out <<
+                s"""def ${cleanName(makePlural(resolvedName._2), false)}AsScala = ${fieldName}.toList
+                      """
+
+              out <<
+                s"""def remove${fieldNameSingularUpperFirst}(elt:$resolvedType) = { $fieldName = ${fieldName}.filter(_!=elt);this}
+                      """
+
+              out <<
+                s"""def clear${fieldNameUpperFirst} = { $fieldName = Array();this}
+                      """
 
             case _ =>
 
@@ -543,29 +571,34 @@ import scala.jdk.CollectionConverters._
               // Add Utilities onlu for non native types
               //----------------
               if (!JSONBProducer.typeIsNative(resolvedType)) {
+
                 //-- Add Only auto creating Getter
                 out << s"""@JsonbTransient"""
                 out <<
                   s"""def ${cleanName(resolvedName._2, false)}OrCreate : $resolvedType =  $getterContent
                         """
 
-                //-- Add "Option" getter to test presence of element
-                resolvedType match {
-                  case native if (JSONBProducer.typeIsNative(resolvedType)) =>
 
-                    out << s"""@JsonbTransient"""
-                    out <<
-                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = Some($fieldName)
-                        """
-                  case other =>
-
-                    out << s"""@JsonbTransient"""
-                    out <<
-                      s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
-                        """
-
-                }
               }
+
+              //-- Add "Option" getter to test presence of element
+              if (!JSONBProducer.typeIsNative(resolvedType) || resolvedType=="String") {
+                out << s"""@JsonbTransient"""
+                out <<
+                  s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = $fieldName match { case null => None; case defined => Some(defined) }
+                    """
+              }
+
+              /*
+              resolvedType match {
+                case native if (JSONBProducer.typeIsNative(resolvedType)) =>
+
+                  out << s"""@JsonbTransient"""
+                  out <<
+                    s"""def ${cleanName(resolvedName._2, false)}Option : Option[$resolvedType] = Some($fieldName)
+                      """
+                case other =>
+              }*/
 
 
           }
@@ -707,17 +740,35 @@ object JSONBProducer {
     classOf[BooleanBuffer].getCanonicalName -> "Boolean",
     classOf[BinaryBuffer].getCanonicalName -> "Array[Byte]",
     classOf[DateTimeBuffer].getCanonicalName -> "java.time.Instant",
-    classOf[JSONBuffer].getCanonicalName -> "jakarta.json.JsonObject",
-    classOf[JSONVBuffer].getCanonicalName -> "jakarta.json.JsonValue",
+
     classOf[UUIDBuffer].getCanonicalName -> classOf[UUID].getCanonicalName
   )
 
+  val jakartaTypesMap = typesMap ++ Map(
+    classOf[JSONBuffer].getCanonicalName -> "jakarta.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "jakarta.json.JsonValue")
+
+  val javaxTypesMap = typesMap ++ Map(
+    classOf[JSONBuffer].getCanonicalName -> "javax.json.JsonObject",
+    classOf[JSONVBuffer].getCanonicalName -> "javax.json.JsonValue")
+
   //"String",
-  val nativeTypes = List("Double", "Long", "Integer", "Float", "Boolean", "Int", "jakarta.json.JsonObject", "jakarta.json.JsonValue")
+  val nativeTypes = List("Double",
+    "Long",
+    "Integer",
+    "Float",
+    "Boolean",
+    "Int",
+    "String",
+    "jakarta.json.JsonObject",
+    "jakarta.json.JsonValue",
+    "javax.json.JsonObject",
+    "javax.json.JsonValue")
 
-  def typeMapping(input: String) = {
+  def typeMapping(input: String , javax : Boolean) = {
 
-    typesMap.get(input) match {
+    val targetMap = if (javax) javaxTypesMap else jakartaTypesMap
+    targetMap.get(input) match {
       case Some(mappedType) =>
         mappedType
       case None =>
@@ -729,7 +780,7 @@ object JSONBProducer {
   def typeIsNative(t: String) = {
 
     //println("Checking type: "+t+" -> "+nativeTypes.find( test => test == t).isDefined)
-    nativeTypes.exists(test => test == t)
+    nativeTypes.contains(t)
   }
 
   def constructorMapping(input: String) = {

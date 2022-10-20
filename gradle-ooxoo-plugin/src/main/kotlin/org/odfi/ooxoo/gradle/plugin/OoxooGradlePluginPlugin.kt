@@ -28,9 +28,14 @@ class OoxooGradlePluginPlugin : Plugin<Project> {
     //abstract fun getWorkerExecutor(): WorkerExecutor?
 
     override fun apply(project: Project) {
+
+        // REgister configuration extension
+        val ooxooExtension = project.extensions.create("ooxoo",OOXOOExtension::class.java)
+
         // Register a task
         project.tasks.register("ooxooGenerate" , XGenerate::class.java) { task ->
             task.group = "ooxoo"
+            task.extensionConfig = ooxooExtension
             /*
 
 

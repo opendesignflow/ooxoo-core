@@ -20,7 +20,7 @@ class JEntity {
   @JsonbProperty("sub")
   @SerializedName("sub")
   @BeanProperty
-  var sub  = new java.util.LinkedList[JSubEntity]()
+  var sub  = Array[JSubEntity]()
 
 
 
@@ -59,14 +59,16 @@ class JSONBTest extends AnyFunSuite {
     }
 
     val result = JSONHelper.createJSONB.fromJson[JEntity](inputString, classOf[JEntity])
+
     //val result = JSONHelper.createGSON.fromJson[JEntity](inputString, classOf[JEntity])
 
     // Assert
     //-----------
     assert(result.a == "test1")
-    assert(result.sub.size() == 1)
-    assert(result.sub.get(0).c == "test2")
+    assert(result.sub.length == 1)
+    assert(result.sub(0).c == "test2")
 
+    result.sub = Array()
 
   }
 

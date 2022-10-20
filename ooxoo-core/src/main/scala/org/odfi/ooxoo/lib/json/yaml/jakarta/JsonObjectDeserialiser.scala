@@ -1,11 +1,11 @@
-package org.odfi.ooxoo.lib.json.yaml
+package org.odfi.ooxoo.lib.json.yaml.jakarta
 
-import com.fasterxml.jackson.core.{JsonParser, JsonTokenId, TreeNode}
+import com.fasterxml.jackson.core.{JsonParser, TreeNode}
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import jakarta.json.{Json, JsonObject}
 
-import java.io.{StringReader, StringWriter}
-import jakarta.json.{Json, JsonObject, JsonValue}
+import java.io.StringReader
 
 
 class JsonObjectDeserialiser extends StdDeserializer[JsonObject](classOf[JsonObject]) {
