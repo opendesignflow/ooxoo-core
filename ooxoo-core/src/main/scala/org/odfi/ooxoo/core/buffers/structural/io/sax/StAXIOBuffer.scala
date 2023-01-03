@@ -110,7 +110,7 @@ class StAXIOBuffer(var xmlInput: Reader = null, var xmlNode: Node = null) extend
     if (this.eventWriter == null) {
 
       var of = XMLOutputFactory.newInstance()
-      of.setProperty("jakarta.xml.stream.isRepairingNamespaces", true);
+//      of.setProperty("jakarta.xml.stream.isRepairingNamespaces", true);
 
       this.eventWriter = this.indenting match {
         case true => new IndentingXMLStreamWriter(of.createXMLStreamWriter(this.output));
