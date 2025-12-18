@@ -3,14 +3,14 @@ pluginManagement {
         mavenLocal()
         gradlePluginPortal()
         mavenCentral()
-        maven {
+        /*maven {
             name = "ODFI Releases"
             url = java.net.URI("https://repo.opendesignflow.org/maven/repository/internal/")
         }
         maven {
             name = "ODFI Snapshots"
             url = java.net.URI("https://repo.opendesignflow.org/maven/repository/snapshots/")
-        }
+        }*/
     }
 
 
