@@ -4,13 +4,13 @@ var scalaMajorVersion: String by rootProject.extra
 plugins {
 
     id("scala")
-    id("com.github.maiflai.scalatest") version "0.31"
+    id("com.github.maiflai.scalatest") version "0.33"
 
     // Publish
     id("application")
     id("maven-publish")
     id("java-library")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 
 }
 
@@ -34,7 +34,7 @@ tasks.withType<Jar> {
 //-----------
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     // withJavadocJar()

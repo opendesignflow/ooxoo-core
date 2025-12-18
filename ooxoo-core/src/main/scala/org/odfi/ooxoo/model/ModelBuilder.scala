@@ -522,7 +522,7 @@ class Element(
    * If true, this element is not really an element but a parent in the children's hierarchy
    */
   @xattribute(name = "hierarchyParent")
-  var isHierarchyParent = false
+  var isHierarchyParent : BooleanBuffer = false
 
   /**
    * The element needs a reference to its container

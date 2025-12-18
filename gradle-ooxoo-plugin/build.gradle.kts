@@ -6,31 +6,34 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/custom_plugins.html
  */
 
-val kotlinVersion: String by extra("1.7.20")
-
+val kotlinVersion: String by extra("2.2.0")
+val lib_version :String by rootProject.extra
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     id("java-gradle-plugin")
 
 
-    // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.7.20"
+
 
     // Publish
     id("maven-publish")
-    id("com.gradle.plugin-publish") version ("0.18.0")
+    id("com.gradle.plugin-publish") version ("2.0.0")
+
+
+    // Apply the Kotlin JVM plugin to add support for Kotlin.
+    kotlin("jvm") version "2.2.0"
 }
-pluginBundle {
+/*pluginBundle {
     website = "https://github.com/opendesignflow/ooxoo-core"
     vcsUrl = "https://github.com/opendesignflow/ooxoo-core"
 
     //tags = ["xml", "scala", "json", "jsonb", "generator", "marshall", "unmarshall"]
-}
+}*/
 
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(21))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     // withJavadocJar()
@@ -51,10 +54,10 @@ dependencies {
     //api("org.eclipse:yasson:2.0.4")
 
     // Align versions of all Kotlin components
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+    //implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
@@ -82,7 +85,8 @@ publishing {
     publications {
 
         create<MavenPublication>("maven") {
-            artifactId = "gradle-ooxoo-plugin"
+            //artifactId = "gradle-ooxoo-plugin"
+            artifactId= "org.odfi.ooxoo.gradle.plugin"
             from(components["java"])
 
             versionMapping {
@@ -93,6 +97,7 @@ publishing {
                     fromResolutionResult()
                 }
             }
+            //version = lib_version
 
             pom {
                 name.set("OOXOO Gradle Plugin")

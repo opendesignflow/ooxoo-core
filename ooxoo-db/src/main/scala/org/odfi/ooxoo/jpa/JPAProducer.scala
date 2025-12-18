@@ -325,7 +325,7 @@ import scala.language.implicitConversions
             out << s"""$classOrTrait ${className} extends $classType $traits {
             """
 
-            if (element.isHierarchyParent == false) {
+            if (!element.isHierarchyParent.toBool) {
                 //-- Enumeration
                 //-------------------------
                 out.indent

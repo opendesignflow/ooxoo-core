@@ -344,7 +344,7 @@ import scala.language.implicitConversions
       out.outdent
 
       // Sub Elements in Hierarchy case are inheriting present type, so don't write them as structural children
-      if (element.isHierarchyParent == false) {
+      if (!element.isHierarchyParent.toBool) {
 
         //-- Enumeration
         //-------------------------

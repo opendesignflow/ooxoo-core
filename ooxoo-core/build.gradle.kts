@@ -11,7 +11,7 @@ plugins {
     id("java-library")
 
     id("scala")
-    id("com.github.maiflai.scalatest") version "0.31"
+    id("com.github.maiflai.scalatest") version "0.33"
 
 }
 
@@ -39,7 +39,7 @@ sourceSets {
 java {
 
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(21))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
     withJavadocJar()
@@ -56,7 +56,7 @@ tasks.javadoc {
 
 // Scala compilation options
 tasks.withType<ScalaCompile>().configureEach {
-    this.targetCompatibility = "11"
+    this.targetCompatibility = "21"
     //scalaCompileOptions.additionalParameters = listOf( "-Yretain-trees")
 }
 
