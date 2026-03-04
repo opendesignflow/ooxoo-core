@@ -125,7 +125,7 @@ object JSONHelper {
 
     // var istType = new java.util.ArrayList[T]() {}.getClass.getGenericSuperclass
 
-    jsonb.fromJson[Array[T]](new InputStreamReader(is, "UTF-8"), tag.newArray(0).getClass)
+    jsonb.fromJson[Array[T]](new InputStreamReader(is, "UTF-8"), tag.newArray(0).getClass.asInstanceOf[Class[Array[T]]])
   }
 
   def fromGJSONStreamArray[T](is: InputStream)(implicit tag: ClassTag[T]): Array[T] = {
@@ -136,7 +136,7 @@ object JSONHelper {
     //val userListType = new Array[T](0).getClass
     //createGSON.fromJson(new InputStreamReader(is, "UTF-8"),tag.runtimeClass.arrayType())
     //createGSON.fromJson(new InputStreamReader(is, "UTF-8"),classOf[Array[T]]).asInstanceOf[util.ArrayList[T]].asScala.toArray
-    var res = createGSON.fromJson[Array[T]](new InputStreamReader(is, "UTF-8"), tag.newArray(0).getClass)
+    var res = createGSON.fromJson[Array[T]](new InputStreamReader(is, "UTF-8"), tag.newArray(0).getClass.asInstanceOf[Class[Array[T]]])
     /*res.foreach {
       parsed =>
         println("Parsed element: "+parsed.getClass.getCanonicalName)

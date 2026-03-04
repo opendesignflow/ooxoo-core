@@ -1,7 +1,7 @@
 // Versions
 //-----------------
 var scalaMajorVersion by extra("3")
-var scalaMinorVersion by extra("7.4")
+var scalaMinorVersion by extra("8.2")
 val scalaVersion by extra {
     "$scalaMajorVersion.$scalaMinorVersion"
 }
